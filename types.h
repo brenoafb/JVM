@@ -1,6 +1,6 @@
 #pragma once
 #include <stdint.h>
-#include "constant_types.h"
+#include "constant_info.h"
 
 typedef struct {
   uint16_t attribute_name_index;

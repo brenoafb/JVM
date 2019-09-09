@@ -1,7 +1,7 @@
 CC=gcc
 CFLAGS=-I.
-DEPS = types.h utils.h
-OBJ = utils.o
+DEPS = types.h utils.h constant_info.h
+OBJ = utils.o constant_info.o
 MAINSRC = main.c
 
 %.o: %.c $(DEPS)
