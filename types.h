@@ -1,5 +1,6 @@
 #pragma once
 #include <stdint.h>
+#include "constant_types.h"
 
 typedef struct {
   uint16_t attribute_name_index;
@@ -24,13 +25,18 @@ typedef struct {
 } method_info;
 
 typedef struct {
+  uint8_t tag;
+  uint8_t *info;
+} cp_info;
+
+typedef struct {
   uint32_t magic;
 
   uint16_t minor_version;
   uint16_t major_version;
 
   uint16_t cpsize;
-  uint64_t *constant_pool; // n=constant_pool_count-1
+  cp_info *constant_pool; // n=constant_pool_count-1
 
   uint16_t access_flags;
 
@@ -49,3 +55,4 @@ typedef struct {
   uint16_t attributes_count;
   attribute_info *attributes; //n=attributes_count
 } classfile;
+
