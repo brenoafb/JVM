@@ -1,5 +1,8 @@
 #pragma once
 #include <stdint.h>
+#include <stdio.h>
+#include <stdlib.h>
+#include <assert.h>
 
 #define CONSTANT_Class                7
 #define CONSTANT_Fieldref             9
@@ -12,6 +15,15 @@
 #define CONSTANT_Double               6
 #define CONSTANT_NameAndType         12
 #define CONSTANT_Utf8                 1
+
+#define CONSTANT_read_verify(type)      \
+  assert(ptr);                          \
+  assert(fp);                           \
+  uint8_t tag;                          \
+  fread(&tag, sizeof(uint8_t), 1, fp);  \
+  assert(tag == CONSTANT_##type);         \
+  ptr->tag = tag;                       \
+
 
 // id 7
 typedef struct {
@@ -83,5 +95,17 @@ typedef struct {
 typedef struct {
   uint8_t tag;
   uint16_t length;
-  uint8_t *bytes
+  uint8_t *bytes;
 } CONSTANT_Utf8_info;
+
+void read_Class_info(CONSTANT_Class_info *ptr, FILE *fp);
+void read_Fieldref_info(CONSTANT_Fieldref_info *ptr, FILE *fp);
+void read_NameAndType_info(CONSTANT_NameAndType_info *ptr, FILE *fp);
+void read_Utf8_info(CONSTANT_Utf8_info *ptr, FILE *fp);
+void read_Methodref_info(CONSTANT_Methodref_info *ptr, FILE *fp);
+void read_InterfaceMethodref_info(CONSTANT_InterfaceMethodref_info *ptr, FILE *fp);
+void read_String_info(CONSTANT_String_info *ptr, FILE *fp);
+void read_Integer_info(CONSTANT_Integer_info *ptr, FILE *fp);
+void read_Float_info(CONSTANT_Float_info *ptr, FILE *fp);
+void read_Long_info(CONSTANT_Long_info *ptr, FILE *fp);
+void read_Double_info(CONSTANT_Double_info *ptr, FILE *fp);
