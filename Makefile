@@ -1,7 +1,7 @@
 CC=gcc
 CFLAGS=-Wall -Wextra -I.
-DEPS = types.h utils.h constant_info.h
-OBJ = utils.o constant_info.o
+DEPS = types.h utils.h constant_info.h classfile.h
+OBJ = utils.o constant_info.o classfile.o
 MAINSRC = main.c
 
 %.o: %.c $(DEPS)

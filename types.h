@@ -24,34 +24,22 @@ typedef struct {
   attribute_info *attributes; //n=attributes_count
 } method_info;
 
+typedef union {
+  CONSTANT_Class_info               class_info;
+  CONSTANT_Fieldref_info            fieldref_info;
+  CONSTANT_Methodref_info           methodref_info;
+  CONSTANT_InterfaceMethodref_info  interfacemethodref_info;
+  CONSTANT_String_info              string_info;
+  CONSTANT_Integer_info             integer_info;
+  CONSTANT_Float_info               float_info;
+  CONSTANT_Long_info                long_info;
+  CONSTANT_Double_info              double_info;
+  CONSTANT_NameAndType_info         nameandtype_info;
+  CONSTANT_Utf8_info                utf8_info;
+} CONSTANT_info;
+
 typedef struct {
   uint8_t tag;
-  void *info;
+  CONSTANT_info info;
 } cp_info;
 
-typedef struct {
-  uint32_t magic;
-
-  uint16_t minor_version;
-  uint16_t major_version;
-
-  uint16_t cpsize;
-  cp_info *constant_pool; // n=constant_pool_count-1
-
-  uint16_t access_flags;
-
-  uint16_t this_class;
-  uint16_t super_class;
-
-  uint16_t interfaces_count;
-  uint16_t *interfaces; // n=interfaces_count
-
-  uint16_t fields_count;
-  field_info *fields; // n=fieds_count
-
-  uint16_t methods_count;
-  method_info *methods; // n=methods_count
-
-  uint16_t attributes_count;
-  attribute_info **attributes; //n=attributes_count
-} classfile;

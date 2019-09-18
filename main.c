@@ -1,7 +1,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include "types.h"
-#include "utils.h"
+#include "classfile.h"
 
 int main(int argc, char *argv[]) {
   if (argc < 2) {
@@ -19,4 +19,6 @@ int main(int argc, char *argv[]) {
   classfile cf = read_class_file(fp);
 
   print_class_file_summary(&cf);
+
+  deinit_class_file(&cf);
 }
