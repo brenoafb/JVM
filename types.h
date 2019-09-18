@@ -26,7 +26,7 @@ typedef struct {
 
 typedef struct {
   uint8_t tag;
-  uint8_t *info;
+  void *info;
 } cp_info;
 
 typedef struct {
@@ -53,6 +53,5 @@ typedef struct {
   method_info *methods; // n=methods_count
 
   uint16_t attributes_count;
-  attribute_info *attributes; //n=attributes_count
+  attribute_info **attributes; //n=attributes_count
 } classfile;
-

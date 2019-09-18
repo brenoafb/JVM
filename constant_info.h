@@ -21,9 +21,7 @@
   assert(fp);                           \
   uint8_t tag;                          \
   fread(&tag, sizeof(uint8_t), 1, fp);  \
-  assert(tag == CONSTANT_##type);         \
-  ptr->tag = tag;                       \
-
+  ptr->tag = CONSTANT_##type;          \
 
 // id 7
 typedef struct {

@@ -13,8 +13,9 @@ classfile read_class_file(FILE *fp) {
   fread(&cf.major_version, sizeof(uint16_t), 1, fp);
 
   fread(&cf.cpsize, sizeof(uint16_t), 1, fp);
-  // not reading constant pool table yet
-  fseek(fp, cf.cpsize, SEEK_CUR);
+  cf.constant_pool = calloc(sizeof(cp_info), cf.cpsize);
+  read_constant_pool(fp, cf.constant_pool, cf.cpsize);
+  // fseek(fp, cf.cpsize, SEEK_CUR);
 
   fread(&cf.access_flags, sizeof(uint16_t), 1, fp);
   fread(&cf.this_class, sizeof(uint16_t), 1, fp);
@@ -41,6 +42,81 @@ classfile read_class_file(FILE *fp) {
 
   return cf;
 }
+
+void read_constant_pool(FILE *fp, cp_info cp[], int cpsize) {
+  for (int i = 0; i < cpsize; i++) {
+    cp_info *ptr = &cp[i];
+    fread(&ptr->tag, sizeof(uint8_t), 1, fp);
+    read_constant_pool_entry(fp, ptr);
+  }
+}
+
+void read_constant_pool_entry(FILE *fp, cp_info *cp) {
+  assert(fp);
+  assert(cp);
+
+  switch (cp->tag) {
+  case CONSTANT_Class:
+    printf("Reading class\n");
+    cp->info = calloc(sizeof(CONSTANT_Class_info), 1);
+    read_Class_info(cp->info, fp);
+    break;
+  case CONSTANT_Fieldref:
+    printf("Reading fieldref\n");
+    cp->info = calloc(sizeof(CONSTANT_Fieldref_info), 1);
+    read_Fieldref_info(cp->info, fp);
+    break;
+  case CONSTANT_Methodref:
+    printf("Reading methodref\n");
+    cp->info = calloc(sizeof(CONSTANT_Methodref_info), 1);
+    read_Methodref_info(cp->info, fp);
+    break;
+  case CONSTANT_InterfaceMethodref:
+    printf("Reading interfacemethodref\n");
+    cp->info = calloc(sizeof(CONSTANT_InterfaceMethodref_info), 1);
+    read_InterfaceMethodref_info(cp->info, fp);
+    break;
+  case CONSTANT_String:
+    printf("Reading string\n");
+    cp->info = calloc(sizeof(CONSTANT_String_info), 1);
+    read_String_info(cp->info, fp);
+    break;
+  case CONSTANT_Integer:
+    printf("Reading integer\n");
+    cp->info = calloc(sizeof(CONSTANT_Integer_info), 1);
+    read_Integer_info(cp->info, fp);
+    break;
+  case CONSTANT_Float:
+    printf("Reading float\n");
+    cp->info = calloc(sizeof(CONSTANT_Float_info), 1);
+    read_Float_info(cp->info, fp);
+    break;
+  case CONSTANT_Long:
+    printf("Reading long\n");
+    cp->info = calloc(sizeof(CONSTANT_Long_info), 1);
+    read_Long_info(cp->info, fp);
+    break;
+  case CONSTANT_Double:
+    printf("Reading double\n");
+    cp->info = calloc(sizeof(CONSTANT_Double_info), 1);
+    read_Double_info(cp->info, fp);
+    break;
+  case CONSTANT_NameAndType:
+    printf("Reading nameandtype\n");
+    cp->info = calloc(sizeof(CONSTANT_NameAndType_info), 1);
+    read_NameAndType_info(cp->info, fp);
+    break;
+  case CONSTANT_Utf8:
+    printf("Reading utf8\n");
+    cp->info = calloc(sizeof(CONSTANT_Utf8_info), 1);
+    read_Utf8_info(cp->info, fp);
+    break;
+  default:
+    printf("Warning: unknown tag %x\n", cp->tag);
+    break;
+  }
+}
+
 
 void cf_convert_endian(classfile *cf) {
   cf->minor_version    = switch_endian(cf->minor_version);
@@ -79,4 +155,28 @@ void print_class_file_summary(classfile *cf) {
   printf("fields_count=%d\n", cf->fields_count);
   printf("methods_count=%d\n", cf->methods_count);
   printf("attributes_count=%d\n", cf->attributes_count);
+}
+
+void deinit_cp_entry(cp_info *ptr) {
+  assert(ptr);
+  if (ptr->tag == CONSTANT_Utf8) {
+    CONSTANT_Utf8_info *info = ptr->info;
+    free(info->bytes);
+  }
+
+  free(ptr->info);
+}
+
+void deinit_constant_pool(constant_pool *cp) {
+  assert(cp);
+  for (int i = 0; i < cp->size; i++) {
+    deinit_cp_entry(constant_pool[i]);
+  }
+}
+
+void free_class_file(classfile *cf) {
+  deinit_constant_pool(cf->constant_pool);
+  free(cf->constant_pool);
+  // TODO free interfaces
+  // TODO free fields
 }
