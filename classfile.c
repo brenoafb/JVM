@@ -13,8 +13,9 @@ classfile read_class_file(FILE *fp) {
   fread(&cf.major_version, sizeof(uint16_t), 1, fp);
 
   fread(&cf.cpsize, sizeof(uint16_t), 1, fp);
+  uint16_t cpsize = switch_endian(cf.cpsize);
   cf.constant_pool = calloc(sizeof(cp_info), cf.cpsize);
-  read_constant_pool(fp, cf.constant_pool, cf.cpsize);
+  read_constant_pool(fp, cf.constant_pool, cpsize);
   // fseek(fp, cf.cpsize, SEEK_CUR);
 
   fread(&cf.access_flags, sizeof(uint16_t), 1, fp);
@@ -44,7 +45,8 @@ classfile read_class_file(FILE *fp) {
 }
 
 void read_constant_pool(FILE *fp, cp_info cp[], int cpsize) {
-  for (int i = 0; i < cpsize; i++) {
+  printf("cpsize=%d (0x%x)\n", cpsize, cpsize);
+  for (int i = 0; i < cpsize - 1; i++) {
     cp_info *ptr = &cp[i];
     fread(&ptr->tag, sizeof(uint8_t), 1, fp);
     read_constant_pool_entry(fp, ptr);
