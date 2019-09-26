@@ -108,26 +108,35 @@ void read_constant_pool_entry(FILE *fp, cp_info *cp) {
   }
 }
 
-void deinit_cp_entry(cp_info *ptr) {
+void read_attribute_info(FILE *fp, attribute_info *ptr, cp_info *cp) {
+  assert(fp);
   assert(ptr);
-  if (ptr->tag == CONSTANT_Utf8) {
-    CONSTANT_Utf8_info *info = &ptr->info.utf8_info;
-    free(info->bytes);
-  }
-}
-
-void deinit_constant_pool(cp_info cp[], uint16_t cpsize) {
   assert(cp);
-  for (int i = 0; i < cpsize; i++) {
-    deinit_cp_entry(&cp[i]);
+
+  fread(&ptr->attribute_name_index, sizeof(uint16_t), 1, fp);
+  fread(&ptr->attribute_length, sizeof(uint32_t), 1, fp);
+
+  char *str = get_cp_string(cp, ptr->attribute_name_index);
+
+  if (strcmp("Code", str)) {
+    // TODO read code attribute
+  } else if (strcmp("ConstantValue", str)) {
+    // TODO read ConstantValue attribute
+  } else if (strcmp("Exceptions", str)) {
+    // TODO read Exceptions attribute
+  } else {
+    // TODO unknown attribute
+    printf("Warning: unknown attribute type %s\n", str);
   }
 }
 
-void deinit_class_file(classfile *cf) {
-  deinit_constant_pool(cf->constant_pool, cf->cpsize);
-  free(cf->constant_pool);
-  // TODO free interfaces
-  // TODO free fields
+char *get_cp_string(cp_info *cp, uint16_t index) {
+  assert(cp);
+
+  cp_info *entry = &cp[index];
+  assert(entry->tag == CONSTANT_Utf8);
+  
+  return entry->info.utf8_info.bytes;
 }
 
 void print_class_file_summary(classfile *cf) {
@@ -160,4 +169,26 @@ void cf_convert_endian(classfile *cf) {
   cf->fields_count     = switch_endian(cf->fields_count);
   cf->methods_count    = switch_endian(cf->methods_count);
   cf->attributes_count = switch_endian(cf->attributes_count);
+}
+
+void deinit_cp_entry(cp_info *ptr) {
+  assert(ptr);
+  if (ptr->tag == CONSTANT_Utf8) {
+    CONSTANT_Utf8_info *info = &ptr->info.utf8_info;
+    free(info->bytes);
+  }
+}
+
+void deinit_constant_pool(cp_info cp[], uint16_t cpsize) {
+  assert(cp);
+  for (int i = 0; i < cpsize; i++) {
+    deinit_cp_entry(&cp[i]);
+  }
+}
+
+void deinit_class_file(classfile *cf) {
+  deinit_constant_pool(cf->constant_pool, cf->cpsize);
+  free(cf->constant_pool);
+  // TODO free interfaces
+  // TODO free fields
 }

@@ -2,6 +2,7 @@
 #include <stdio.h>
 #include <stdint.h>
 #include <stdlib.h>
+#include <string.h>
 #include "utils.h"
 #include "types.h"
 
@@ -35,6 +36,8 @@ typedef struct {
 classfile read_class_file(FILE *fp);
 void read_constant_pool(FILE *fp, cp_info cp[], int cpsize);
 void read_constant_pool_entry(FILE *fp, cp_info *cp);
+void read_attribute_info(FILE *fp, attribute_info *ptr, cp_info *cp);
+char *get_cp_string(cp_info *cp, uint16_t index);
 void cf_convert_endian(classfile *cf);
 void print_class_file_summary(classfile *cf);
 
