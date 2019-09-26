@@ -17,8 +17,7 @@ int main(int argc, char *argv[]) {
   }
 
   classfile cf = read_class_file(fp);
-
   print_class_file_summary(&cf);
-
+  print_cp_detail(&cf);
   deinit_class_file(&cf);
 }

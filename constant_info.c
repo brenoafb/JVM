@@ -24,7 +24,7 @@ void read_Utf8_info(CONSTANT_Utf8_info *ptr, FILE *fp) {
   ptr->bytes = calloc(ptr->length+1, sizeof(uint8_t));
   assert(ptr->bytes);
   fread(ptr->bytes, sizeof(uint8_t), ptr->length, fp);
-  printf("Read string(%d/0x%x): %s\n", ptr->length, ptr->length, ptr->bytes);
+  printf("\tRead utf8(%d/0x%x): %s\n", ptr->length, ptr->length, ptr->bytes);
 }
 
 void read_Methodref_info(CONSTANT_Methodref_info *ptr, FILE *fp) {

@@ -158,6 +158,50 @@ void print_class_file_summary(classfile *cf) {
   printf("attributes_count=%d\n", cf->attributes_count);
 }
 
+void print_cp_detail(classfile *cf) {
+  printf("Constant pool members:\n");
+  for (int i = 0; i < cf->cpsize; i++) {
+    printf("\t%d: ", i);
+    switch(cf->constant_pool[i].tag) {
+    case CONSTANT_Utf8                 :
+      printf("Utf8: ");
+      char *str = get_cp_string(cf->constant_pool, i);
+      printf("%s\n", str);
+      break;
+    case CONSTANT_Integer              :
+      printf("Integer\n");
+      break;
+    case CONSTANT_Float                :
+      printf("Float\n");
+      break;
+    case CONSTANT_Long                 :
+      printf("Long\n");
+      break;
+    case CONSTANT_Double               :
+      printf("Double\n");
+      break;
+    case CONSTANT_Class                :
+      printf("Class\n");
+      break;
+    case CONSTANT_String               :
+      printf("String\n");
+      break;
+    case CONSTANT_Fieldref             :
+      printf("Fieldref\n");
+      break;
+    case CONSTANT_Methodref            :
+      printf("Methodref\n");
+      break;
+    case CONSTANT_InterfaceMethodref   :
+      printf("InterfaceMethodref\n");
+      break;
+    case CONSTANT_NameAndType          :
+      printf("NameAndType\n");
+      break;
+    }
+  }
+}
+
 void cf_convert_endian(classfile *cf) {
   cf->minor_version    = switch_endian(cf->minor_version);
   cf->major_version    = switch_endian(cf->major_version);

@@ -40,6 +40,7 @@ void read_attribute_info(FILE *fp, attribute_info *ptr, cp_info *cp);
 char *get_cp_string(cp_info *cp, uint16_t index);
 void cf_convert_endian(classfile *cf);
 void print_class_file_summary(classfile *cf);
+void print_cp_detail(classfile *cf);
 
 void deinit_cp_entry(cp_info *ptr);
 void deinit_constant_pool(cp_info cp[], uint16_t cpsize);
