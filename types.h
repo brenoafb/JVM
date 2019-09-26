@@ -1,12 +1,7 @@
 #pragma once
 #include <stdint.h>
 #include "constant_info.h"
-
-typedef struct {
-  uint16_t attribute_name_index;
-  uint32_t attribute_length;
-  uint8_t *info; // n=attribute_length
-} attribute_info;
+#include "attributes.h"
 
 typedef struct {
   uint16_t access_flags;
@@ -42,4 +37,3 @@ typedef struct {
   uint8_t tag;
   CONSTANT_info info;
 } cp_info;
-
