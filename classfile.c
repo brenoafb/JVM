@@ -116,7 +116,7 @@ void read_attribute_info(FILE *fp, attribute_info *ptr, cp_info *cp) {
   fread(&ptr->attribute_name_index, sizeof(uint16_t), 1, fp);
   fread(&ptr->attribute_length, sizeof(uint32_t), 1, fp);
 
-  char *str = get_cp_string(cp, ptr->attribute_name_index);
+  char *str = get_cp_string(cp, ptr->attribute_name_index - 1);
 
   if (strcmp("Code", str)) {
     // TODO read code attribute
@@ -135,7 +135,7 @@ char *get_cp_string(cp_info *cp, uint16_t index) {
 
   cp_info *entry = &cp[index];
   assert(entry->tag == CONSTANT_Utf8);
-  
+
   return entry->info.utf8_info.bytes;
 }
 
@@ -160,13 +160,13 @@ void print_class_file_summary(classfile *cf) {
 
 void print_cp_detail(classfile *cf) {
   printf("Constant pool members:\n");
-  for (int i = 0; i < cf->cpsize; i++) {
+  for (int i = 0; i < cf->cpsize-1; i++) {
     printf("\t%d: ", i);
     switch(cf->constant_pool[i].tag) {
     case CONSTANT_Utf8                 :
       printf("Utf8: ");
       char *str = get_cp_string(cf->constant_pool, i);
-      printf("%s\n", str);
+      printf("\"%s\"\n", str);
       break;
     case CONSTANT_Integer              :
       printf("Integer\n");
