@@ -1,5 +1,5 @@
 CC=gcc
-CFLAGS=-Wall -Wextra -I.
+CFLAGS=-std=c99 -Wall -Wextra -I.
 DEPS = types.h utils.h constant_info.h classfile.h attributes.h
 OBJ = utils.o constant_info.o classfile.o
 MAINSRC = main.c
