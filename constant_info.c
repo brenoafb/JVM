@@ -20,7 +20,7 @@ void read_NameAndType_info(CONSTANT_NameAndType_info *ptr, FILE *fp) {
 void read_Utf8_info(CONSTANT_Utf8_info *ptr, FILE *fp) {
   CONSTANT_read_verify(Utf8);
   fread(&ptr->length, sizeof(uint16_t), 1, fp);
-  ptr->length = switch_endian(ptr->length);
+  ptr->length = switch_endian_16(ptr->length);
   ptr->bytes = calloc(ptr->length+1, sizeof(uint8_t));
   assert(ptr->bytes);
   fread(ptr->bytes, sizeof(uint8_t), ptr->length, fp);

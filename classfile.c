@@ -9,37 +9,53 @@ classfile read_class_file(FILE *fp) {
   fread(x, sizeof(int8_t), 4, fp);
   cf.magic = x[3] + ((x[2]+1) << 8) + ((x[1]+1) << 16) + ((x[0]+1) << 24);
 
+  // minor/major version
   fread(&cf.minor_version, sizeof(uint16_t), 1, fp);
+  cf.minor_version = switch_endian_16(cf.minor_version);
   fread(&cf.major_version, sizeof(uint16_t), 1, fp);
+  cf.major_version = switch_endian_16(cf.major_version);
 
+  // constant-pool
   fread(&cf.cpsize, sizeof(uint16_t), 1, fp);
-  uint16_t cpsize = switch_endian(cf.cpsize);
+  cf.cpsize = switch_endian_16(cf.cpsize);
   cf.constant_pool = calloc(sizeof(cp_info), cf.cpsize);
-  read_constant_pool(fp, cf.constant_pool, cpsize);
-  // fseek(fp, cf.cpsize, SEEK_CUR);
+  read_constant_pool(fp, cf.constant_pool, cf.cpsize);
 
+  // access flags, this/super class
   fread(&cf.access_flags, sizeof(uint16_t), 1, fp);
-  fread(&cf.this_class, sizeof(uint16_t), 1, fp);
-  fread(&cf.super_class, sizeof(uint16_t), 1, fp);
+  cf.access_flags = switch_endian_16(cf.access_flags);
 
+  fread(&cf.this_class, sizeof(uint16_t), 1, fp);
+  cf.this_class = switch_endian_16(cf.this_class);
+
+  fread(&cf.super_class, sizeof(uint16_t), 1, fp);
+  cf.super_class = switch_endian_16(cf.super_class);
+
+  // interfaces
   fread(&cf.interfaces_count, sizeof(uint16_t), 1, fp);
+  cf.interfaces_count = switch_endian_16(cf.interfaces_count);
   // not reading interface table yet
   fseek(fp, cf.interfaces_count, SEEK_CUR);
 
+  // fields
   fread(&cf.fields_count, sizeof(uint16_t), 1, fp);
-  // not reading field table yet
-  fseek(fp, cf.fields_count, SEEK_CUR);
+  cf.fields_count = switch_endian_16(cf.fields_count);
+  cf.fields = calloc(sizeof(field_info), cf.fields_count);
+  read_fields(fp, cf.fields, cf.fields_count, cf.constant_pool);
 
+  // methods
   fread(&cf.methods_count, sizeof(uint16_t), 1, fp);
-  // not reading method table yet
-  fseek(fp, cf.methods_count, SEEK_CUR);
+  cf.methods_count = switch_endian_16(cf.methods_count);
+  cf.methods = calloc(sizeof(method_info), cf.methods_count);
+  read_methods(fp, cf.methods, cf.methods_count, cf.constant_pool);
 
+  // attributes
   fread(&cf.attributes_count, sizeof(uint16_t), 1, fp);
-  // not reading attribute table yet
+  cf.attributes_count = switch_endian_16(cf.attributes_count);
+  cf.attributes = calloc(sizeof(attribute_info), cf.attributes_count);
+  read_attributes(fp, cf.attributes, cf.attributes_count, cf.constant_pool);
 
   fclose(fp);
-
-  cf_convert_endian(&cf);
 
   return cf;
 }
@@ -108,13 +124,67 @@ void read_constant_pool_entry(FILE *fp, cp_info *cp) {
   }
 }
 
+void read_fields(FILE *fp, field_info fields[], uint16_t fields_count, cp_info *cp) {
+  printf("fields_count=%d (0x%x)\n", fields_count, fields_count);
+  for (int i = 0; i < fields_count; i++) {
+    field_info *ptr = &fields[i];
+    read_field_entry(fp, ptr, cp);
+  }
+}
+
+void read_field_entry(FILE *fp, field_info *field, cp_info *cp) {
+  assert(fp);
+  assert(field);
+  assert(cp);
+
+  fread(&field->access_flags, sizeof(uint16_t), 1, fp);
+  field->access_flags = switch_endian_16(field->access_flags);
+
+  fread(&field->name_index, sizeof(uint16_t), 1, fp);
+  field->name_index = switch_endian_16(field->name_index);
+
+  fread(&field->descriptor_index, sizeof(uint16_t), 1, fp);
+  field->descriptor_index = switch_endian_16(field->descriptor_index);
+
+  fread(&field->attributes_count, sizeof(uint16_t), 1, fp);
+  field->attributes_count = switch_endian_16(field->attributes_count);
+
+  field->attributes = calloc(sizeof(attribute_info), field->attributes_count);
+  assert(field->attributes);
+
+  read_attributes(fp, field->attributes, field->attributes_count, cp);
+}
+
+void read_methods(FILE *fp, method_info methods[], uint16_t methods_count, cp_info *cp) {
+  printf("methods_count=%d (0x%x)\n", methods_count, methods_count);
+  for (int i = 0; i < methods_count; i++) {
+    method_info *ptr = &methods[i];
+    read_method_entry(fp, ptr, cp);
+  }
+}
+
+void read_method_entry(FILE *fp, method_info *method, cp_info *cp) {
+  read_field_entry(fp, (field_info *) method, cp);
+}
+
+
+void read_attributes(FILE *fp, attribute_info attributes[], uint16_t attributes_count, cp_info *cp) {
+  printf("attributes_count=%d (0x%x)\n", attributes_count, attributes_count);
+  for (int i = 0; i < attributes_count; i++) {
+    attribute_info *ptr = &attributes[i];
+    read_attribute_info(fp, ptr, cp);
+  }
+}
+
 void read_attribute_info(FILE *fp, attribute_info *ptr, cp_info *cp) {
   assert(fp);
   assert(ptr);
   assert(cp);
 
   fread(&ptr->attribute_name_index, sizeof(uint16_t), 1, fp);
+  ptr->attribute_name_index = switch_endian_16(ptr->attribute_name_index);
   fread(&ptr->attribute_length, sizeof(uint32_t), 1, fp);
+  ptr->attribute_length = switch_endian_16(ptr->attribute_length);
 
   char *str = get_cp_string(cp, ptr->attribute_name_index - 1);
 
@@ -125,9 +195,11 @@ void read_attribute_info(FILE *fp, attribute_info *ptr, cp_info *cp) {
   } else if (strcmp("Exceptions", str)) {
     // TODO read Exceptions attribute
   } else {
-    // TODO unknown attribute
     printf("Warning: unknown attribute type %s\n", str);
   }
+
+  // not reading attributes for now
+  fseek(fp, ptr->attribute_length, SEEK_CUR);
 }
 
 char *get_cp_string(cp_info *cp, uint16_t index) {
@@ -136,7 +208,7 @@ char *get_cp_string(cp_info *cp, uint16_t index) {
   cp_info *entry = &cp[index];
   assert(entry->tag == CONSTANT_Utf8);
 
-  return entry->info.utf8_info.bytes;
+  return (char *) entry->info.utf8_info.bytes;
 }
 
 void print_class_file_summary(classfile *cf) {
@@ -202,19 +274,6 @@ void print_cp_detail(classfile *cf) {
   }
 }
 
-void cf_convert_endian(classfile *cf) {
-  cf->minor_version    = switch_endian(cf->minor_version);
-  cf->major_version    = switch_endian(cf->major_version);
-  cf->cpsize           = switch_endian(cf->cpsize);
-  cf->access_flags     = switch_endian(cf->access_flags);
-  cf->this_class       = switch_endian(cf->this_class);
-  cf->super_class      = switch_endian(cf->super_class);
-  cf->interfaces_count = switch_endian(cf->interfaces_count);
-  cf->fields_count     = switch_endian(cf->fields_count);
-  cf->methods_count    = switch_endian(cf->methods_count);
-  cf->attributes_count = switch_endian(cf->attributes_count);
-}
-
 void deinit_cp_entry(cp_info *ptr) {
   assert(ptr);
   if (ptr->tag == CONSTANT_Utf8) {
@@ -224,7 +283,6 @@ void deinit_cp_entry(cp_info *ptr) {
 }
 
 void deinit_constant_pool(cp_info cp[], uint16_t cpsize) {
-  assert(cp);
   for (int i = 0; i < cpsize; i++) {
     deinit_cp_entry(&cp[i]);
   }
@@ -233,6 +291,47 @@ void deinit_constant_pool(cp_info cp[], uint16_t cpsize) {
 void deinit_class_file(classfile *cf) {
   deinit_constant_pool(cf->constant_pool, cf->cpsize);
   free(cf->constant_pool);
+
+  deinit_fields(cf->fields, cf->fields_count);
+  free(cf->fields);
+
+  deinit_methods(cf->methods, cf->methods_count);
+  free(cf->methods);
+
+  deinit_attributes(cf->attributes, cf->attributes_count);
+  free(cf->attributes);
+
   // TODO free interfaces
-  // TODO free fields
+}
+
+void deinit_fields(field_info fields[], uint16_t fields_count) {
+  for (int i = 0; i < fields_count; i++) {
+    deinit_field_entry(&fields[i]);
+  }
+}
+void deinit_field_entry(field_info *ptr) {
+  for (int i = 0; i < ptr->attributes_count; i++) {
+    deinit_attribute_info(&ptr->attributes[i]);
+  }
+  free(ptr->attributes);
+}
+
+void deinit_methods(method_info methods[], uint16_t method_count) {
+  for (int i = 0; i < method_count; i++) {
+    deinit_method_entry(&methods[i]);
+  }
+}
+
+void deinit_method_entry(method_info *ptr) {
+  deinit_field_entry((field_info *) ptr);
+}
+
+void deinit_attributes(attribute_info attributes[], uint16_t attributes_count) {
+  for (int i = 0; i < attributes_count; i++) {
+    deinit_attribute_info(&attributes[i]);
+  }
+}
+
+void deinit_attribute_info(attribute_info *ptr) {
+  // TODO
 }
