@@ -33,7 +33,7 @@ typedef struct {
   attribute_info *attributes; //n=attributes_count
 } classfile;
 
-classfile read_class_file(FILE *fp);
+void read_class_file(classfile *cf, FILE *fp);
 
 void read_constant_pool(FILE *fp, cp_info cp[], int cpsize);
 void read_constant_pool_entry(FILE *fp, cp_info *cp);

@@ -1,70 +1,61 @@
 #include "classfile.h"
 
-classfile read_class_file(FILE *fp) {
-  classfile cf = {0};
+void read_class_file(classfile *cf, FILE *fp) {
+  assert(cf);
+  assert(fp);
 
-  if (!fp) return cf;
-
-  int8_t x[4];
-  fread(x, sizeof(int8_t), 4, fp);
-  cf.magic = x[3] + ((x[2]+1) << 8) + ((x[1]+1) << 16) + ((x[0]+1) << 24);
+  cf->magic = read_u4(fp);
 
   // minor/major version
-  fread(&cf.minor_version, sizeof(uint16_t), 1, fp);
-  cf.minor_version = switch_endian_16(cf.minor_version);
-  fread(&cf.major_version, sizeof(uint16_t), 1, fp);
-  cf.major_version = switch_endian_16(cf.major_version);
+  cf->minor_version = read_u2(fp);
+  cf->major_version = read_u2(fp);
 
   // constant-pool
-  fread(&cf.cpsize, sizeof(uint16_t), 1, fp);
-  cf.cpsize = switch_endian_16(cf.cpsize);
-  cf.constant_pool = calloc(sizeof(cp_info), cf.cpsize);
-  read_constant_pool(fp, cf.constant_pool, cf.cpsize);
+  cf->cpsize = read_u2(fp);
+  cf->constant_pool = calloc(sizeof(cp_info), cf->cpsize);
+  read_constant_pool(fp, cf->constant_pool, cf->cpsize);
 
   // access flags, this/super class
-  fread(&cf.access_flags, sizeof(uint16_t), 1, fp);
-  cf.access_flags = switch_endian_16(cf.access_flags);
-
-  fread(&cf.this_class, sizeof(uint16_t), 1, fp);
-  cf.this_class = switch_endian_16(cf.this_class);
-
-  fread(&cf.super_class, sizeof(uint16_t), 1, fp);
-  cf.super_class = switch_endian_16(cf.super_class);
+  cf->access_flags = read_u2(fp);
+  cf->this_class = read_u2(fp);
+  cf->super_class = read_u2(fp);
 
   // interfaces
-  fread(&cf.interfaces_count, sizeof(uint16_t), 1, fp);
-  cf.interfaces_count = switch_endian_16(cf.interfaces_count);
-  // not reading interface table yet
-  fseek(fp, cf.interfaces_count, SEEK_CUR);
+  cf->interfaces_count = read_u2(fp);
+  printf("Interfaces count: %d (0x%d)\n", cf->interfaces_count, cf->interfaces_count);
+  if (cf->interfaces_count > 0) {
+    // not reading interface table yet
+    // skip
+    fseek(fp, cf->interfaces_count, SEEK_CUR);
+  }
 
   // fields
-  fread(&cf.fields_count, sizeof(uint16_t), 1, fp);
-  cf.fields_count = switch_endian_16(cf.fields_count);
-  cf.fields = calloc(sizeof(field_info), cf.fields_count);
-  read_fields(fp, cf.fields, cf.fields_count, cf.constant_pool);
+  cf->fields_count = read_u2(fp);
+  cf->fields = calloc(sizeof(field_info), cf->fields_count);
+  if (cf->fields_count > 0) {
+    read_fields(fp, cf->fields, cf->fields_count, cf->constant_pool);
+  }
 
   // methods
-  fread(&cf.methods_count, sizeof(uint16_t), 1, fp);
-  cf.methods_count = switch_endian_16(cf.methods_count);
-  cf.methods = calloc(sizeof(method_info), cf.methods_count);
-  read_methods(fp, cf.methods, cf.methods_count, cf.constant_pool);
+  cf->methods_count = read_u2(fp);
+  cf->methods = calloc(sizeof(method_info), cf->methods_count);
+  if (cf->methods_count > 0) {
+    read_methods(fp, cf->methods, cf->methods_count, cf->constant_pool);
+  }
 
   // attributes
-  fread(&cf.attributes_count, sizeof(uint16_t), 1, fp);
-  cf.attributes_count = switch_endian_16(cf.attributes_count);
-  cf.attributes = calloc(sizeof(attribute_info), cf.attributes_count);
-  read_attributes(fp, cf.attributes, cf.attributes_count, cf.constant_pool);
-
-  fclose(fp);
-
-  return cf;
+  cf->attributes_count = read_u2(fp);
+  cf->attributes = calloc(sizeof(attribute_info), cf->attributes_count);
+  if (cf->attributes_count > 0) {
+    read_attributes(fp, cf->attributes, cf->attributes_count, cf->constant_pool);
+  }
 }
 
 void read_constant_pool(FILE *fp, cp_info cp[], int cpsize) {
   printf("cpsize=%d (0x%x)\n", cpsize, cpsize);
   for (int i = 0; i < cpsize - 1; i++) {
     cp_info *ptr = &cp[i];
-    fread(&ptr->tag, sizeof(uint8_t), 1, fp);
+    ptr->tag = read_u1(fp);
     read_constant_pool_entry(fp, ptr);
   }
 }
@@ -137,17 +128,10 @@ void read_field_entry(FILE *fp, field_info *field, cp_info *cp) {
   assert(field);
   assert(cp);
 
-  fread(&field->access_flags, sizeof(uint16_t), 1, fp);
-  field->access_flags = switch_endian_16(field->access_flags);
-
-  fread(&field->name_index, sizeof(uint16_t), 1, fp);
-  field->name_index = switch_endian_16(field->name_index);
-
-  fread(&field->descriptor_index, sizeof(uint16_t), 1, fp);
-  field->descriptor_index = switch_endian_16(field->descriptor_index);
-
-  fread(&field->attributes_count, sizeof(uint16_t), 1, fp);
-  field->attributes_count = switch_endian_16(field->attributes_count);
+  field->access_flags = read_u2(fp);
+  field->name_index = read_u2(fp);
+  field->descriptor_index = read_u2(fp);
+  field->attributes_count = read_u2(fp);
 
   field->attributes = calloc(sizeof(attribute_info), field->attributes_count);
   assert(field->attributes);
@@ -181,18 +165,24 @@ void read_attribute_info(FILE *fp, attribute_info *ptr, cp_info *cp) {
   assert(ptr);
   assert(cp);
 
-  fread(&ptr->attribute_name_index, sizeof(uint16_t), 1, fp);
-  ptr->attribute_name_index = switch_endian_16(ptr->attribute_name_index);
-  fread(&ptr->attribute_length, sizeof(uint32_t), 1, fp);
-  ptr->attribute_length = switch_endian_16(ptr->attribute_length);
+  ptr->attribute_name_index = read_u2(fp);
+  printf("attribute_name_index: %d (0x%x)\n", ptr->attribute_name_index, ptr->attribute_name_index);
+
+  ptr->attribute_length = read_u4(fp);
+  printf("attribute_length: %d (0x%x)\n", ptr->attribute_length, ptr->attribute_length);
 
   char *str = get_cp_string(cp, ptr->attribute_name_index - 1);
 
-  if (strcmp("Code", str)) {
+  if (strcmp("Code", str) == 0) {
+    printf("Code attribute\n");
     // TODO read code attribute
-  } else if (strcmp("ConstantValue", str)) {
+  } else if (strcmp("ConstantValue", str) == 0) {
+    printf("ConstantValue attribute\n");
+    uint16_t index = read_u2(fp);
+    printf("\tindex: %d\n", index);
     // TODO read ConstantValue attribute
-  } else if (strcmp("Exceptions", str)) {
+  } else if (strcmp("Exceptions", str) == 0) {
+    printf("Exceptions attribute\n");
     // TODO read Exceptions attribute
   } else {
     printf("Warning: unknown attribute type %s\n", str);

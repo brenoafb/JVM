@@ -16,8 +16,11 @@ int main(int argc, char *argv[]) {
     return 1;
   }
 
-  classfile cf = read_class_file(fp);
+  classfile cf = {0};
+  read_class_file(&cf, fp);
   print_class_file_summary(&cf);
   print_cp_detail(&cf);
   deinit_class_file(&cf);
+
+  fclose(fp);
 }
