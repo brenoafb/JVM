@@ -1,6 +1,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <stdint.h>
+#include <assert.h>
 #include "utils.h"
 
 typedef struct {
@@ -34,12 +35,12 @@ typedef struct {
   uint16_t attribute_name_index;
   uint32_t attribute_length;
   union {
-    ConstantValue_attribute constant_value;
+    ConstantValue_attribute constantvalue;
     Code_attribute code;
     Exceptions_attribute exceptions;
   } info;
 } attribute_info;
 
 void read_code_attribute(Code_attribute *ptr, FILE *fp);
-void read_constant_value_attribute(ConstantValue_attribute *ptr, FILE *fp);
+void read_constantvalue_attribute(ConstantValue_attribute *ptr, FILE *fp);
 void read_exceptions_attribute(Exceptions_attribute *ptr, FILE *fp);

@@ -175,15 +175,13 @@ void read_attribute_info(FILE *fp, attribute_info *ptr, cp_info *cp) {
 
   if (strcmp("Code", str) == 0) {
     printf("Code attribute\n");
-    // TODO read code attribute
+    read_code_attribute(&ptr->info.code, fp);
   } else if (strcmp("ConstantValue", str) == 0) {
     printf("ConstantValue attribute\n");
-    uint16_t index = read_u2(fp);
-    printf("\tindex: %d\n", index);
-    // TODO read ConstantValue attribute
+    read_constantvalue_attribute(&ptr->info.constantvalue, fp);
   } else if (strcmp("Exceptions", str) == 0) {
     printf("Exceptions attribute\n");
-    // TODO read Exceptions attribute
+    read_exceptions_attribute(&ptr->info.exceptions, fp);
   } else {
     printf("Warning: unknown attribute type %s\n", str);
   }
