@@ -47,6 +47,11 @@ void read_method_entry(FILE *fp, method_info *method, cp_info *cp);
 void read_attributes(FILE *fp, attribute_info attributes[], uint16_t attributes_count, cp_info *cp);
 void read_attribute_info(FILE *fp, attribute_info *ptr, cp_info *cp);
 
+void read_code_attribute(Code_attribute *ptr, FILE *fp, cp_info *cp);
+void read_constantvalue_attribute(ConstantValue_attribute *ptr, FILE *fp);
+void read_exceptions_attribute(Exceptions_attribute *ptr, FILE *fp);
+void read_linenumbertable_attribute(LineNumberTable_attribute *ptr, FILE *fp);
+
 char *get_cp_string(cp_info *cp, uint16_t index);
 
 void print_class_file_summary(classfile *cf);

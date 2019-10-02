@@ -23,7 +23,7 @@ typedef struct {
   } *exception_table;  // n=exception_table_length
 
   uint16_t attributes_count;
-  // attribute_info *attributes;  // n=attributes_count
+  struct attribute_info *attributes;  // n=attributes_count
 } Code_attribute;
 
 typedef struct {
@@ -31,7 +31,7 @@ typedef struct {
   uint16_t *exception_index_table; // n=number_of_exceptions
 } Exceptions_attribute;
 
-typedef struct {
+typedef struct attribute_info {
   uint16_t attribute_name_index;
   uint32_t attribute_length;
   union {
@@ -41,6 +41,6 @@ typedef struct {
   } info;
 } attribute_info;
 
-void read_code_attribute(Code_attribute *ptr, FILE *fp);
+void read_code_attribute(Code_attribute *ptr, FILE *fp, void *cp);
 void read_constantvalue_attribute(ConstantValue_attribute *ptr, FILE *fp);
 void read_exceptions_attribute(Exceptions_attribute *ptr, FILE *fp);

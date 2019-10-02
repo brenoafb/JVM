@@ -10,9 +10,19 @@ void read_class_file(classfile *cf, FILE *fp) {
   cf->minor_version = read_u2(fp);
   cf->major_version = read_u2(fp);
 
+  #ifdef DEBUG
+  printf("Magic: 0x%08x\n", cf->magic);
+  printf("Minor: %d (0x%04x)\n", cf->minor_version, cf->minor_version);
+  printf("Major: %d (0x%04x)\n", cf->major_version, cf->major_version);
+  #endif
+
   // constant-pool
+
   cf->cpsize = read_u2(fp);
   cf->constant_pool = calloc(sizeof(cp_info), cf->cpsize);
+  #ifdef DEBUG
+  printf("cpsize: %d (0x%04x)\n", cf->cpsize, cf->cpsize);
+  #endif
   read_constant_pool(fp, cf->constant_pool, cf->cpsize);
 
   // access flags, this/super class
@@ -20,16 +30,28 @@ void read_class_file(classfile *cf, FILE *fp) {
   cf->this_class = read_u2(fp);
   cf->super_class = read_u2(fp);
 
+  #ifdef DEBUG
+  printf("Access flags: 0x%04x\n", cf->access_flags);
+  printf("This class: 0x%04x\n", cf->this_class);
+  printf("Super class: 0x%04x\n", cf->super_class);
+  #endif
+
   // interfaces
   cf->interfaces_count = read_u2(fp);
+  #ifdef DEBUG
+  printf("Interfaces count: %d (0x%04x)\n", cf->interfaces_count, cf->interfaces_count);
+  #endif
+
   if (cf->interfaces_count > 0) {
     // not reading interface table yet
-    // skip
-    fseek(fp, cf->interfaces_count, SEEK_CUR);
   }
 
   // fields
   cf->fields_count = read_u2(fp);
+  #ifdef DEBUG
+  printf("Fields count: %d (0x%04x)\n", cf->fields_count, cf->fields_count);
+  #endif
+
   cf->fields = calloc(sizeof(field_info), cf->fields_count);
   if (cf->fields_count > 0) {
     read_fields(fp, cf->fields, cf->fields_count, cf->constant_pool);
@@ -37,6 +59,10 @@ void read_class_file(classfile *cf, FILE *fp) {
 
   // methods
   cf->methods_count = read_u2(fp);
+  #ifdef DEBUG
+  printf("Methods count: %d (0x%04x)\n", cf->methods_count, cf->methods_count);
+  #endif
+
   cf->methods = calloc(sizeof(method_info), cf->methods_count);
   if (cf->methods_count > 0) {
     read_methods(fp, cf->methods, cf->methods_count, cf->constant_pool);
@@ -44,6 +70,10 @@ void read_class_file(classfile *cf, FILE *fp) {
 
   // attributes
   cf->attributes_count = read_u2(fp);
+  #ifdef DEBUG
+  printf("Attributes count: %d (0x%04x)\n", cf->attributes_count, cf->attributes_count);
+  #endif
+
   cf->attributes = calloc(sizeof(attribute_info), cf->attributes_count);
   if (cf->attributes_count > 0) {
     read_attributes(fp, cf->attributes, cf->attributes_count, cf->constant_pool);
@@ -54,6 +84,9 @@ void read_constant_pool(FILE *fp, cp_info cp[], int cpsize) {
   for (int i = 0; i < cpsize - 1; i++) {
     cp_info *ptr = &cp[i];
     ptr->tag = read_u1(fp);
+    #ifdef DEBUG
+    printf("\t%d\t0x%02x\n", i+1, ptr->tag);
+    #endif
     read_constant_pool_entry(fp, ptr);
   }
 }
@@ -119,6 +152,14 @@ void read_field_entry(FILE *fp, field_info *field, cp_info *cp) {
   field->descriptor_index = read_u2(fp);
   field->attributes_count = read_u2(fp);
 
+  #ifdef DEBUG
+  printf("\tAccess\tName\tDesc\tAttrCount\n");
+  printf("\t0x%04x\t0x%04x\t0x%04x\t0x%04x\n", field->access_flags,
+	 field->name_index,
+	 field->descriptor_index,
+	 field->attributes_count);
+  #endif
+
   field->attributes = calloc(sizeof(attribute_info), field->attributes_count);
   assert(field->attributes);
 
@@ -153,20 +194,139 @@ void read_attribute_info(FILE *fp, attribute_info *ptr, cp_info *cp) {
 
   ptr->attribute_length = read_u4(fp);
 
+
   char *str = get_cp_string(cp, ptr->attribute_name_index - 1);
 
+  #ifdef DEBUG
+  printf("\t\tAttr: 0x%04x 0x%08x %s\n", ptr->attribute_name_index,
+	 ptr->attribute_length,
+	 str);
+  #endif
+
   if (strcmp("Code", str) == 0) {
-    read_code_attribute(&ptr->info.code, fp);
+    read_code_attribute(&ptr->info.code, fp, cp);
   } else if (strcmp("ConstantValue", str) == 0) {
     read_constantvalue_attribute(&ptr->info.constantvalue, fp);
   } else if (strcmp("Exceptions", str) == 0) {
     read_exceptions_attribute(&ptr->info.exceptions, fp);
+  } else if (strcmp("LineNumberTable", str) == 0) {
+    read_linenumbertable_attribute(&ptr->info.linenumbertable, fp);
   } else {
     printf("Warning: unknown attribute type %s\n", str);
   }
+}
 
-  // not reading attributes for now
-  fseek(fp, ptr->attribute_length, SEEK_CUR);
+void read_code_attribute(Code_attribute *ptr, FILE *fp, cp_info *cp) {
+  assert(fp);
+  assert(ptr);
+  assert(cp);
+
+  ptr->max_stack = read_u2(fp);
+  ptr->max_locals = read_u2(fp);
+  ptr->code_length = read_u4(fp);
+  ptr->code = calloc(sizeof(uint8_t), ptr->code_length);
+  assert(ptr->code);
+
+  #ifdef DEBUG
+  printf("\t\t0x%04x 0x%04x 0x%08x\n", ptr->max_stack,
+	 ptr->max_locals,
+	 ptr->code_length);
+  printf("\t\tInstructions:\n");
+  #endif
+
+  for (uint32_t i = 0; i < ptr->code_length; i++) {
+    ptr->code[i] = read_u1(fp);
+    #ifdef DEBUG
+    printf("\t\t\t0x%02x\n", ptr->code[i]);
+    #endif
+  }
+
+  ptr->exception_table_length = read_u2(fp);
+  ptr->exception_table = calloc(4*sizeof(uint16_t), ptr->exception_table_length);
+  if (ptr->exception_table_length > 0) {
+    assert(ptr->exception_table_length);
+  }
+
+  #ifdef DEBUG
+  printf("\t\tException count: 0x%04x\n", ptr->exception_table_length);
+  if (ptr->exception_table_length > 0) {
+    printf("\t\tExceptions\n");
+    printf("\t\t\tStart\tEnd\tHandler\tCatch type\n");
+  }
+  #endif
+
+  for (uint16_t i = 0; i < ptr->exception_table_length; i++) {
+    ptr->exception_table[i].start_pc = read_u2(fp);
+    ptr->exception_table[i].end_pc = read_u2(fp);
+    ptr->exception_table[i].handler_pc = read_u2(fp);
+    ptr->exception_table[i].catch_type = read_u2(fp);
+
+    #ifdef DEBUG
+    printf("\t\t\t0x%04x\t0x%04x\t0x%04x\t0x%04x\n", ptr->exception_table[i].start_pc,
+	   ptr->exception_table[i].end_pc,
+	   ptr->exception_table[i].handler_pc,
+	   ptr->exception_table[i].catch_type);
+    #endif
+  }
+
+  ptr->attributes_count = read_u2(fp);
+  ptr->attributes = calloc(sizeof(attribute_info), ptr->attributes_count);
+
+  #ifdef DEBUG
+  printf("\t\tAttributes count: 0x%04x\n", ptr->attributes_count);
+  #endif
+
+  if (ptr->attributes_count != 0) {
+    assert(ptr->attributes);
+  }
+
+  for (uint16_t i = 0; i < ptr->attributes_count; i++) {
+    read_attribute_info(fp, &ptr->attributes[i], cp);
+  }
+}
+
+void read_constantvalue_attribute(ConstantValue_attribute *ptr, FILE *fp) {
+  assert(fp);
+  assert(ptr);
+
+  ptr->constantvalue_index = read_u2(fp);
+}
+
+void read_exceptions_attribute(Exceptions_attribute *ptr, FILE *fp) {
+  assert(fp);
+  assert(ptr);
+
+  ptr->number_of_exceptions = read_u2(fp);
+  ptr->exception_index_table = calloc(sizeof(uint16_t), ptr->number_of_exceptions);
+
+  for (uint16_t i = 0; i < ptr->number_of_exceptions; i++) {
+    ptr->exception_index_table[i] = read_u2(fp);
+  }
+}
+
+void read_linenumbertable_attribute(LineNumberTable_attribute *ptr, FILE *fp) {
+  assert(ptr);
+  assert(fp);
+
+  ptr->line_number_table_length = read_u2(fp);
+  ptr->line_number_table = calloc(2*sizeof(uint16_t), ptr->line_number_table_length);
+
+  #ifdef DEBUG
+  printf("\t\tLineNumberTable length: 0x%04x\n", ptr->line_number_table_length);
+  #endif
+
+  if (ptr->line_number_table_length > 0) {
+    assert(ptr->line_number_table);
+  }
+
+  for (uint16_t i = 0; i < ptr->line_number_table_length; i++) {
+    ptr->line_number_table[i].start_pc = read_u2(fp);
+    ptr->line_number_table[i].line_number = read_u2(fp);
+    #ifdef DEBUG
+    printf("\t\t\t0x%04x\t0x%04x\n", ptr->line_number_table[i].start_pc,
+	   ptr->line_number_table[i].line_number);
+    #endif
+  }
 }
 
 char *get_cp_string(cp_info *cp, uint16_t index) {
