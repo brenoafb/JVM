@@ -22,7 +22,6 @@ void read_class_file(classfile *cf, FILE *fp) {
 
   // interfaces
   cf->interfaces_count = read_u2(fp);
-  printf("Interfaces count: %d (0x%d)\n", cf->interfaces_count, cf->interfaces_count);
   if (cf->interfaces_count > 0) {
     // not reading interface table yet
     // skip
@@ -52,7 +51,6 @@ void read_class_file(classfile *cf, FILE *fp) {
 }
 
 void read_constant_pool(FILE *fp, cp_info cp[], int cpsize) {
-  printf("cpsize=%d (0x%x)\n", cpsize, cpsize);
   for (int i = 0; i < cpsize - 1; i++) {
     cp_info *ptr = &cp[i];
     ptr->tag = read_u1(fp);
@@ -66,47 +64,36 @@ void read_constant_pool_entry(FILE *fp, cp_info *cp) {
 
   switch (cp->tag) {
   case CONSTANT_Class:
-    printf("Reading class\n");
     read_Class_info(&cp->info.class_info, fp);
     break;
   case CONSTANT_Fieldref:
-    printf("Reading fieldref\n");
     read_Fieldref_info(&cp->info.fieldref_info, fp);
     break;
   case CONSTANT_Methodref:
-    printf("Reading methodref\n");
     read_Methodref_info(&cp->info.methodref_info, fp);
     break;
   case CONSTANT_InterfaceMethodref:
-    printf("Reading interfacemethodref\n");
     read_InterfaceMethodref_info(&cp->info.interfacemethodref_info, fp);
     break;
   case CONSTANT_String:
-    printf("Reading string\n");
     read_String_info(&cp->info.string_info, fp);
     break;
   case CONSTANT_Integer:
-    printf("Reading integer\n");
     read_Integer_info(&cp->info.integer_info, fp);
     break;
   case CONSTANT_Float:
-    printf("Reading float\n");
     read_Float_info(&cp->info.float_info, fp);
     break;
   case CONSTANT_Long:
-    printf("Reading long\n");
     read_Long_info(&cp->info.long_info, fp);
     break;
   case CONSTANT_Double:
-    printf("Reading double\n");
     read_Double_info(&cp->info.double_info, fp);
     break;
   case CONSTANT_NameAndType:
-    printf("Reading nameandtype\n");
     read_NameAndType_info(&cp->info.nameandtype_info, fp);
     break;
   case CONSTANT_Utf8:
-    printf("Reading utf8\n");
     read_Utf8_info(&cp->info.utf8_info, fp);
     break;
   default:
@@ -116,7 +103,6 @@ void read_constant_pool_entry(FILE *fp, cp_info *cp) {
 }
 
 void read_fields(FILE *fp, field_info fields[], uint16_t fields_count, cp_info *cp) {
-  printf("fields_count=%d (0x%x)\n", fields_count, fields_count);
   for (int i = 0; i < fields_count; i++) {
     field_info *ptr = &fields[i];
     read_field_entry(fp, ptr, cp);
@@ -140,7 +126,6 @@ void read_field_entry(FILE *fp, field_info *field, cp_info *cp) {
 }
 
 void read_methods(FILE *fp, method_info methods[], uint16_t methods_count, cp_info *cp) {
-  printf("methods_count=%d (0x%x)\n", methods_count, methods_count);
   for (int i = 0; i < methods_count; i++) {
     method_info *ptr = &methods[i];
     read_method_entry(fp, ptr, cp);
@@ -153,7 +138,6 @@ void read_method_entry(FILE *fp, method_info *method, cp_info *cp) {
 
 
 void read_attributes(FILE *fp, attribute_info attributes[], uint16_t attributes_count, cp_info *cp) {
-  printf("attributes_count=%d (0x%x)\n", attributes_count, attributes_count);
   for (int i = 0; i < attributes_count; i++) {
     attribute_info *ptr = &attributes[i];
     read_attribute_info(fp, ptr, cp);
@@ -166,21 +150,16 @@ void read_attribute_info(FILE *fp, attribute_info *ptr, cp_info *cp) {
   assert(cp);
 
   ptr->attribute_name_index = read_u2(fp);
-  printf("attribute_name_index: %d (0x%x)\n", ptr->attribute_name_index, ptr->attribute_name_index);
 
   ptr->attribute_length = read_u4(fp);
-  printf("attribute_length: %d (0x%x)\n", ptr->attribute_length, ptr->attribute_length);
 
   char *str = get_cp_string(cp, ptr->attribute_name_index - 1);
 
   if (strcmp("Code", str) == 0) {
-    printf("Code attribute\n");
     read_code_attribute(&ptr->info.code, fp);
   } else if (strcmp("ConstantValue", str) == 0) {
-    printf("ConstantValue attribute\n");
     read_constantvalue_attribute(&ptr->info.constantvalue, fp);
   } else if (strcmp("Exceptions", str) == 0) {
-    printf("Exceptions attribute\n");
     read_exceptions_attribute(&ptr->info.exceptions, fp);
   } else {
     printf("Warning: unknown attribute type %s\n", str);
