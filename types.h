@@ -56,14 +56,19 @@ typedef struct {
   } *line_number_table;
 } LineNumberTable_attribute;
 
+typedef struct {
+  uint16_t index;
+} SourceFile_attribute;
+
 typedef struct attribute_info {
   uint16_t attribute_name_index;
   uint32_t attribute_length;
   union {
-    ConstantValue_attribute constantvalue;
-    Code_attribute code;
-    Exceptions_attribute exceptions;
-    LineNumberTable_attribute linenumbertable;
+    ConstantValue_attribute    constantvalue;
+    Code_attribute             code;
+    Exceptions_attribute       exceptions;
+    LineNumberTable_attribute  linenumbertable;
+    SourceFile_attribute       sourcefile;
   } info;
 } attribute_info;
 

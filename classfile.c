@@ -211,6 +211,9 @@ void read_attribute_info(FILE *fp, attribute_info *ptr, cp_info *cp) {
     read_exceptions_attribute(&ptr->info.exceptions, fp);
   } else if (strcmp("LineNumberTable", str) == 0) {
     read_linenumbertable_attribute(&ptr->info.linenumbertable, fp);
+  } else if (strcmp("SourceFile", str) == 0) {
+    read_sourcefile_attribute(&ptr->info.sourcefile, fp);
+    assert(cp[ptr->info.sourcefile.index-1].tag == CONSTANT_Utf8);
   } else {
     printf("Warning: unknown attribute type %s\n", str);
   }
@@ -328,6 +331,14 @@ void read_linenumbertable_attribute(LineNumberTable_attribute *ptr, FILE *fp) {
     #endif
   }
 }
+
+void read_sourcefile_attribute(SourceFile_attribute *ptr, FILE *fp) {
+  assert(ptr);
+  assert(fp);
+
+  ptr->index = read_u2(fp);
+}
+
 
 char *get_cp_string(cp_info *cp, uint16_t index) {
   assert(cp);

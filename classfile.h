@@ -51,6 +51,7 @@ void read_code_attribute(Code_attribute *ptr, FILE *fp, cp_info *cp);
 void read_constantvalue_attribute(ConstantValue_attribute *ptr, FILE *fp);
 void read_exceptions_attribute(Exceptions_attribute *ptr, FILE *fp);
 void read_linenumbertable_attribute(LineNumberTable_attribute *ptr, FILE *fp);
+void read_sourcefile_attribute(SourceFile_attribute *ptr, FILE *fp);
 
 char *get_cp_string(cp_info *cp, uint16_t index);
 
