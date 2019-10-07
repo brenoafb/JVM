@@ -401,12 +401,21 @@ void print_cp_detail(classfile *cf) {
   }
 }
 
-void deinit_cp_entry(cp_info *ptr) {
-  assert(ptr);
-  if (ptr->tag == CONSTANT_Utf8) {
-    CONSTANT_Utf8_info *info = &ptr->info.utf8_info;
-    free(info->bytes);
-  }
+void deinit_class_file(classfile *cf) {
+
+  deinit_fields(cf->fields, cf->fields_count, cf->constant_pool);
+  free(cf->fields);
+
+  deinit_methods(cf->methods, cf->methods_count, cf->constant_pool);
+  free(cf->methods);
+
+  deinit_attributes(cf->attributes, cf->attributes_count, cf->constant_pool);
+  free(cf->attributes);
+
+  deinit_constant_pool(cf->constant_pool, cf->cpsize);
+  free(cf->constant_pool);
+
+  // TODO free interfaces
 }
 
 void deinit_constant_pool(cp_info cp[], uint16_t cpsize) {
@@ -415,50 +424,69 @@ void deinit_constant_pool(cp_info cp[], uint16_t cpsize) {
   }
 }
 
-void deinit_class_file(classfile *cf) {
-  deinit_constant_pool(cf->constant_pool, cf->cpsize);
-  free(cf->constant_pool);
-
-  deinit_fields(cf->fields, cf->fields_count);
-  free(cf->fields);
-
-  deinit_methods(cf->methods, cf->methods_count);
-  free(cf->methods);
-
-  deinit_attributes(cf->attributes, cf->attributes_count);
-  free(cf->attributes);
-
-  // TODO free interfaces
-}
-
-void deinit_fields(field_info fields[], uint16_t fields_count) {
-  for (int i = 0; i < fields_count; i++) {
-    deinit_field_entry(&fields[i]);
+void deinit_cp_entry(cp_info *ptr) {
+  assert(ptr);
+  if (ptr->tag == CONSTANT_Utf8) {
+    CONSTANT_Utf8_info *info = &ptr->info.utf8_info;
+    free(info->bytes);
   }
 }
-void deinit_field_entry(field_info *ptr) {
+
+
+void deinit_fields(field_info fields[], uint16_t fields_count, cp_info *cp) {
+  for (int i = 0; i < fields_count; i++) {
+    deinit_field_entry(&fields[i], cp);
+  }
+}
+void deinit_field_entry(field_info *ptr, cp_info *cp) {
   for (int i = 0; i < ptr->attributes_count; i++) {
-    deinit_attribute_info(&ptr->attributes[i]);
+    deinit_attribute_info(&ptr->attributes[i], cp);
   }
   free(ptr->attributes);
 }
 
-void deinit_methods(method_info methods[], uint16_t method_count) {
+void deinit_methods(method_info methods[], uint16_t method_count, cp_info *cp) {
   for (int i = 0; i < method_count; i++) {
-    deinit_method_entry(&methods[i]);
+    deinit_method_entry(&methods[i], cp);
   }
 }
 
-void deinit_method_entry(method_info *ptr) {
-  deinit_field_entry((field_info *) ptr);
+void deinit_method_entry(method_info *ptr, cp_info *cp) {
+  deinit_field_entry((field_info *) ptr, cp);
 }
 
-void deinit_attributes(attribute_info attributes[], uint16_t attributes_count) {
+void deinit_attributes(attribute_info attributes[], uint16_t attributes_count, cp_info *cp) {
   for (int i = 0; i < attributes_count; i++) {
-    deinit_attribute_info(&attributes[i]);
+    deinit_attribute_info(&attributes[i], cp);
   }
 }
 
-void deinit_attribute_info(attribute_info *ptr) {
-  // TODO
+void deinit_attribute_info(attribute_info *ptr, cp_info *cp) {
+  if (!ptr) return;
+  assert(cp);
+
+  char *str = get_cp_string(cp, ptr->attribute_name_index - 1);
+
+  if (strcmp("Code", str) == 0) {
+    deinit_code_attribute(&ptr->info.code, cp);
+  } else if (strcmp("Exceptions", str) == 0) {
+    deinit_exceptions_attribute(&ptr->info.exceptions);
+  } else if (strcmp("LineNumberTable", str) == 0) {
+    deinit_linenumbertable_attribute(&ptr->info.linenumbertable);
+  }
+}
+
+void deinit_code_attribute(Code_attribute *ptr, cp_info *cp) {
+  free(ptr->code);
+  free(ptr->exception_table);
+  deinit_attributes(ptr->attributes, ptr->attributes_count, cp);
+  free(ptr->attributes);
+}
+
+void deinit_exceptions_attribute(Exceptions_attribute *ptr) {
+  free(ptr->exception_index_table);
+}
+
+void deinit_linenumbertable_attribute(LineNumberTable_attribute *ptr) {
+  free(ptr->line_number_table);
 }
