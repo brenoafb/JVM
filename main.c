@@ -23,4 +23,6 @@ int main(int argc, char *argv[]) {
   deinit_class_file(&cf);
 
   fclose(fp);
+
+  return 0;
 }

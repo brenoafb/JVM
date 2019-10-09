@@ -1,5 +1,5 @@
 CC=gcc
-CFLAGS= -D DEBUG -g -std=c99 -Wall -Wextra -I.
+CFLAGS= -D DEBUG -g -ansi -Wall -Wextra -I.
 DEPS = types.h utils.h constant_info.h classfile.h
 OBJ = utils.o constant_info.o classfile.o
 MAINSRC = main.c

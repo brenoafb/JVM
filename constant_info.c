@@ -49,7 +49,7 @@ void read_Integer_info(CONSTANT_Integer_info *ptr, FILE *fp) {
 void read_Float_info(CONSTANT_Float_info *ptr, FILE *fp) {
   CONSTANT_read_verify(Float);
   ptr->bytes = read_u4(fp);
-  // TODO That float was read correctly (i.e. as a float)
+  /* TODO check that float was read correctly (i.e. as a float) */
 }
 
 void read_Long_info(CONSTANT_Long_info *ptr, FILE *fp) {
@@ -62,5 +62,5 @@ void read_Double_info(CONSTANT_Double_info *ptr, FILE *fp) {
   CONSTANT_read_verify(Double);
   ptr->high_bytes = read_u4(fp);
   ptr->low_bytes = read_u4(fp);
-  // TODO That double was read correctly (i.e. as a double)
+  /* TODO That double was read correctly (i.e. as a double) */
 }

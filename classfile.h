@@ -13,7 +13,7 @@ typedef struct {
   uint16_t major_version;
 
   uint16_t cpsize;
-  cp_info *constant_pool; // n=constant_pool_count-1
+  cp_info *constant_pool; /* n=constant_pool_count-1 */
 
   uint16_t access_flags;
 
@@ -21,16 +21,16 @@ typedef struct {
   uint16_t super_class;
 
   uint16_t interfaces_count;
-  uint16_t *interfaces; // n=interfaces_count
+  uint16_t *interfaces; /* n=interfaces_count */
 
   uint16_t fields_count;
-  field_info *fields; // n=fieds_count
+  field_info *fields; /* n=fieds_count */
 
   uint16_t methods_count;
-  method_info *methods; // n=methods_count
+  method_info *methods; /* n=methods_count */
 
   uint16_t attributes_count;
-  attribute_info *attributes; //n=attributes_count
+  attribute_info *attributes; /*n=attributes_count */
 } classfile;
 
 void read_class_file(classfile *cf, FILE *fp);

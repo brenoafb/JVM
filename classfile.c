@@ -6,7 +6,7 @@ void read_class_file(classfile *cf, FILE *fp) {
 
   cf->magic = read_u4(fp);
 
-  // minor/major version
+  /* minor/major version */
   cf->minor_version = read_u2(fp);
   cf->major_version = read_u2(fp);
 
@@ -16,7 +16,7 @@ void read_class_file(classfile *cf, FILE *fp) {
   printf("Major: %d (0x%04x)\n", cf->major_version, cf->major_version);
   #endif
 
-  // constant-pool
+  /* constant-pool */
 
   cf->cpsize = read_u2(fp);
   cf->constant_pool = calloc(sizeof(cp_info), cf->cpsize);
@@ -25,7 +25,7 @@ void read_class_file(classfile *cf, FILE *fp) {
   #endif
   read_constant_pool(fp, cf->constant_pool, cf->cpsize);
 
-  // access flags, this/super class
+  /* access flags, this/super class */
   cf->access_flags = read_u2(fp);
   cf->this_class = read_u2(fp);
   cf->super_class = read_u2(fp);
@@ -36,17 +36,17 @@ void read_class_file(classfile *cf, FILE *fp) {
   printf("Super class: 0x%04x\n", cf->super_class);
   #endif
 
-  // interfaces
+  /* interfaces */
   cf->interfaces_count = read_u2(fp);
   #ifdef DEBUG
   printf("Interfaces count: %d (0x%04x)\n", cf->interfaces_count, cf->interfaces_count);
   #endif
 
   if (cf->interfaces_count > 0) {
-    // not reading interface table yet
+    /* NOTE: not reading interface table yet */
   }
 
-  // fields
+  /* fields */
   cf->fields_count = read_u2(fp);
   #ifdef DEBUG
   printf("Fields count: %d (0x%04x)\n", cf->fields_count, cf->fields_count);
@@ -57,7 +57,7 @@ void read_class_file(classfile *cf, FILE *fp) {
     read_fields(fp, cf->fields, cf->fields_count, cf->constant_pool);
   }
 
-  // methods
+  /* methods */
   cf->methods_count = read_u2(fp);
   #ifdef DEBUG
   printf("Methods count: %d (0x%04x)\n", cf->methods_count, cf->methods_count);
@@ -68,7 +68,7 @@ void read_class_file(classfile *cf, FILE *fp) {
     read_methods(fp, cf->methods, cf->methods_count, cf->constant_pool);
   }
 
-  // attributes
+  /* attributes */
   cf->attributes_count = read_u2(fp);
   #ifdef DEBUG
   printf("Attributes count: %d (0x%04x)\n", cf->attributes_count, cf->attributes_count);
@@ -81,7 +81,8 @@ void read_class_file(classfile *cf, FILE *fp) {
 }
 
 void read_constant_pool(FILE *fp, cp_info cp[], int cpsize) {
-  for (int i = 0; i < cpsize - 1; i++) {
+  int i;
+  for (i = 0; i < cpsize - 1; i++) {
     cp_info *ptr = &cp[i];
     ptr->tag = read_u1(fp);
     #ifdef DEBUG
@@ -90,7 +91,7 @@ void read_constant_pool(FILE *fp, cp_info cp[], int cpsize) {
     read_constant_pool_entry(fp, ptr);
     if (ptr->tag == CONSTANT_Double ||
 	ptr->tag == CONSTANT_Long) {
-      // Double/Longs occupy two slots in the constant pool
+      /* Double/Longs occupy two slots in the constant pool */
       i++;
     }
   }
@@ -141,7 +142,8 @@ void read_constant_pool_entry(FILE *fp, cp_info *cp) {
 }
 
 void read_fields(FILE *fp, field_info fields[], uint16_t fields_count, cp_info *cp) {
-  for (int i = 0; i < fields_count; i++) {
+  int i;
+  for (i = 0; i < fields_count; i++) {
     field_info *ptr = &fields[i];
     read_field_entry(fp, ptr, cp);
   }
@@ -172,7 +174,8 @@ void read_field_entry(FILE *fp, field_info *field, cp_info *cp) {
 }
 
 void read_methods(FILE *fp, method_info methods[], uint16_t methods_count, cp_info *cp) {
-  for (int i = 0; i < methods_count; i++) {
+  int i;
+  for (i = 0; i < methods_count; i++) {
     method_info *ptr = &methods[i];
     read_method_entry(fp, ptr, cp);
   }
@@ -184,7 +187,8 @@ void read_method_entry(FILE *fp, method_info *method, cp_info *cp) {
 
 
 void read_attributes(FILE *fp, attribute_info attributes[], uint16_t attributes_count, cp_info *cp) {
-  for (int i = 0; i < attributes_count; i++) {
+  int i;
+  for (i = 0; i < attributes_count; i++) {
     attribute_info *ptr = &attributes[i];
     read_attribute_info(fp, ptr, cp);
   }
@@ -229,6 +233,8 @@ void read_code_attribute(Code_attribute *ptr, FILE *fp, cp_info *cp) {
   assert(ptr);
   assert(cp);
 
+  uint32_t i;
+
   ptr->max_stack = read_u2(fp);
   ptr->max_locals = read_u2(fp);
   ptr->code_length = read_u4(fp);
@@ -242,7 +248,7 @@ void read_code_attribute(Code_attribute *ptr, FILE *fp, cp_info *cp) {
   printf("\t\tInstructions:\n");
   #endif
 
-  for (uint32_t i = 0; i < ptr->code_length; i++) {
+  for (i = 0; i < ptr->code_length; i++) {
     ptr->code[i] = read_u1(fp);
     #ifdef DEBUG
     printf("\t\t\t0x%02x\n", ptr->code[i]);
@@ -263,7 +269,7 @@ void read_code_attribute(Code_attribute *ptr, FILE *fp, cp_info *cp) {
   }
   #endif
 
-  for (uint16_t i = 0; i < ptr->exception_table_length; i++) {
+  for (i = 0; i < ptr->exception_table_length; i++) {
     ptr->exception_table[i].start_pc = read_u2(fp);
     ptr->exception_table[i].end_pc = read_u2(fp);
     ptr->exception_table[i].handler_pc = read_u2(fp);
@@ -288,7 +294,7 @@ void read_code_attribute(Code_attribute *ptr, FILE *fp, cp_info *cp) {
     assert(ptr->attributes);
   }
 
-  for (uint16_t i = 0; i < ptr->attributes_count; i++) {
+  for (i = 0; i < ptr->attributes_count; i++) {
     read_attribute_info(fp, &ptr->attributes[i], cp);
   }
 }
@@ -307,7 +313,8 @@ void read_exceptions_attribute(Exceptions_attribute *ptr, FILE *fp) {
   ptr->number_of_exceptions = read_u2(fp);
   ptr->exception_index_table = calloc(sizeof(uint16_t), ptr->number_of_exceptions);
 
-  for (uint16_t i = 0; i < ptr->number_of_exceptions; i++) {
+  uint16_t i;
+  for (i = 0; i < ptr->number_of_exceptions; i++) {
     ptr->exception_index_table[i] = read_u2(fp);
   }
 }
@@ -327,7 +334,8 @@ void read_linenumbertable_attribute(LineNumberTable_attribute *ptr, FILE *fp) {
     assert(ptr->line_number_table);
   }
 
-  for (uint16_t i = 0; i < ptr->line_number_table_length; i++) {
+  uint16_t i;
+  for (i = 0; i < ptr->line_number_table_length; i++) {
     ptr->line_number_table[i].start_pc = read_u2(fp);
     ptr->line_number_table[i].line_number = read_u2(fp);
     #ifdef DEBUG
@@ -374,8 +382,9 @@ void print_class_file_summary(classfile *cf) {
 }
 
 void print_cp_detail(classfile *cf) {
+  int i;
   printf("Constant pool members:\n");
-  for (int i = 0; i < cf->cpsize-1; i++) {
+  for (i = 0; i < cf->cpsize-1; i++) {
     printf("\t%d: ", i);
     switch(cf->constant_pool[i].tag) {
     case CONSTANT_Utf8                 :
@@ -433,11 +442,12 @@ void deinit_class_file(classfile *cf) {
   deinit_constant_pool(cf->constant_pool, cf->cpsize);
   free(cf->constant_pool);
 
-  // TODO free interfaces
+  /* TODO free interfaces */
 }
 
 void deinit_constant_pool(cp_info cp[], uint16_t cpsize) {
-  for (int i = 0; i < cpsize; i++) {
+  int i;
+  for (i = 0; i < cpsize; i++) {
     deinit_cp_entry(&cp[i]);
   }
 }
@@ -452,19 +462,22 @@ void deinit_cp_entry(cp_info *ptr) {
 
 
 void deinit_fields(field_info fields[], uint16_t fields_count, cp_info *cp) {
-  for (int i = 0; i < fields_count; i++) {
+  int i;
+  for (i = 0; i < fields_count; i++) {
     deinit_field_entry(&fields[i], cp);
   }
 }
 void deinit_field_entry(field_info *ptr, cp_info *cp) {
-  for (int i = 0; i < ptr->attributes_count; i++) {
+  int i;
+  for (i = 0; i < ptr->attributes_count; i++) {
     deinit_attribute_info(&ptr->attributes[i], cp);
   }
   free(ptr->attributes);
 }
 
 void deinit_methods(method_info methods[], uint16_t method_count, cp_info *cp) {
-  for (int i = 0; i < method_count; i++) {
+  int i;
+  for (i = 0; i < method_count; i++) {
     deinit_method_entry(&methods[i], cp);
   }
 }
@@ -474,7 +487,8 @@ void deinit_method_entry(method_info *ptr, cp_info *cp) {
 }
 
 void deinit_attributes(attribute_info attributes[], uint16_t attributes_count, cp_info *cp) {
-  for (int i = 0; i < attributes_count; i++) {
+  int i;
+  for (i = 0; i < attributes_count; i++) {
     deinit_attribute_info(&attributes[i], cp);
   }
 }
