@@ -88,6 +88,11 @@ void read_constant_pool(FILE *fp, cp_info cp[], int cpsize) {
     printf("\t%d\t0x%02x\n", i+1, ptr->tag);
     #endif
     read_constant_pool_entry(fp, ptr);
+    if (ptr->tag == CONSTANT_Double ||
+	ptr->tag == CONSTANT_Long) {
+      // Double/Longs occupy two slots in the constant pool
+      i++;
+    }
   }
 }
 
@@ -386,9 +391,11 @@ void print_cp_detail(classfile *cf) {
       break;
     case CONSTANT_Long                 :
       printf("Long\n");
+      i++;
       break;
     case CONSTANT_Double               :
       printf("Double\n");
+      i++;
       break;
     case CONSTANT_Class                :
       printf("Class\n");
