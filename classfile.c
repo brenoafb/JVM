@@ -222,7 +222,7 @@ void read_attribute_info(FILE *fp, attribute_info *ptr, cp_info *cp) {
     read_linenumbertable_attribute(&ptr->info.linenumbertable, fp);
   } else if (strcmp("SourceFile", str) == 0) {
     read_sourcefile_attribute(&ptr->info.sourcefile, fp);
-    assert(cp[ptr->info.sourcefile.index-1].tag == CONSTANT_Utf8);
+    assert(cp[ptr->info.sourcefile.index].tag == CONSTANT_Utf8);
   } else {
     printf("Warning: unknown attribute type %s\n", str);
   }
@@ -479,7 +479,7 @@ void deinit_class_file(classfile *cf) {
 
 void deinit_constant_pool(cp_info cp[], uint16_t cpsize) {
   int i;
-  for (i = 0; i < cpsize; i++) {
+  for (i = 1; i < cpsize; i++) {
     deinit_cp_entry(&cp[i]);
   }
 }
