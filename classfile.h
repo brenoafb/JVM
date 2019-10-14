@@ -114,7 +114,7 @@ void read_sourcefile_attribute(SourceFile_attribute *ptr, FILE *fp);
 /**
  * Return pointer to string in constant pool table.
  * Entry in constant pool must have tag CONSTANT_Utf8.
- * Indices start from 0.
+ * Indices start at 1.
  */
 char *get_cp_string(cp_info *cp, uint16_t index);
 
@@ -123,6 +123,11 @@ char *get_cp_string(cp_info *cp, uint16_t index);
  * i.e. Prints the values read but not the tables.
  */
 void print_class_file_summary(classfile *cf);
+
+/**
+ * Print class file detail.
+ */
+void print_class_file_detail(classfile *cf);
 
 /**
  * Print constant pool detail.

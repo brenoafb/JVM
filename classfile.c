@@ -82,7 +82,7 @@ void read_class_file(classfile *cf, FILE *fp) {
 
 void read_constant_pool(FILE *fp, cp_info cp[], int cpsize) {
   int i;
-  for (i = 0; i < cpsize - 1; i++) {
+  for (i = 1; i < cpsize; i++) {
     cp_info *ptr = &cp[i];
     ptr->tag = read_u1(fp);
     #ifdef DEBUG
@@ -204,7 +204,7 @@ void read_attribute_info(FILE *fp, attribute_info *ptr, cp_info *cp) {
   ptr->attribute_length = read_u4(fp);
 
 
-  char *str = get_cp_string(cp, ptr->attribute_name_index - 1);
+  char *str = get_cp_string(cp, ptr->attribute_name_index);
 
   #ifdef DEBUG
   printf("\t\tAttr: 0x%04x 0x%08x %s\n", ptr->attribute_name_index,
@@ -381,11 +381,15 @@ void print_class_file_summary(classfile *cf) {
   printf("attributes_count=%d\n", cf->attributes_count);
 }
 
+void print_class_file_detail(classfile *cf) {
+  print_cp_detail(cf);
+}
+
 void print_cp_detail(classfile *cf) {
   int i;
   printf("Constant pool:\n");
-  for (i = 0; i < cf->cpsize-1; i++) {
-    printf("\t%d: ", i+1);
+  for (i = 1; i < cf->cpsize; i++) {
+    printf("\t%d: ", i);
     switch(cf->constant_pool[i].tag) {
     case CONSTANT_Utf8                 :
       printf("Utf8:\t");
@@ -525,7 +529,7 @@ void deinit_attribute_info(attribute_info *ptr, cp_info *cp) {
   if (!ptr) return;
   assert(cp);
 
-  char *str = get_cp_string(cp, ptr->attribute_name_index - 1);
+  char *str = get_cp_string(cp, ptr->attribute_name_index);
 
   if (strcmp("Code", str) == 0) {
     deinit_code_attribute(&ptr->info.code, cp);
