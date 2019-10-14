@@ -383,46 +383,74 @@ void print_class_file_summary(classfile *cf) {
 
 void print_cp_detail(classfile *cf) {
   int i;
-  printf("Constant pool members:\n");
+  printf("Constant pool:\n");
   for (i = 0; i < cf->cpsize-1; i++) {
-    printf("\t%d: ", i);
+    printf("\t%d: ", i+1);
     switch(cf->constant_pool[i].tag) {
     case CONSTANT_Utf8                 :
-      printf("Utf8: ");
+      printf("Utf8:\t");
       char *str = get_cp_string(cf->constant_pool, i);
       printf("\"%s\"\n", str);
       break;
     case CONSTANT_Integer              :
-      printf("Integer\n");
+      printf("Integer\t");
+      uint32_t x = cf->constant_pool[i].info.integer_info.bytes;
+      printf("%d\n", x);
       break;
     case CONSTANT_Float                :
-      printf("Float\n");
+      printf("Float\t");
+      float f = cf->constant_pool[i].info.float_info.bytes;
+      printf("%f\n", f);
       break;
     case CONSTANT_Long                 :
-      printf("Long\n");
+      printf("Long\t");
+      uint64_t hi = cf->constant_pool[i].info.long_info.high_bytes;
+      uint64_t lo = cf->constant_pool[i].info.long_info.low_bytes;
+      uint64_t lg = (hi << 32) | lo;
+      printf("%ld\n", lg);
       i++;
       break;
     case CONSTANT_Double               :
-      printf("Double\n");
+      printf("Double\t");
+      hi = cf->constant_pool[i].info.double_info.high_bytes;
+      lo = cf->constant_pool[i].info.double_info.low_bytes;
+      double db = (hi << 32) | lo;
+      printf("%f\n", db);
       i++;
       break;
     case CONSTANT_Class                :
-      printf("Class\n");
+      printf("Class\t");
+      uint16_t name_index = cf->constant_pool[i].info.class_info.name_index;
+      printf("#%d\n", name_index);
       break;
     case CONSTANT_String               :
-      printf("String\n");
+      printf("String\t");
+      uint16_t string_index = cf->constant_pool[i].info.string_info.string_index;
+      printf("#%d\n", string_index);
       break;
     case CONSTANT_Fieldref             :
-      printf("Fieldref\n");
+      printf("Fieldref\t");
+      uint16_t class_index = cf->constant_pool[i].info.fieldref_info.class_index;
+      uint16_t name_and_type_index = cf->constant_pool[i].info.fieldref_info.name_and_type_index;
+      printf("#%d.#%d\n", class_index, name_and_type_index);
       break;
     case CONSTANT_Methodref            :
-      printf("Methodref\n");
+      printf("Methodref\t");
+      class_index = cf->constant_pool[i].info.methodref_info.class_index;
+      name_and_type_index = cf->constant_pool[i].info.methodref_info.name_and_type_index;
+      printf("#%d.#%d\n", class_index, name_and_type_index);
       break;
     case CONSTANT_InterfaceMethodref   :
-      printf("InterfaceMethodref\n");
+      printf("InterfaceMethodref\t");
+      class_index = cf->constant_pool[i].info.methodref_info.class_index;
+      name_and_type_index = cf->constant_pool[i].info.methodref_info.name_and_type_index;
+      printf("#%d.#%d\n", class_index, name_and_type_index);
       break;
     case CONSTANT_NameAndType          :
-      printf("NameAndType\n");
+      printf("NameAndType\t");
+      name_index = cf->constant_pool[i].info.nameandtype_info.name_index;
+      uint16_t descriptor_index = cf->constant_pool[i].info.nameandtype_info.descriptor_index;
+      printf("#%d:#%d\n", name_index, descriptor_index);
       break;
     }
   }
