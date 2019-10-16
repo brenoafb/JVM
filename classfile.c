@@ -438,7 +438,7 @@ void print_cp_detail(classfile *cf) {
       uint64_t conc = ((long) hi << 32) + lo;
       double db;
 
-      memcpy(&db, &conc, 8);
+      memcpy(&db, &conc, sizeof(double));
 
       printf("%lf\n", db);
       i++;
