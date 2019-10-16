@@ -21,63 +21,63 @@
   assert(ptr);                          \
   assert(fp);                           \
 
-// id 7
+/* id 7 */
 typedef struct {
   uint16_t name_index;
 } CONSTANT_Class_info;
 
-// id 9
+/* id 9 */
 typedef struct {
   uint16_t class_index;
   uint16_t name_and_type_index;
 } CONSTANT_Fieldref_info;
 
-// id 10
+/* id 10 */
 typedef struct {
   uint16_t class_index;
   uint16_t name_and_type_index;
 } CONSTANT_Methodref_info;
 
-// id 11
+/* id 11 */
 typedef struct {
   uint16_t class_index;
   uint16_t name_and_type_index;
 } CONSTANT_InterfaceMethodref_info;
 
-// id 8
+/* id 8 */
 typedef struct {
   uint16_t string_index;
 } CONSTANT_String_info;
 
-// id 3
+/* id 3 */
 typedef struct {
   uint32_t bytes;
 } CONSTANT_Integer_info;
 
-// id 4
+/* id 4 */
 typedef struct {
   uint32_t bytes;
 } CONSTANT_Float_info;
 
-// id 5
+/* id 5 */
 typedef struct {
   uint32_t high_bytes;
   uint32_t low_bytes;
 } CONSTANT_Long_info;
 
-// id 6
+/* id 6 */
 typedef struct {
   uint32_t high_bytes;
   uint32_t low_bytes;
 } CONSTANT_Double_info;
 
-// id 12
+/* id 12 */
 typedef struct {
   uint16_t name_index;
   uint16_t descriptor_index;
 } CONSTANT_NameAndType_info;
 
-// id 1
+/* id 1 */
 typedef struct {
   uint16_t length;
   uint8_t *bytes;

@@ -1,6 +1,6 @@
 CC=gcc
-CFLAGS=-Wall -Wextra -I.
-DEPS = types.h utils.h constant_info.h classfile.h attributes.h
+CFLAGS= -D DEBUG -g -ansi -Wall -Wextra -I.
+DEPS = types.h utils.h constant_info.h classfile.h
 OBJ = utils.o constant_info.o classfile.o
 MAINSRC = main.c
 
