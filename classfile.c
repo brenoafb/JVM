@@ -424,7 +424,9 @@ void print_cp_detail(classfile *cf) {
       printf("Long\t");
       uint64_t hi = cf->constant_pool[i].info.long_info.high_bytes;
       uint64_t lo = cf->constant_pool[i].info.long_info.low_bytes;
+
       uint64_t lg = (hi << 32) | lo;
+
       printf("%ld\n", lg);
       i++;
       break;
@@ -432,8 +434,13 @@ void print_cp_detail(classfile *cf) {
       printf("Double\t");
       hi = cf->constant_pool[i].info.double_info.high_bytes;
       lo = cf->constant_pool[i].info.double_info.low_bytes;
-      double db = (hi << 32) | lo;
-      printf("%f\n", db);
+
+      uint64_t conc = ((long) hi << 32) + lo;
+      double db;
+
+      memcpy(&db, &conc, 8);
+
+      printf("%lf\n", db);
       i++;
       break;
     case CONSTANT_Class                :

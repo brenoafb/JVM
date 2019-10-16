@@ -7,6 +7,8 @@ MAINSRC = main.c
 %.o: %.c $(DEPS)
 	$(CC) -c -o $@ $< $(CFLAGS)
 
+all: main.out
+
 main.out: $(OBJ)
 	$(CC) -o $@ $^ $(MAINSRC) $(CFLAGS)
 
