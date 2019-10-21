@@ -520,17 +520,19 @@ void print_attributes_detail(attribute_info *ptr, cp_info *cp) {
     printf("\tCode:\n");
     print_code_attribute(&ptr->info.code, cp);
   } else if (strcmp("ConstantValue", str) == 0) {
-    printf("\tConstantValue:\n");
+    printf("\t\tConstantValue:\n");
   } else if (strcmp("Exceptions", str) == 0) {
-    printf("\tExceptions:\n");
+    printf("\t\tExceptions:\n");
   } else if (strcmp("LineNumberTable", str) == 0) {
-    printf("\tLineNumberTable:\n");
+    printf("\t\tLineNumberTable:\n");
     print_linenumber_attribute(&ptr->info.linenumbertable);
   } else if (strcmp("SourceFile", str) == 0) {
-    printf("\tSourceFile:\n");
+    printf("\t\tSourceFile: ");
+    printf("\"%s\"\n", get_cp_string(cp, ptr->info.sourcefile.index));
   } else {
   }
 }
+
 
 void print_linenumber_attribute(LineNumberTable_attribute *ptr) {
   int i = 0;
@@ -538,18 +540,18 @@ void print_linenumber_attribute(LineNumberTable_attribute *ptr) {
   struct LineNTable* ptr_crawler = ptr->line_number_table;
 
   for (; i < ptr->line_number_table_length;i++) {
-    printf("\t line %d: %d\n", ptr_crawler->line_number, ptr_crawler->start_pc);
+    printf("\t\t line %d: %d\n", ptr_crawler->line_number, ptr_crawler->start_pc);
     ptr_crawler += 1;
   }
 }
 
 void print_code_attribute(Code_attribute *ptr, cp_info *cp) {
-    printf("\t stack=%d, locals=%d\n",
+    printf("\t\t stack=%d, locals=%d\n",
 	   ptr->max_stack,
 	   ptr->max_locals);
     uint32_t i;
     for (i = 0; i < ptr->code_length; i++) {
-      printf("\t  0x%x\n", ptr->code[i]);
+      printf("\t\t  0x%x\n", ptr->code[i]);
     }
 
     for (i = 0; i < ptr->attributes_count; i++) {
