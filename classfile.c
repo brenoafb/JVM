@@ -495,12 +495,12 @@ void print_methods_detail(classfile *cf) {
   int i, j;
 
   populate_ac_flags_method();
+
   printf("{\n");
   for (i = 0; i < cf->methods_count; i++) {
     method_info *m = &cf->methods[i];
     printf("\t%s\n", get_cp_string(cp, m->name_index));
     printf("\t Descriptor: %s\n", get_cp_string(cp, m->descriptor_index));
-
 
     printf("\t Flags: ");
     print_flags(AC_FLAGS_METHOD, m->access_flags);
@@ -525,9 +525,21 @@ void print_attributes_detail(attribute_info *ptr, cp_info *cp) {
     printf("\tExceptions:\n");
   } else if (strcmp("LineNumberTable", str) == 0) {
     printf("\tLineNumberTable:\n");
+    print_linenumber_attribute(&ptr->info.linenumbertable);
   } else if (strcmp("SourceFile", str) == 0) {
     printf("\tSourceFile:\n");
   } else {
+  }
+}
+
+void print_linenumber_attribute(LineNumberTable_attribute *ptr) {
+  int i = 0;
+
+  struct LineNTable* ptr_crawler = ptr->line_number_table;
+
+  for (; i < ptr->line_number_table_length;i++) {
+    printf("\t line %d: %d\n", ptr_crawler->line_number, ptr_crawler->start_pc);
+    ptr_crawler += 1;
   }
 }
 
