@@ -19,8 +19,8 @@ char** get_flags_name(ac_node* ac_list, uint32_t code) {
 void add_flag(ac_node** ac_list, uint32_t code, const char* name) {
     ac_node* new_node = malloc(sizeof(ac_node));
 
-    new_node->flag_name = malloc(sizeof(char) * strlen(name));
-    strcpy(new_node->flag_name, name);
+    new_node->flag_name = name;
+
     new_node->flag_code = code;
     new_node->next = NULL;
 
@@ -75,4 +75,22 @@ void populate_ac_flags_method() {
     add_flag(&AC_FLAGS_METHOD, 0x0080, "ACC_TRANSIENT");
     add_flag(&AC_FLAGS_METHOD, 0x1000, "ACC_SYNTHETIC");
     add_flag(&AC_FLAGS_METHOD, 0x4000, "ACC_ENUM");
+}
+
+void deinit_ac_flags() {
+    ac_node* ptr_list[3] = {AC_FLAGS_CLASS, AC_FLAGS_FIELD, AC_FLAGS_METHOD};
+    ac_node* ptr_crawler, *ptr_crawler_next;
+
+    int i;
+
+    for(i = 0; i < 3; i += 1){
+        ptr_crawler = ptr_list[i];
+
+        while (ptr_crawler) {
+            ptr_crawler_next = ptr_crawler->next;
+            free(ptr_crawler);
+            ptr_crawler = ptr_crawler_next;
+        }
+    }    
+
 }

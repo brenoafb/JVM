@@ -25,6 +25,6 @@ void add_flag(ac_node** ac_list, uint32_t code, const char* name);
 void populate_ac_flags_class();
 void populate_ac_flags_method();
 void print_flags(ac_node* ac_list, uint32_t code);
-
+void deinit_ac_flags();
 
 #endif
