@@ -384,11 +384,16 @@ void print_class_file_summary(classfile *cf) {
 void print_class_file_detail(classfile *cf) {
   cp_info *cp = cf->constant_pool;
   int class_name_index = cp[cf->this_class].info.class_info.name_index;
+
   printf("class %s\n", get_cp_string(cp, class_name_index));
   printf("\tminor version: %d\n", cf->minor_version);
   printf("\tmajor version: %d\n", cf->major_version);
-  printf("\tflags: \n"); /* TODO */
 
+  populate_ac_flags_class();
+
+  printf("\tflags: ");
+  print_flags(AC_FLAGS_CLASS, cf->access_flags);
+  
   printf("Constant pool:\n");
   print_cp_detail(cf);
 
@@ -417,12 +422,16 @@ void print_cp_detail(classfile *cf) {
       break;
     case CONSTANT_Float                :
       printf("Float\t");
-      float f = cf->constant_pool[i].info.float_info.bytes;
+      uint32_t hi = cf->constant_pool[i].info.float_info.bytes;
+      float f;
+
+      memcpy(&f, &hi, sizeof(float));
+
       printf("%f\n", f);
       break;
     case CONSTANT_Long                 :
       printf("Long\t");
-      uint64_t hi = cf->constant_pool[i].info.long_info.high_bytes;
+      hi = cf->constant_pool[i].info.long_info.high_bytes;
       uint64_t lo = cf->constant_pool[i].info.long_info.low_bytes;
 
       uint64_t lg = (hi << 32) | lo;
