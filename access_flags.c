@@ -63,5 +63,16 @@ void populate_ac_flags_class() {
     add_flag(&AC_FLAGS_CLASS, 0x1000, "ACC_SYNTHETIC");
     add_flag(&AC_FLAGS_CLASS, 0x2000, "ACC_ANNOTATION");
     add_flag(&AC_FLAGS_CLASS, 0x4000, "ACC_ENUM");
+}
 
+void populate_ac_flags_method() {
+    add_flag(&AC_FLAGS_METHOD, 0x0001, "ACC_PUBLIC");
+    add_flag(&AC_FLAGS_METHOD, 0x0002, "ACC_PRIVATE");
+    add_flag(&AC_FLAGS_METHOD, 0x0004, "ACC_PROTECTED");
+    add_flag(&AC_FLAGS_METHOD, 0x0008, "ACC_STATIC");
+    add_flag(&AC_FLAGS_METHOD, 0x0010, "ACC_FINAL");
+    add_flag(&AC_FLAGS_METHOD, 0x0040, "ACC_VOLATILE");
+    add_flag(&AC_FLAGS_METHOD, 0x0080, "ACC_TRANSIENT");
+    add_flag(&AC_FLAGS_METHOD, 0x1000, "ACC_SYNTHETIC");
+    add_flag(&AC_FLAGS_METHOD, 0x4000, "ACC_ENUM");
 }

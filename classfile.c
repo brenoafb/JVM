@@ -494,12 +494,17 @@ void print_methods_detail(classfile *cf) {
   cp_info *cp = cf->constant_pool;
   int i, j;
 
+  populate_ac_flags_method();
   printf("{\n");
   for (i = 0; i < cf->methods_count; i++) {
     method_info *m = &cf->methods[i];
     printf("\t%s\n", get_cp_string(cp, m->name_index));
     printf("\t Descriptor: %s\n", get_cp_string(cp, m->descriptor_index));
-    printf("\t Flags: \n");  /* TODO */
+
+
+    printf("\t Flags: ");
+    print_flags(AC_FLAGS_METHOD, m->access_flags);
+
     for (j = 0; j < m->attributes_count; j++) {
       print_attributes_detail(&m->attributes[j], cp);
     }
