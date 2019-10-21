@@ -22,6 +22,8 @@ int main(int argc, char *argv[]) {
   print_class_file_detail(&cf);
   deinit_class_file(&cf);
 
+  deinit_ac_flags();
+
   fclose(fp);
 
   return 0;

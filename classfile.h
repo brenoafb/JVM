@@ -144,6 +144,10 @@ void print_attributes_detail(attribute_info *ptr, cp_info *cp);
 
 void print_code_attribute(Code_attribute *ptr, cp_info *cp);
 
+void print_linenumber_attribute(LineNumberTable_attribute *ptr);
+
+
+
 /**
  * Deinitializes a single constant pool entry.
  */

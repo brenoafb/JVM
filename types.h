@@ -50,7 +50,7 @@ typedef struct {
 
 typedef struct {
   uint16_t line_number_table_length;
-  struct {
+  struct LineNTable{
     uint16_t start_pc;
     uint16_t line_number;
   } *line_number_table;

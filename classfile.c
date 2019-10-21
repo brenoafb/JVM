@@ -494,12 +494,17 @@ void print_methods_detail(classfile *cf) {
   cp_info *cp = cf->constant_pool;
   int i, j;
 
+  populate_ac_flags_method();
+
   printf("{\n");
   for (i = 0; i < cf->methods_count; i++) {
     method_info *m = &cf->methods[i];
     printf("\t%s\n", get_cp_string(cp, m->name_index));
     printf("\t Descriptor: %s\n", get_cp_string(cp, m->descriptor_index));
-    printf("\t Flags: \n");  /* TODO */
+
+    printf("\t Flags: ");
+    print_flags(AC_FLAGS_METHOD, m->access_flags);
+
     for (j = 0; j < m->attributes_count; j++) {
       print_attributes_detail(&m->attributes[j], cp);
     }
@@ -515,24 +520,38 @@ void print_attributes_detail(attribute_info *ptr, cp_info *cp) {
     printf("\tCode:\n");
     print_code_attribute(&ptr->info.code, cp);
   } else if (strcmp("ConstantValue", str) == 0) {
-    printf("\tConstantValue:\n");
+    printf("\t\tConstantValue:\n");
   } else if (strcmp("Exceptions", str) == 0) {
-    printf("\tExceptions:\n");
+    printf("\t\tExceptions:\n");
   } else if (strcmp("LineNumberTable", str) == 0) {
-    printf("\tLineNumberTable:\n");
+    printf("\t\tLineNumberTable:\n");
+    print_linenumber_attribute(&ptr->info.linenumbertable);
   } else if (strcmp("SourceFile", str) == 0) {
-    printf("\tSourceFile:\n");
+    printf("\t\tSourceFile: ");
+    printf("\"%s\"\n", get_cp_string(cp, ptr->info.sourcefile.index));
   } else {
   }
 }
 
+
+void print_linenumber_attribute(LineNumberTable_attribute *ptr) {
+  int i = 0;
+
+  struct LineNTable* ptr_crawler = ptr->line_number_table;
+
+  for (; i < ptr->line_number_table_length;i++) {
+    printf("\t\t line %d: %d\n", ptr_crawler->line_number, ptr_crawler->start_pc);
+    ptr_crawler += 1;
+  }
+}
+
 void print_code_attribute(Code_attribute *ptr, cp_info *cp) {
-    printf("\t stack=%d, locals=%d\n",
+    printf("\t\t stack=%d, locals=%d\n",
 	   ptr->max_stack,
 	   ptr->max_locals);
     uint32_t i;
     for (i = 0; i < ptr->code_length; i++) {
-      printf("\t  0x%x\n", ptr->code[i]);
+      printf("\t\t  0x%x\n", ptr->code[i]);
     }
 
     for (i = 0; i < ptr->attributes_count; i++) {
