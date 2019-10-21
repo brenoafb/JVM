@@ -5,6 +5,7 @@
 #include <string.h>
 #include "utils.h"
 #include "types.h"
+#include "access_flags.h"
 
 /**
  * Represents the class file.
