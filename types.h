@@ -65,6 +65,13 @@ typedef struct {
   uint32_t length;
 } Synthetic_attribute;
 
+typedef struct {
+  uint16_t index;
+  uint32_t length;
+  uint16_t n_entries;
+  /*TODO stack_map_frame*/
+} StackMapTable_attribute;
+
 typedef struct attribute_info {
   uint16_t attribute_name_index;
   uint32_t attribute_length;
@@ -75,6 +82,7 @@ typedef struct attribute_info {
     LineNumberTable_attribute  linenumbertable;
     SourceFile_attribute       sourcefile;
     Synthetic_attribute synthetic;
+    StackMapTable_attribute stackmaptable;
   } info;
 } attribute_info;
 
