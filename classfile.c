@@ -223,6 +223,8 @@ void read_attribute_info(FILE *fp, attribute_info *ptr, cp_info *cp) {
   } else if (strcmp("SourceFile", str) == 0) {
     read_sourcefile_attribute(&ptr->info.sourcefile, fp);
     assert(cp[ptr->info.sourcefile.index].tag == CONSTANT_Utf8);
+  } else if (strcmp("InnerClasses", str) == 0) {
+    read_innerclasses_attribute(&ptr->info.innerclasses, fp);
   } else {
     printf("Warning: unknown attribute type %s\n", str);
   }
@@ -350,6 +352,33 @@ void read_sourcefile_attribute(SourceFile_attribute *ptr, FILE *fp) {
   assert(fp);
 
   ptr->index = read_u2(fp);
+}
+
+void read_innerclasses_attribute(InnerClasses_attribute *ptr, FILE *fp) {
+  assert(ptr);
+  assert(fp);
+
+  ptr->number_of_classes = read_u2(fp);
+  ptr->classes = calloc(4*sizeof(uint16_t), ptr->number_of_classes);
+
+  #ifdef DEBUG
+  printf("\t\tInnerClasses Number of classes: 0x%04x\n", ptr->number_of_classes);
+  #endif
+
+  uint16_t i;
+  for (i = 0; i < ptr->number_of_classes; i++) {
+    ptr->classes[i].inner_class_info_index = read_u2(fp);
+    ptr->classes[i].outer_class_info_index = read_u2(fp);
+    ptr->classes[i].inner_name_index = read_u2(fp);
+    ptr->classes[i].inner_class_access_flags = read_u2(fp);
+
+  #ifdef DEBUG
+    printf("\t\t\t0x%04x\t0x%04x\t0x%04x\t0x%04x\n", ptr->classes[i].inner_class_info_index,
+     ptr->classes[i].outer_class_info_index,
+     ptr->classes[i].inner_name_index,
+     ptr->classes[i].inner_class_access_flags);
+  #endif
+  }
 }
 
 

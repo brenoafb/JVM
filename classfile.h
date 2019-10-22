@@ -113,6 +113,11 @@ void read_linenumbertable_attribute(LineNumberTable_attribute *ptr, FILE *fp);
 void read_sourcefile_attribute(SourceFile_attribute *ptr, FILE *fp);
 
 /**
+ * Read InnerClasses attribute.
+ */
+void read_innerclasses_attribute(InnerClasses_attribute *ptr, FILE *fp);
+
+/**
  * Return pointer to string in constant pool table.
  * Entry in constant pool must have tag CONSTANT_Utf8.
  * Indices start at 1.
