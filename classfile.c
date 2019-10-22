@@ -5,6 +5,10 @@ void read_class_file(classfile *cf, FILE *fp) {
   assert(fp);
 
   cf->magic = read_u4(fp);
+  if (cf->magic != 0xcafebabe) {
+    printf("Warning: Not a valid class file (no 0xcafebabe)\n");
+  }
+  assert(cf->magic == 0xcafebabe);
 
   /* minor/major version */
   cf->minor_version = read_u2(fp);
@@ -393,7 +397,7 @@ void print_class_file_detail(classfile *cf) {
 
   printf("\tflags: ");
   print_flags(AC_FLAGS_CLASS, cf->access_flags);
-  
+
   printf("Constant pool:\n");
   print_cp_detail(cf);
 
