@@ -351,6 +351,16 @@ void read_linenumbertable_attribute(LineNumberTable_attribute *ptr, FILE *fp) {
   }
 }
 
+void read_synthetic_attribute(Synthetic_attribute *ptr, FILE *fp){
+  assert(ptr);
+  assert(fp);
+
+  ptr->index = read_u2(fp);
+  ptr->length = read_u4(fp);
+
+  assert(!ptr->length);
+}
+
 void read_sourcefile_attribute(SourceFile_attribute *ptr, FILE *fp) {
   assert(ptr);
   assert(fp);
@@ -556,9 +566,13 @@ void print_attributes_detail(attribute_info *ptr, cp_info *cp) {
     printf("\t\tConstantValue:\n");
   } else if (strcmp("Exceptions", str) == 0) {
     printf("\t\tExceptions:\n");
+    print_exception_attribute(&ptr->info.exceptions,cp, ptr->info.code.exception_table);
   } else if (strcmp("LineNumberTable", str) == 0) {
     printf("\t\tLineNumberTable:\n");
     print_linenumber_attribute(&ptr->info.linenumbertable);
+  } else if (!strcmp("Synthetic", str)){
+    printf("\t\tIs synthetic.\n");
+    print_synthetic_attribute(&ptr->info.synthetic, cp);
   } else if (strcmp("SourceFile", str) == 0) {
     printf("\t\tSourceFile: ");
     printf("\"%s\"\n", get_cp_string(cp, ptr->info.sourcefile.index));
@@ -569,6 +583,29 @@ void print_attributes_detail(attribute_info *ptr, cp_info *cp) {
   }
 }
 
+void print_synthetic_attribute(Synthetic_attribute *ptr, cp_info *cp) {
+
+}
+
+void print_exception_attribute(Exceptions_attribute *ptr, cp_info *cp, struct ExcTable* excT) {
+  int i = 0;
+  uint16_t index_table;
+
+  printf("\t\tfrom\tto\ttarget\ttype\n");
+
+  for (;i < ptr->number_of_exceptions;i++) {
+    index_table = ptr->exception_index_table[i];
+
+    uint16_t from = (excT + index_table)->start_pc;
+    uint16_t to = (excT + index_table)->end_pc;
+    uint16_t target = (excT + index_table)->handler_pc;
+    uint16_t handler_index = (excT + index_table)->handler_pc;
+
+    char* handler = get_cp_string(cp, handler_index);
+
+    printf("%"PRIu16"\t%"PRIu16"\t%"PRIu16"\t%s\n", from, to, target, handler);
+  }
+}
 
 void print_linenumber_attribute(LineNumberTable_attribute *ptr) {
   int i = 0;

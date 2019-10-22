@@ -32,7 +32,7 @@ typedef struct {
   uint8_t *code;  /* n=code_length */
   uint16_t exception_table_length;
 
-  struct {
+  struct ExcTable{
   uint16_t start_pc;
   uint16_t end_pc;
   uint16_t handler_pc;
@@ -61,6 +61,11 @@ typedef struct {
 } SourceFile_attribute;
 
 typedef struct {
+  uint16_t index;
+  uint32_t length;
+} Synthetic_attribute;
+
+typedef struct {
   uint16_t number_of_classes;
   struct {
     uint16_t inner_class_info_index;
@@ -79,6 +84,7 @@ typedef struct attribute_info {
     Exceptions_attribute       exceptions;
     LineNumberTable_attribute  linenumbertable;
     SourceFile_attribute       sourcefile;
+    Synthetic_attribute synthetic;
     InnerClasses_attribute     innerclasses;
   } info;
 } attribute_info;
