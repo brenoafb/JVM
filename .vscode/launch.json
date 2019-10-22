@@ -6,6 +6,12 @@
     "configurations": [
         {
             "type": "java",
+            "name": "CodeLens (Launch) - SyntheticSample",
+            "request": "launch",
+            "mainClass": "SyntheticSample"
+        },
+        {
+            "type": "java",
             "name": "CodeLens (Launch) - Arithmetic",
             "request": "launch",
             "mainClass": "Arithmetic"
@@ -35,7 +41,7 @@
             "request": "launch",
             "program": "${workspaceFolder}/main.out",
             "args": [
-                "Double_arithmetic.class"
+                "JavaException.class"
             ],
             "stopAtEntry": false,
             "cwd": "${workspaceFolder}",

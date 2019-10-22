@@ -3,6 +3,7 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include <string.h>
+#include <inttypes.h>
 #include "utils.h"
 #include "types.h"
 #include "access_flags.h"
@@ -107,6 +108,9 @@ void read_exceptions_attribute(Exceptions_attribute *ptr, FILE *fp);
  */
 void read_linenumbertable_attribute(LineNumberTable_attribute *ptr, FILE *fp);
 
+
+void read_synthetic_attribute(Synthetic_attribute *ptr, FILE *fp);
+
 /**
  * Read SourceFile attribute.
  */
@@ -137,7 +141,6 @@ void print_class_file_detail(classfile *cf);
  */
 void print_cp_detail(classfile *cf);
 
-
 void print_methods_detail(classfile *cf);
 
 void print_attributes_detail(attribute_info *ptr, cp_info *cp);
@@ -146,7 +149,9 @@ void print_code_attribute(Code_attribute *ptr, cp_info *cp);
 
 void print_linenumber_attribute(LineNumberTable_attribute *ptr);
 
+void print_exception_attribute(Exceptions_attribute *ptr, cp_info *cp, struct ExcTable* excT);
 
+void print_synthetic_attribute(Synthetic_attribute* ptr, cp_info *cp);
 
 /**
  * Deinitializes a single constant pool entry.
