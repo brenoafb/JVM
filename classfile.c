@@ -596,14 +596,17 @@ void print_innerclasses_attribute(InnerClasses_attribute *ptr,cp_info *cp) {
      ptr->number_of_classes);
     uint32_t i;
     for (i = 0; i < ptr->number_of_classes; i++) {
+      /* Indexes to constant pool elements*/
       uint16_t innerclass = ptr->classes[i].inner_class_info_index;
       uint16_t outerclass = ptr->classes[i].outer_class_info_index;
       uint16_t innername = ptr->classes[i].inner_name_index;
       uint16_t access_flags = ptr->classes[i].inner_class_access_flags;
+      uint16_t innerclass_name = cp[innerclass].info.class_info.name_index;
+      uint16_t outerclass_name = cp[outerclass].info.class_info.name_index;
 
-      printf("\t\t  %d:\n\t\t InnerClass- %s (#%d); OuterClass- %s (#%d); InnerName- %s (#%d); AccessFlags- 0x%04x",
-        i, get_cp_string(cp, innerclass), innerclass,
-        get_cp_string(cp, outerclass), outerclass,
+      printf("\n\t\t  %d) InnerClass- %s (#%d);\n\t\t     OuterClass- %s (#%d);\n\t\t     InnerName- %s (#%d);\n\t\t     AccessFlags- 0x%04x\n",
+        i, get_cp_string(cp, innerclass_name), innerclass,
+        get_cp_string(cp, outerclass_name), outerclass,
         get_cp_string(cp, innername), innername,
         access_flags);
     }
