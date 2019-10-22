@@ -558,6 +558,9 @@ void print_attributes_detail(attribute_info *ptr, cp_info *cp) {
   } else if (strcmp("SourceFile", str) == 0) {
     printf("\t\tSourceFile: ");
     printf("\"%s\"\n", get_cp_string(cp, ptr->info.sourcefile.index));
+  } else if (strcmp("InnerClasses", str) == 0) {
+    printf("\t\tInnerClasses: ");
+    print_innerclasses_attribute(&ptr->info.innerclasses, cp);
   } else {
   }
 }
@@ -585,6 +588,24 @@ void print_code_attribute(Code_attribute *ptr, cp_info *cp) {
 
     for (i = 0; i < ptr->attributes_count; i++) {
       print_attributes_detail(ptr->attributes, cp);
+    }
+}
+
+void print_innerclasses_attribute(InnerClasses_attribute *ptr,cp_info *cp) {
+  printf("\t\t Number of classes: %d\n",
+     ptr->number_of_classes);
+    uint32_t i;
+    for (i = 0; i < ptr->number_of_classes; i++) {
+      uint16_t innerclass = ptr->classes[i].inner_class_info_index;
+      uint16_t outerclass = ptr->classes[i].outer_class_info_index;
+      uint16_t innername = ptr->classes[i].inner_name_index;
+      uint16_t access_flags = ptr->classes[i].inner_class_access_flags;
+
+      printf("\t\t  %d:\n\t\t InnerClass- %s (#%d); OuterClass- %s (#%d); InnerName- %s (#%d); AccessFlags- 0x%04x",
+        i, get_cp_string(cp, innerclass), innerclass,
+        get_cp_string(cp, outerclass), outerclass,
+        get_cp_string(cp, innername), innername,
+        access_flags);
     }
 }
 
@@ -665,6 +686,8 @@ void deinit_attribute_info(attribute_info *ptr, cp_info *cp) {
     deinit_exceptions_attribute(&ptr->info.exceptions);
   } else if (strcmp("LineNumberTable", str) == 0) {
     deinit_linenumbertable_attribute(&ptr->info.linenumbertable);
+  } else if (strcmp("InnerClasses", str) == 0) {
+    deinit_innerclasses_attribute(&ptr->info.innerclasses);
   }
 }
 
@@ -681,4 +704,8 @@ void deinit_exceptions_attribute(Exceptions_attribute *ptr) {
 
 void deinit_linenumbertable_attribute(LineNumberTable_attribute *ptr) {
   free(ptr->line_number_table);
+}
+
+void deinit_innerclasses_attribute(InnerClasses_attribute *ptr) {
+  free(ptr->classes);
 }

@@ -151,7 +151,7 @@ void print_code_attribute(Code_attribute *ptr, cp_info *cp);
 
 void print_linenumber_attribute(LineNumberTable_attribute *ptr);
 
-
+void print_innerclasses_attribute(InnerClasses_attribute *ptr,cp_info *cp);
 
 /**
  * Deinitializes a single constant pool entry.
@@ -221,3 +221,9 @@ void deinit_exceptions_attribute(Exceptions_attribute *ptr);
  * @param cp points to a valid constant pool (i.e. read, not deinitialized)
  */
 void deinit_linenumbertable_attribute(LineNumberTable_attribute *ptr);
+
+/**
+ * Deinitializes InnerClasses attribute entry.
+ * @param cp points to a valid constant pool (i.e. read, not deinitialized)
+ */
+void deinit_innerclasses_attribute(InnerClasses_attribute *ptr);
