@@ -111,6 +111,8 @@ void read_linenumbertable_attribute(LineNumberTable_attribute *ptr, FILE *fp);
 
 void read_synthetic_attribute(Synthetic_attribute *ptr, FILE *fp);
 
+void read_stackmaptable_attribute(StackMapTable_attribute *ptr, FILE *fp);
+
 /**
  * Read SourceFile attribute.
  */

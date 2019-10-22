@@ -16,7 +16,7 @@ char** get_flags_name(ac_node* ac_list, uint32_t code) {
     return flags_name;
 }
 
-void add_flag(ac_node** ac_list, uint32_t code, const char* name) {
+void add_flag(ac_node** ac_list, uint32_t code, char* name) {
     ac_node* new_node = malloc(sizeof(ac_node));
 
     new_node->flag_name = name;

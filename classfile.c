@@ -229,6 +229,8 @@ void read_attribute_info(FILE *fp, attribute_info *ptr, cp_info *cp) {
     assert(cp[ptr->info.sourcefile.index].tag == CONSTANT_Utf8);
   } else if (strcmp("InnerClasses", str) == 0) {
     read_innerclasses_attribute(&ptr->info.innerclasses, fp);
+  } else if (strcmp("StackMapTable", str) == 0){
+    read_stackmaptable_attribute(&ptr->info.stackmaptable, fp);
   } else {
     printf("Warning: unknown attribute type %s\n", str);
   }
