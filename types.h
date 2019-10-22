@@ -65,6 +65,16 @@ typedef struct {
   uint32_t length;
 } Synthetic_attribute;
 
+typedef struct {
+  uint16_t number_of_classes;
+  struct {
+    uint16_t inner_class_info_index;
+    uint16_t outer_class_info_index;
+    uint16_t inner_name_index;
+    uint16_t inner_class_access_flags;
+  } *classes; /* n=number_of_classes */
+} InnerClasses_attribute;
+
 typedef struct attribute_info {
   uint16_t attribute_name_index;
   uint32_t attribute_length;
@@ -75,6 +85,7 @@ typedef struct attribute_info {
     LineNumberTable_attribute  linenumbertable;
     SourceFile_attribute       sourcefile;
     Synthetic_attribute synthetic;
+    InnerClasses_attribute     innerclasses;
   } info;
 } attribute_info;
 
