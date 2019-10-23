@@ -1,4 +1,5 @@
 #include "classfile.h"
+#define DEBUG1
 
 void read_class_file(classfile *cf, FILE *fp) {
   assert(cf);
@@ -223,7 +224,7 @@ void read_attribute_info(FILE *fp, attribute_info *ptr, cp_info *cp) {
 
   char *str = get_cp_string(cp, ptr->attribute_name_index);
 
-#ifdef DEBUG
+#ifdef DEBUG1
   printf("\t\tAttr: 0x%04x 0x%08x %s\n", ptr->attribute_name_index,
 	 ptr->attribute_length,
 	 str);
@@ -243,6 +244,8 @@ void read_attribute_info(FILE *fp, attribute_info *ptr, cp_info *cp) {
     assert(cp[ptr->info.sourcefile.index].tag == CONSTANT_Utf8);
   } else if (strcmp("InnerClasses", str) == 0) {
     read_innerclasses_attribute(&ptr->info.innerclasses, fp);
+  } else if (strcmp("Synthetic", str) == 0) {
+    read_synthetic_attribute(&ptr->info.synthetic, fp);
   } else if (strcmp("StackMapTable", str) == 0){
     /*fseek(fp, ptr->attribute_length, SEEK_CUR);*/
     read_stackmaptable_attribute(&ptr->info.stackmaptable, fp);
