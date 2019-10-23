@@ -46,8 +46,9 @@ void read_class_file(classfile *cf, FILE *fp) {
   printf("Interfaces count: %d (0x%04x)\n", cf->interfaces_count, cf->interfaces_count);
 #endif
 
+  cf->interfaces = calloc(sizeof(CONSTANT_Class_info), cf->interfaces_count);
   if (cf->interfaces_count > 0) {
-    /* NOTE: not reading interface table yet */
+    read_interfaces(fp, cf->interfaces, cf->interfaces_count);
   }
 
   /* fields */
@@ -143,6 +144,17 @@ void read_constant_pool_entry(FILE *fp, cp_info *cp) {
   default:
     printf("Warning: unknown tag %x\n", cp->tag);
     break;
+  }
+}
+
+void read_interfaces(FILE *fp, CONSTANT_Class_info interfaces[], uint16_t interfaces_count) {
+  int i;
+  for (i = 0; i < interfaces_count; i++) {
+    CONSTANT_Class_info *ptr = &interfaces[i];
+    ptr->name_index = read_u2(fp);
+#ifdef DEBUG
+    printf("\tIndex:\t0x%04x\n", ptr->name_index);
+#endif
   }
 }
 
@@ -461,6 +473,8 @@ void print_class_file_detail(classfile *cf) {
   printf("Constant pool:\n");
   print_cp_detail(cf);
 
+  print_interfaces_detail(cf);
+
   print_fields_detail(cf);
 
   print_methods_detail(cf);
@@ -556,14 +570,33 @@ void print_cp_detail(classfile *cf) {
   }
 }
 
+void print_interfaces_detail(classfile *cf) {
+  cp_info *cp = cf->constant_pool;
+  int i;
+  uint16_t class, class_name;
+
+  printf("Interfaces: (Count: %d) {\n", cf->interfaces_count);
+  for (i = 0; i < cf->interfaces_count; i++) {
+    CONSTANT_Class_info *in = &cf->interfaces[i];
+
+    /* Indexes to constant pool elements*/
+    class = in->name_index;
+    class_name = cp[class].info.class_info.name_index;
+
+    printf("     %d)\n", i);
+    printf("\t Class: %s\t(#%d)\n", get_cp_string(cp, class_name), in->name_index);
+  }
+  printf("}\n");
+}
+
 void print_fields_detail(classfile *cf) {
   cp_info *cp = cf->constant_pool;
   int i, j;
 
-  printf("{Fields: (Fields count: %d)\n", cf->fields_count);
+  printf("Fields: (Count: %d) {\n", cf->fields_count);
   for (i = 0; i < cf->fields_count; i++) {
     field_info *fi = &cf->fields[i];
-    printf("     %d)", i);
+    printf("     %d)\n", i);
     printf("\t Name: %s\n", get_cp_string(cp, fi->name_index));
     printf("\t Descriptor: %s\n", get_cp_string(cp, fi->descriptor_index));
 
@@ -573,8 +606,8 @@ void print_fields_detail(classfile *cf) {
     for (j = 0; j < fi->attributes_count; j++) {
       print_attributes_detail(&fi->attributes[j], cp);
     }
-    printf("}\n");
   }
+  printf("}\n");
 }
 
 void print_methods_detail(classfile *cf) {
@@ -583,7 +616,7 @@ void print_methods_detail(classfile *cf) {
 
   populate_ac_flags_method();
 
-  printf("{\n");
+  printf("Methods: (Count: %d) {\n", cf->methods_count);
   for (i = 0; i < cf->methods_count; i++) {
     method_info *m = &cf->methods[i];
     printf("\t%s\n", get_cp_string(cp, m->name_index));
@@ -677,17 +710,24 @@ void print_code_attribute(Code_attribute *ptr, cp_info *cp) {
 }
 
 void print_innerclasses_attribute(InnerClasses_attribute *ptr,cp_info *cp) {
+  uint16_t innerclass;
+  uint16_t outerclass;
+  uint16_t innername;
+  uint16_t access_flags;
+  uint16_t innerclass_name;
+  uint16_t outerclass_name;
+
   printf("\t\t Number of classes: %d\n",
      ptr->number_of_classes);
     uint32_t i;
     for (i = 0; i < ptr->number_of_classes; i++) {
       /* Indexes to constant pool elements*/
-      uint16_t innerclass = ptr->classes[i].inner_class_info_index;
-      uint16_t outerclass = ptr->classes[i].outer_class_info_index;
-      uint16_t innername = ptr->classes[i].inner_name_index;
-      uint16_t access_flags = ptr->classes[i].inner_class_access_flags;
-      uint16_t innerclass_name = cp[innerclass].info.class_info.name_index;
-      uint16_t outerclass_name = cp[outerclass].info.class_info.name_index;
+      innerclass = ptr->classes[i].inner_class_info_index;
+      outerclass = ptr->classes[i].outer_class_info_index;
+      innername = ptr->classes[i].inner_name_index;
+      access_flags = ptr->classes[i].inner_class_access_flags;
+      innerclass_name = cp[innerclass].info.class_info.name_index;
+      outerclass_name = cp[outerclass].info.class_info.name_index;
 
       printf("\n\t\t  %d) InnerClass- %s (#%d);\n\t\t     OuterClass- %s (#%d);\n\t\t     InnerName- %s (#%d);\n\t\t     AccessFlags- 0x%04x\n",
         i, get_cp_string(cp, innerclass_name), innerclass,
@@ -729,6 +769,10 @@ void deinit_cp_entry(cp_info *ptr) {
   }
 }
 
+void deinit_interfaces(CONSTANT_Class_info interfaces[]) {
+  if (!interfaces) return;
+  free(interfaces);
+}
 
 void deinit_fields(field_info fields[], uint16_t fields_count, cp_info *cp) {
   int i;
