@@ -224,7 +224,7 @@ void read_attribute_info(FILE *fp, attribute_info *ptr, cp_info *cp) {
 
   char *str = get_cp_string(cp, ptr->attribute_name_index);
 
-#ifdef DEBUG1
+#ifdef DEBUG
   printf("\t\tAttr: 0x%04x 0x%08x %s\n", ptr->attribute_name_index,
 	 ptr->attribute_length,
 	 str);
@@ -245,7 +245,7 @@ void read_attribute_info(FILE *fp, attribute_info *ptr, cp_info *cp) {
   } else if (strcmp("InnerClasses", str) == 0) {
     read_innerclasses_attribute(&ptr->info.innerclasses, fp);
   } else if (strcmp("Synthetic", str) == 0) {
-    read_synthetic_attribute(&ptr->info.synthetic, fp);
+    read_synthetic_attribute(ptr, fp);
   } else if (strcmp("StackMapTable", str) == 0){
     /*fseek(fp, ptr->attribute_length, SEEK_CUR);*/
     read_stackmaptable_attribute(&ptr->info.stackmaptable, fp);
@@ -382,11 +382,11 @@ void read_linenumbertable_attribute(LineNumberTable_attribute *ptr, FILE *fp) {
   }
 }
 
-void read_synthetic_attribute(Synthetic_attribute *ptr, FILE *fp){
+void read_synthetic_attribute(attribute_info *ptr, FILE *fp){
   assert(ptr);
   assert(fp);
 
-  assert(!ptr->length);
+  assert(!ptr->attribute_length);
 }
 
 void read_sourcefile_attribute(SourceFile_attribute *ptr, FILE *fp) {
@@ -414,7 +414,7 @@ void read_innerclasses_attribute(InnerClasses_attribute *ptr, FILE *fp) {
     ptr->classes[i].inner_name_index = read_u2(fp);
     ptr->classes[i].inner_class_access_flags = read_u2(fp);
 
-  #ifdef DEBUG
+  #ifdef DEBUG1
     printf("\t\t\t0x%04x\t0x%04x\t0x%04x\t0x%04x\n", ptr->classes[i].inner_class_info_index,
      ptr->classes[i].outer_class_info_index,
      ptr->classes[i].inner_name_index,
@@ -639,7 +639,7 @@ void print_methods_detail(classfile *cf) {
 void print_attributes_detail(attribute_info *ptr, cp_info *cp) {
   char *str = get_cp_string(cp, ptr->attribute_name_index);
 
-  printf("\t\t%s: %c", str, (!strcmp(str, "SourceFile") ? ' ' : '\n'));
+  printf("\t\t%s:\t (Lenght: %d) %c", str, ptr->attribute_length, (!strcmp(str, "SourceFile") ? ' ' : '\n'));
 
   if (strcmp("Code", str) == 0) {
     print_code_attribute(&ptr->info.code, cp);
@@ -720,6 +720,8 @@ void print_innerclasses_attribute(InnerClasses_attribute *ptr,cp_info *cp) {
   uint16_t innerclass_name;
   uint16_t outerclass_name;
 
+  char *s_innername, *s_outerclass_name;
+
   printf("\t\t Number of classes: %d\n",
      ptr->number_of_classes);
     uint32_t i;
@@ -732,10 +734,13 @@ void print_innerclasses_attribute(InnerClasses_attribute *ptr,cp_info *cp) {
       innerclass_name = cp[innerclass].info.class_info.name_index;
       outerclass_name = cp[outerclass].info.class_info.name_index;
 
+      s_outerclass_name = (outerclass_name ? get_cp_string(cp, outerclass_name) : "Invalid constant pool reference.");
+      s_innername = (innername ? get_cp_string(cp, innername) : "Invalid constant pool reference.");
+
       printf("\n\t\t  %d) InnerClass- %s (#%d);\n\t\t     OuterClass- %s (#%d);\n\t\t     InnerName- %s (#%d);\n\t\t     AccessFlags- 0x%04x\n",
         i, get_cp_string(cp, innerclass_name), innerclass,
-        get_cp_string(cp, outerclass_name), outerclass,
-        get_cp_string(cp, innername), innername,
+        s_outerclass_name, outerclass,
+        s_innername, innername,
         access_flags);
     }
 }
