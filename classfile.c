@@ -1,4 +1,5 @@
 #include "classfile.h"
+#define DEBUG1
 
 void read_class_file(classfile *cf, FILE *fp) {
   assert(cf);
@@ -52,7 +53,7 @@ void read_class_file(classfile *cf, FILE *fp) {
 
   /* fields */
   cf->fields_count = read_u2(fp);
-#ifdef DEBUG
+#ifdef DEBUG1
   printf("Fields count: %d (0x%04x)\n", cf->fields_count, cf->fields_count);
 #endif
 
@@ -163,7 +164,7 @@ void read_field_entry(FILE *fp, field_info *field, cp_info *cp) {
   field->descriptor_index = read_u2(fp);
   field->attributes_count = read_u2(fp);
 
-#ifdef DEBUG
+#ifdef DEBUG1
   printf("\tAccess\tName\tDesc\tAttrCount\n");
   printf("\t0x%04x\t0x%04x\t0x%04x\t0x%04x\n", field->access_flags,
 	 field->name_index,
@@ -450,6 +451,8 @@ void print_class_file_detail(classfile *cf) {
   printf("Constant pool:\n");
   print_cp_detail(cf);
 
+  print_fields_detail(cf);
+
   print_methods_detail(cf);
 
   int i;
@@ -540,6 +543,27 @@ void print_cp_detail(classfile *cf) {
       printf("#%d:#%d\n", name_index, descriptor_index);
       break;
     }
+  }
+}
+
+void print_fields_detail(classfile *cf) {
+  cp_info *cp = cf->constant_pool;
+  int i, j;
+
+  printf("{Fields: (Fields count: %d)\n", cf->fields_count);
+  for (i = 0; i < cf->fields_count; i++) {
+    field_info *fi = &cf->fields[i];
+    printf("     %d)", i+1);
+    printf("\t Name: %s\n", get_cp_string(cp, fi->name_index));
+    printf("\t Descriptor: %s\n", get_cp_string(cp, fi->descriptor_index));
+
+    printf("\t Flags: 0x%04x\n", fi->access_flags);
+
+    printf("\t Attributes Count: %d\n", fi->attributes_count);
+    for (j = 0; j < fi->attributes_count; j++) {
+      print_attributes_detail(&fi->attributes[j], cp);
+    }
+    printf("}\n");
   }
 }
 
