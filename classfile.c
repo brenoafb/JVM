@@ -357,9 +357,6 @@ void read_synthetic_attribute(Synthetic_attribute *ptr, FILE *fp){
   assert(ptr);
   assert(fp);
 
-  ptr->index = read_u2(fp);
-  ptr->length = read_u4(fp);
-
   assert(!ptr->length);
 }
 
@@ -396,6 +393,15 @@ void read_innerclasses_attribute(InnerClasses_attribute *ptr, FILE *fp) {
   #endif
   }
 }
+
+void read_stackmaptable_attribute(StackMapTable_attribute *ptr, FILE *fp) {
+  assert(ptr);
+  assert(fp);
+
+  ptr->n_entries = read_u2(fp);
+  
+  fseek(fp, ptr->length - 2, SEEK_CUR);
+ }
 
 
 char *get_cp_string(cp_info *cp, uint16_t index) {
@@ -561,28 +567,28 @@ void print_methods_detail(classfile *cf) {
 void print_attributes_detail(attribute_info *ptr, cp_info *cp) {
   char *str = get_cp_string(cp, ptr->attribute_name_index);
 
+  printf("\t\t%s: %c", str, (!strcmp(str, "SourceFile") ? ' ' : '\n'));
+
   if (strcmp("Code", str) == 0) {
-    printf("\tCode:\n");
     print_code_attribute(&ptr->info.code, cp);
   } else if (strcmp("ConstantValue", str) == 0) {
-    printf("\t\tConstantValue:\n");
   } else if (strcmp("Exceptions", str) == 0) {
-    printf("\t\tExceptions:\n");
     print_exception_attribute(&ptr->info.exceptions,cp, ptr->info.code.exception_table);
   } else if (strcmp("LineNumberTable", str) == 0) {
-    printf("\t\tLineNumberTable:\n");
     print_linenumber_attribute(&ptr->info.linenumbertable);
   } else if (!strcmp("Synthetic", str)){
-    printf("\t\tIs synthetic.\n");
     print_synthetic_attribute(&ptr->info.synthetic, cp);
-  } else if (strcmp("SourceFile", str) == 0) {
-    printf("\t\tSourceFile: ");
-    printf("\"%s\"\n", get_cp_string(cp, ptr->info.sourcefile.index));
   } else if (strcmp("InnerClasses", str) == 0) {
-    printf("\t\tInnerClasses: ");
     print_innerclasses_attribute(&ptr->info.innerclasses, cp);
-  } else {
+  } else if (strcmp("StackMapTable", str) == 0) {
+    print_stackmaptable_attribute(&ptr->info.stackmaptable);
+  } else if (strcmp("SourceFile", str) == 0) {
+    printf("\"%s\"\n\n", get_cp_string(cp, ptr->info.sourcefile.index));
   }
+}
+
+void print_stackmaptable_attribute(StackMapTable_attribute *ptr) {
+  printf("\t\tNum of entries: %d\n", ptr->n_entries);
 }
 
 void print_synthetic_attribute(Synthetic_attribute *ptr, cp_info *cp) {
