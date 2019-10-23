@@ -274,32 +274,42 @@ void read_code_attribute(Code_attribute *ptr, FILE *fp, cp_info *cp) {
   }
 
 #ifdef DEBUG
-  printf("\t\tException count: 0x%04x\n", ptr->exception_table_length);
-  if (ptr->exception_table_length > 0) {
-    printf("\t\tExceptions\n");
-    printf("\t\t\tStart\tEnd\tHandler\tCatch type\n");
-  }
+  printf("\t\tException count: %"PRIu16"\n", ptr->exception_table_length);
 #endif
 
-  for (i = 0; i < ptr->exception_table_length; i++) {
+#ifdef DEBUG
+
+  if (ptr->exception_table_length > 0) {
+    printf("\t\tException table:\n");
+    printf("\t\t\tfrom\tto\ttarget\ttype\n");
+  }
+
+
+#endif
+  for (i = 0;i < ptr->exception_table_length;i++) {
     ptr->exception_table[i].start_pc = read_u2(fp);
     ptr->exception_table[i].end_pc = read_u2(fp);
     ptr->exception_table[i].handler_pc = read_u2(fp);
     ptr->exception_table[i].catch_type = read_u2(fp);
+    
+    uint16_t from = ptr->exception_table[i].start_pc;
+    uint16_t to = ptr->exception_table[i].end_pc;
+    uint16_t handler = ptr->exception_table[i].handler_pc;
+    uint16_t type = ptr->exception_table[i].catch_type;
+
+    char* type_str = "Class";
 
 #ifdef DEBUG
-    printf("\t\t\t0x%04x\t0x%04x\t0x%04x\t0x%04x\n", ptr->exception_table[i].start_pc,
-	   ptr->exception_table[i].end_pc,
-	   ptr->exception_table[i].handler_pc,
-	   ptr->exception_table[i].catch_type);
+    printf("\t\t\t%"PRIu16"\t%"PRIu16"\t%"PRIu16"\t%s\n", from, to, handler, type_str);
 #endif
+
   }
 
   ptr->attributes_count = read_u2(fp);
   ptr->attributes = calloc(sizeof(attribute_info), ptr->attributes_count);
 
 #ifdef DEBUG
-  printf("\t\tAttributes count: 0x%04x\n", ptr->attributes_count);
+  printf("\t\tAttributes count: %"PRIu16"\n", ptr->attributes_count);
 #endif
 
   if (ptr->attributes_count != 0) {
