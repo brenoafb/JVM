@@ -1,4 +1,5 @@
 #include "classfile.h"
+#define DEBUG1
 
 void read_class_file(classfile *cf, FILE *fp) {
   assert(cf);
@@ -42,12 +43,13 @@ void read_class_file(classfile *cf, FILE *fp) {
 
   /* interfaces */
   cf->interfaces_count = read_u2(fp);
-#ifdef DEBUG
+#ifdef DEBUG1
   printf("Interfaces count: %d (0x%04x)\n", cf->interfaces_count, cf->interfaces_count);
 #endif
 
+  cf->interfaces = calloc(sizeof(CONSTANT_Class_info), cf->interfaces_count);
   if (cf->interfaces_count > 0) {
-    /* NOTE: not reading interface table yet */
+    read_interfaces(fp, cf->interfaces, cf->interfaces_count, cf->constant_pool);
   }
 
   /* fields */
@@ -143,6 +145,17 @@ void read_constant_pool_entry(FILE *fp, cp_info *cp) {
   default:
     printf("Warning: unknown tag %x\n", cp->tag);
     break;
+  }
+}
+
+void read_interfaces(FILE *fp, CONSTANT_Class_info interfaces[], uint16_t interfaces_count, cp_info *cp) {
+  int i;
+  for (i = 0; i < interfaces_count; i++) {
+    CONSTANT_Class_info *ptr = &interfaces[i];
+    ptr->name_index = read_u2(fp);
+#ifdef DEBUG1
+    printf("\tIndex:\t0x%04x", ptr->name_index);
+#endif
   }
 }
 
@@ -719,6 +732,10 @@ void deinit_cp_entry(cp_info *ptr) {
   }
 }
 
+void deinit_interfaces(CONSTANT_Class_info interfaces[]) {
+  if (!interfaces) return;
+  free(interfaces);
+}
 
 void deinit_fields(field_info fields[], uint16_t fields_count, cp_info *cp) {
   int i;

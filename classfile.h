@@ -26,7 +26,7 @@ typedef struct {
   uint16_t super_class;
 
   uint16_t interfaces_count;
-  uint16_t *interfaces; /* n=interfaces_count */
+  CONSTANT_Class_info *interfaces; /* n=interfaces_count */
 
   uint16_t fields_count;
   field_info *fields; /* n=fieds_count */
@@ -57,6 +57,11 @@ void read_constant_pool(FILE *fp, cp_info cp[], int cpsize);
  * Read a single entry from the constant pool.
  */
 void read_constant_pool_entry(FILE *fp, cp_info *cp);
+
+/**
+ * Read the interfaces table of the class file.
+ */
+void read_interfaces(FILE *fp, CONSTANT_Class_info interfaces[], uint16_t interfaces_count, cp_info *cp);
 
 /**
  * Read the fields table of the class file.
@@ -179,6 +184,11 @@ void deinit_constant_pool(cp_info cp[], uint16_t cpsize);
  * Denitializes the class file struct.
  */
 void deinit_class_file(classfile *cf);
+
+/**
+ * Deinitializes interfaces table.
+ */
+void deinit_interfaces(CONSTANT_Class_info interfaces[]);
 
 /**
  * Deinitializes fields table.
