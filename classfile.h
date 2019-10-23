@@ -111,6 +111,8 @@ void read_linenumbertable_attribute(LineNumberTable_attribute *ptr, FILE *fp);
 
 void read_synthetic_attribute(Synthetic_attribute *ptr, FILE *fp);
 
+void read_stackmaptable_attribute(StackMapTable_attribute *ptr, FILE *fp);
+
 /**
  * Read SourceFile attribute.
  */
@@ -160,6 +162,7 @@ void print_synthetic_attribute(Synthetic_attribute* ptr, cp_info *cp);
 
 void print_innerclasses_attribute(InnerClasses_attribute *ptr,cp_info *cp);
 
+void print_stackmaptable_attribute(StackMapTable_attribute *ptr);
 /**
  * Deinitializes a single constant pool entry.
  */

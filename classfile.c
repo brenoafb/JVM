@@ -222,6 +222,7 @@ void read_attribute_info(FILE *fp, attribute_info *ptr, cp_info *cp) {
     read_constantvalue_attribute(&ptr->info.constantvalue, fp);
   } else if (strcmp("Exceptions", str) == 0) {
     read_exceptions_attribute(&ptr->info.exceptions, fp);
+    fseek(fp, ptr->attribute_length, SEEK_CUR);  
   } else if (strcmp("LineNumberTable", str) == 0) {
     read_linenumbertable_attribute(&ptr->info.linenumbertable, fp);
   } else if (strcmp("SourceFile", str) == 0) {
@@ -229,6 +230,10 @@ void read_attribute_info(FILE *fp, attribute_info *ptr, cp_info *cp) {
     assert(cp[ptr->info.sourcefile.index].tag == CONSTANT_Utf8);
   } else if (strcmp("InnerClasses", str) == 0) {
     read_innerclasses_attribute(&ptr->info.innerclasses, fp);
+  } else if (strcmp("StackMapTable", str) == 0){
+    /*fseek(fp, ptr->attribute_length, SEEK_CUR);*/
+    read_stackmaptable_attribute(&ptr->info.stackmaptable, fp);
+    fseek(fp, ptr->attribute_length - 2, SEEK_CUR); /*WARN Talvez o bug esteja aqui*/
   } else {
     printf("Warning: unknown attribute type %s\n", str);
   }
@@ -355,9 +360,6 @@ void read_synthetic_attribute(Synthetic_attribute *ptr, FILE *fp){
   assert(ptr);
   assert(fp);
 
-  ptr->index = read_u2(fp);
-  ptr->length = read_u4(fp);
-
   assert(!ptr->length);
 }
 
@@ -394,6 +396,14 @@ void read_innerclasses_attribute(InnerClasses_attribute *ptr, FILE *fp) {
   #endif
   }
 }
+
+void read_stackmaptable_attribute(StackMapTable_attribute *ptr, FILE *fp) {
+  assert(ptr);
+  assert(fp);
+
+  ptr->n_entries = read_u2(fp);
+
+ }
 
 
 char *get_cp_string(cp_info *cp, uint16_t index) {
@@ -559,28 +569,28 @@ void print_methods_detail(classfile *cf) {
 void print_attributes_detail(attribute_info *ptr, cp_info *cp) {
   char *str = get_cp_string(cp, ptr->attribute_name_index);
 
+  printf("\t\t%s: %c", str, (!strcmp(str, "SourceFile") ? ' ' : '\n'));
+
   if (strcmp("Code", str) == 0) {
-    printf("\tCode:\n");
     print_code_attribute(&ptr->info.code, cp);
   } else if (strcmp("ConstantValue", str) == 0) {
-    printf("\t\tConstantValue:\n");
   } else if (strcmp("Exceptions", str) == 0) {
-    printf("\t\tExceptions:\n");
     print_exception_attribute(&ptr->info.exceptions,cp, ptr->info.code.exception_table);
   } else if (strcmp("LineNumberTable", str) == 0) {
-    printf("\t\tLineNumberTable:\n");
     print_linenumber_attribute(&ptr->info.linenumbertable);
   } else if (!strcmp("Synthetic", str)){
-    printf("\t\tIs synthetic.\n");
     print_synthetic_attribute(&ptr->info.synthetic, cp);
-  } else if (strcmp("SourceFile", str) == 0) {
-    printf("\t\tSourceFile: ");
-    printf("\"%s\"\n", get_cp_string(cp, ptr->info.sourcefile.index));
   } else if (strcmp("InnerClasses", str) == 0) {
-    printf("\t\tInnerClasses: ");
     print_innerclasses_attribute(&ptr->info.innerclasses, cp);
-  } else {
+  } else if (strcmp("StackMapTable", str) == 0) {
+    print_stackmaptable_attribute(&ptr->info.stackmaptable);
+  } else if (strcmp("SourceFile", str) == 0) {
+    printf("\"%s\"\n\n", get_cp_string(cp, ptr->info.sourcefile.index));
   }
+}
+
+void print_stackmaptable_attribute(StackMapTable_attribute *ptr) {
+  printf("\t\tNum of entries: %d\n", ptr->n_entries);
 }
 
 void print_synthetic_attribute(Synthetic_attribute *ptr, cp_info *cp) {
