@@ -54,7 +54,7 @@ void read_class_file(classfile *cf, FILE *fp) {
 
   /* fields */
   cf->fields_count = read_u2(fp);
-  
+
 #ifdef DEBUG
   printf("Fields count: %d (0x%04x)\n", cf->fields_count, cf->fields_count);
 #endif
@@ -93,7 +93,7 @@ void read_constant_pool(FILE *fp, cp_info cp[], int cpsize) {
     cp_info *ptr = &cp[i];
     ptr->tag = read_u1(fp);
 #ifdef DEBUG
-    printf("\t%d\t0x%02x\n", i+1, ptr->tag);
+    printf("\t%d\t0x%02x\n", i, ptr->tag);
 #endif
     read_constant_pool_entry(fp, ptr);
     if (ptr->tag == CONSTANT_Double ||
@@ -236,7 +236,7 @@ void read_attribute_info(FILE *fp, attribute_info *ptr, cp_info *cp) {
     read_constantvalue_attribute(&ptr->info.constantvalue, fp);
   } else if (strcmp("Exceptions", str) == 0) {
     read_exceptions_attribute(&ptr->info.exceptions, fp);
-    fseek(fp, ptr->attribute_length, SEEK_CUR);  
+    fseek(fp, ptr->attribute_length, SEEK_CUR);
   } else if (strcmp("LineNumberTable", str) == 0) {
     read_linenumbertable_attribute(&ptr->info.linenumbertable, fp);
   } else if (strcmp("SourceFile", str) == 0) {
@@ -306,7 +306,7 @@ void read_code_attribute(Code_attribute *ptr, FILE *fp, cp_info *cp) {
     ptr->exception_table[i].end_pc = read_u2(fp);
     ptr->exception_table[i].handler_pc = read_u2(fp);
     ptr->exception_table[i].catch_type = read_u2(fp);
-    
+
     uint16_t from = ptr->exception_table[i].start_pc;
     uint16_t to = ptr->exception_table[i].end_pc;
     uint16_t handler = ptr->exception_table[i].handler_pc;
@@ -738,10 +738,10 @@ void print_innerclasses_attribute(InnerClasses_attribute *ptr,cp_info *cp) {
       s_innername = (innername ? get_cp_string(cp, innername) : "Invalid constant pool reference.");
 
       printf("\n\t\t  %d) InnerClass- %s (#%d);\n\t\t     OuterClass- %s (#%d);\n\t\t     InnerName- %s (#%d);\n\t\t     AccessFlags- 0x%04x\n",
-        i, get_cp_string(cp, innerclass_name), innerclass,
-        s_outerclass_name, outerclass,
-        s_innername, innername,
-        access_flags);
+	i, get_cp_string(cp, innerclass_name), innerclass,
+	s_outerclass_name, outerclass,
+	s_innername, innername,
+	access_flags);
     }
 }
 
