@@ -222,7 +222,7 @@ void read_attribute_info(FILE *fp, attribute_info *ptr, cp_info *cp) {
     read_constantvalue_attribute(&ptr->info.constantvalue, fp);
   } else if (strcmp("Exceptions", str) == 0) {
     read_exceptions_attribute(&ptr->info.exceptions, fp);
-  } else if (strcmp("LineNumberTable", str) == 0) {
+    fseek(fp, ptr->attribute_length, SEEK_CUR);  } else if (strcmp("LineNumberTable", str) == 0) {
     read_linenumbertable_attribute(&ptr->info.linenumbertable, fp);
   } else if (strcmp("SourceFile", str) == 0) {
     read_sourcefile_attribute(&ptr->info.sourcefile, fp);
@@ -230,7 +230,9 @@ void read_attribute_info(FILE *fp, attribute_info *ptr, cp_info *cp) {
   } else if (strcmp("InnerClasses", str) == 0) {
     read_innerclasses_attribute(&ptr->info.innerclasses, fp);
   } else if (strcmp("StackMapTable", str) == 0){
+    /*fseek(fp, ptr->attribute_length, SEEK_CUR);*/
     read_stackmaptable_attribute(&ptr->info.stackmaptable, fp);
+    fseek(fp, ptr->attribute_length - 2, SEEK_CUR); /*WARN Talvez o bug esteja aqui*/
   } else {
     printf("Warning: unknown attribute type %s\n", str);
   }
@@ -399,8 +401,7 @@ void read_stackmaptable_attribute(StackMapTable_attribute *ptr, FILE *fp) {
   assert(fp);
 
   ptr->n_entries = read_u2(fp);
-  
-  fseek(fp, ptr->length - 2, SEEK_CUR);
+
  }
 
 
