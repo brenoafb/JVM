@@ -517,7 +517,7 @@ void print_cp_detail(classfile *cf) {
       hi = cf->constant_pool[i].info.long_info.high_bytes;
       uint64_t lo = cf->constant_pool[i].info.long_info.low_bytes;
 
-      uint64_t lg = (hi << 32) | lo;
+      uint64_t lg = ((uint64_t) hi << 32) | lo;
 
       printf("%ld\n", lg);
       i++;
