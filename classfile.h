@@ -146,6 +146,8 @@ void print_class_file_detail(classfile *cf);
  */
 void print_cp_detail(classfile *cf);
 
+void print_fields_detail(classfile *cf);
+
 void print_methods_detail(classfile *cf);
 
 void print_attributes_detail(attribute_info *ptr, cp_info *cp);
