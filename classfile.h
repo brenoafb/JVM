@@ -61,7 +61,7 @@ void read_constant_pool_entry(FILE *fp, cp_info *cp);
 /**
  * Read the interfaces table of the class file.
  */
-void read_interfaces(FILE *fp, CONSTANT_Class_info interfaces[], uint16_t interfaces_count, cp_info *cp);
+void read_interfaces(FILE *fp, CONSTANT_Class_info interfaces[], uint16_t interfaces_count);
 
 /**
  * Read the fields table of the class file.
@@ -152,6 +152,8 @@ void print_class_file_detail(classfile *cf);
  * If an entry has type Utf8, the corresponding string is printed.
  */
 void print_cp_detail(classfile *cf);
+
+void print_interfaces_detail(classfile *cf);
 
 void print_fields_detail(classfile *cf);
 
