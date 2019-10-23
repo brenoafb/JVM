@@ -52,6 +52,7 @@ void read_class_file(classfile *cf, FILE *fp) {
 
   /* fields */
   cf->fields_count = read_u2(fp);
+  
 #ifdef DEBUG
   printf("Fields count: %d (0x%04x)\n", cf->fields_count, cf->fields_count);
 #endif
@@ -450,6 +451,8 @@ void print_class_file_detail(classfile *cf) {
   printf("Constant pool:\n");
   print_cp_detail(cf);
 
+  print_fields_detail(cf);
+
   print_methods_detail(cf);
 
   int i;
@@ -540,6 +543,27 @@ void print_cp_detail(classfile *cf) {
       printf("#%d:#%d\n", name_index, descriptor_index);
       break;
     }
+  }
+}
+
+void print_fields_detail(classfile *cf) {
+  cp_info *cp = cf->constant_pool;
+  int i, j;
+
+  printf("{Fields: (Fields count: %d)\n", cf->fields_count);
+  for (i = 0; i < cf->fields_count; i++) {
+    field_info *fi = &cf->fields[i];
+    printf("     %d)", i);
+    printf("\t Name: %s\n", get_cp_string(cp, fi->name_index));
+    printf("\t Descriptor: %s\n", get_cp_string(cp, fi->descriptor_index));
+
+    printf("\t Flags: 0x%04x\n", fi->access_flags);
+
+    printf("\t Attributes Count: %d\n", fi->attributes_count);
+    for (j = 0; j < fi->attributes_count; j++) {
+      print_attributes_detail(&fi->attributes[j], cp);
+    }
+    printf("}\n");
   }
 }
 
