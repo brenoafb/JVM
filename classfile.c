@@ -777,7 +777,7 @@ void deinit_cp_entry(cp_info *ptr) {
   }
 }
 
-void deinit_interfaces(CONSTANT_Class_info interfaces[]) {
+void deinit_interfaces(CONSTANT_Class_info *interfaces) {
   if (!interfaces) return;
   free(interfaces);
 }

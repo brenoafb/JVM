@@ -190,7 +190,7 @@ void deinit_class_file(classfile *cf);
 /**
  * Deinitializes interfaces table.
  */
-void deinit_interfaces(CONSTANT_Class_info interfaces[]);
+void deinit_interfaces(CONSTANT_Class_info *interfaces);
 
 /**
  * Deinitializes fields table.
