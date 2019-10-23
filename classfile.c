@@ -222,7 +222,8 @@ void read_attribute_info(FILE *fp, attribute_info *ptr, cp_info *cp) {
     read_constantvalue_attribute(&ptr->info.constantvalue, fp);
   } else if (strcmp("Exceptions", str) == 0) {
     read_exceptions_attribute(&ptr->info.exceptions, fp);
-    fseek(fp, ptr->attribute_length, SEEK_CUR);  } else if (strcmp("LineNumberTable", str) == 0) {
+    fseek(fp, ptr->attribute_length, SEEK_CUR);  
+  } else if (strcmp("LineNumberTable", str) == 0) {
     read_linenumbertable_attribute(&ptr->info.linenumbertable, fp);
   } else if (strcmp("SourceFile", str) == 0) {
     read_sourcefile_attribute(&ptr->info.sourcefile, fp);
