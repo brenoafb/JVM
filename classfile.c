@@ -543,7 +543,7 @@ void print_fields_detail(classfile *cf) {
   printf("{Fields: (Fields count: %d)\n", cf->fields_count);
   for (i = 0; i < cf->fields_count; i++) {
     field_info *fi = &cf->fields[i];
-    printf("     %d)", i+1);
+    printf("     %d)", i);
     printf("\t Name: %s\n", get_cp_string(cp, fi->name_index));
     printf("\t Descriptor: %s\n", get_cp_string(cp, fi->descriptor_index));
 
