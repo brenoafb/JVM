@@ -1,5 +1,4 @@
 #include "classfile.h"
-#define DEBUG1
 
 void read_class_file(classfile *cf, FILE *fp) {
   assert(cf);
@@ -53,7 +52,8 @@ void read_class_file(classfile *cf, FILE *fp) {
 
   /* fields */
   cf->fields_count = read_u2(fp);
-#ifdef DEBUG1
+  
+#ifdef DEBUG
   printf("Fields count: %d (0x%04x)\n", cf->fields_count, cf->fields_count);
 #endif
 
@@ -164,7 +164,7 @@ void read_field_entry(FILE *fp, field_info *field, cp_info *cp) {
   field->descriptor_index = read_u2(fp);
   field->attributes_count = read_u2(fp);
 
-#ifdef DEBUG1
+#ifdef DEBUG
   printf("\tAccess\tName\tDesc\tAttrCount\n");
   printf("\t0x%04x\t0x%04x\t0x%04x\t0x%04x\n", field->access_flags,
 	 field->name_index,
