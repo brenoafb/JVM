@@ -61,8 +61,6 @@ typedef struct {
 } SourceFile_attribute;
 
 typedef struct {
-  uint16_t index;
-  uint32_t length;
 } Synthetic_attribute;
 
 typedef struct {
@@ -91,7 +89,7 @@ typedef struct attribute_info {
     Exceptions_attribute       exceptions;
     LineNumberTable_attribute  linenumbertable;
     SourceFile_attribute       sourcefile;
-    Synthetic_attribute synthetic;
+    Synthetic_attribute        synthetic;
     InnerClasses_attribute     innerclasses;
     StackMapTable_attribute stackmaptable;
   } info;
