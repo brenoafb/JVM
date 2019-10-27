@@ -20,10 +20,13 @@ int main(int argc, char *argv[]) {
   classfile cf = {0};
   JVM memory = {0};
   read_class_file(&cf, fp);
+  print_class_file_detail(&cf);
   init_jvm(&memory);
 
   jvm_load_class(&memory, &cf);
+  jvm_load_method(&memory, 0, 1); /* load class' main method */
 
+  jvm_run_method(&memory);
 
   deinit_jvm(&memory);
   deinit_class_file(&cf);
