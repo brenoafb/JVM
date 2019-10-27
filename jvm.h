@@ -14,6 +14,8 @@ typedef struct JVM {
   /* uint8_t *heap; */
   MethodArea *method_area;
   /* NativeMethodArea nma; */
+  uint32_t current_class_index;
+  uint32_t current_method_index;
 } JVM;
 
 void init_jvm(JVM *jvm);
