@@ -17,3 +17,15 @@ void deinit_frame(Frame *f) {
   free(f->locals);
   free(f->operands);
 }
+
+void push_stack(Frame *f, uint32_t operand) {
+  assert(f);
+  assert(f->i < f->n_operands);
+  f->operands[f->i++] = operand;
+}
+
+uint32_t pop_stack(Frame *f) {
+  assert(f);
+  assert(f->i > 0);
+  return f->operands[--f->i];
+}
