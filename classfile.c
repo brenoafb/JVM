@@ -431,6 +431,13 @@ void read_stackmaptable_attribute(StackMapTable_attribute *ptr, FILE *fp) {
 
  }
 
+char *get_class_name(classfile *cf) {
+  return get_cp_string(cf->constant_pool, cf->this_class);
+}
+
+char *get_super_name(classfile *cf) {
+  return get_cp_string(cf->constant_pool, cf->super_class);
+}
 
 char *get_cp_string(cp_info *cp, uint16_t index) {
   assert(cp);

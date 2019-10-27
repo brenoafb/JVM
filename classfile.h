@@ -129,6 +129,16 @@ void read_sourcefile_attribute(SourceFile_attribute *ptr, FILE *fp);
 void read_innerclasses_attribute(InnerClasses_attribute *ptr, FILE *fp);
 
 /**
+ * Return string containing this class's name
+ */
+char *get_class_name(classfile *cf);
+
+/**
+ * Return string containing this class's name
+ */
+char *get_super_name(classfile *cf);
+
+/**
  * Return pointer to string in constant pool table.
  * Entry in constant pool must have tag CONSTANT_Utf8.
  * Indices start at 1.
