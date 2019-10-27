@@ -5,13 +5,19 @@
 #include <stdint.h>
 #include "classfile.h"
 #include "frame.h"
+#include "methodarea.h"
 
-typedef struct jvm {
+typedef struct JVM {
   uint32_t pc;
-  Frame *frame;
-  uint8_t *heap;
-  /*
-  MethodArea ma;
-  NativeMethodArea nma;
-  */
-} jvm;
+  Frame *frames;
+  uint32_t fi;    /* top of frame stack index */
+  /* uint8_t *heap; */
+  MethodArea *method_area;
+  /* NativeMethodArea nma; */
+} JVM;
+
+void init_jvm(JVM *jvm);
+void deinit_jvm(JVM *jvm);
+
+/* Load the classfile into the jvm's MethodArea */
+void load_class(JVM *jvm, classfile *cf);
