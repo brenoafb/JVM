@@ -19,4 +19,4 @@ void init_frame(Frame *f, uint32_t n_locals, uint32_t n_operands, cp_info *cp);
 void deinit_frame(Frame *f);
 
 void push_stack(Frame *f, int32_t operand);
-uint32_t pop_stack(Frame *f);
+int32_t pop_stack(Frame *f);

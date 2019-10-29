@@ -21,7 +21,7 @@ void push_stack(Frame *f, int32_t operand) {
   f->operands[f->i++] = operand;
 }
 
-uint32_t pop_stack(Frame *f) {
+int32_t pop_stack(Frame *f) {
   assert(f->i > 0);
   return f->operands[--f->i];
 }
