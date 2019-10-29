@@ -76,6 +76,9 @@ void jvm_run_method(JVM *jvm) {
     }
     jvm->pc += opargs[opcode] + 1;
   }
+
+  deinit_frame(f);
+  free(f);
 }
 
 void nop(Frame *f, uint32_t a0, uint32_t a1) {
