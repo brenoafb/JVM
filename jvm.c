@@ -1,5 +1,22 @@
 #include "jvm.h"
 
+operation optable[N_OPS] = {
+			    [OP_nop] = nop,
+			    [OP_ldc] = ldc,
+			    [OP_istore_1] = istore_1,
+			    [OP_istore_2] = istore_2,
+			    [OP_istore_3] = istore_3,
+			    [OP_iload_1] = iload_1,
+			    [OP_iload_2] = iload_2,
+			    [OP_iadd] = iadd,
+			    [OP_return] = return_func,
+};
+
+int opargs[N_OPS] = {
+		     [OP_ldc] = 1,
+
+};
+
 void init_jvm(JVM *jvm) {
   jvm->pc = 0;
   jvm->frame_index = -1; /* no frames initially */
@@ -42,45 +59,68 @@ void jvm_run_method(JVM *jvm) {
   printf("Current method descriptor: %s\n", get_cp_string(class->constant_pool, method->descriptor_index));
   printf("Max locals:%d\nMax stack: %d\n", code->max_locals, code->max_stack);
 
-  uint32_t i;
-  for (i = 0; i < code->code_length; i++) {
-    uint32_t opcode = code->code[i];
-    uint32_t a0, a1;
-    switch (opcode) {
-    case 0x12:    /* ldc */
-      a0 = code->code[i+1];
-      printf("%u\tldc\t\t#%u\n", i, a0);
-      /* TODO run ldc */
-      i++;
-      break;
-    case 0x3c:    /* istore_1 */
-      printf("%u\tistore_1\n", i);
-      /* TODO run istore_1 */
-      break;
-    case 0x3d:    /* istore_2 */
-      printf("%u\tistore_2\n", i);
-      /* TODO run istore_2 */
-      break;
-    case 0x3e:    /* istore_3 */
-      printf("%u\tistore_3\n", i);
-      /* TODO run istore_3 */
-      break;
-    case 0x1b:    /* iload_1 */
-      printf("%u\tiload_1\n", i);
-      /* TODO run iload_1 */
-      break;
-    case 0x1c:    /* iload_2 */
-      printf("%u\tiload_2\n", i);
-      /* TODO run iload_2 */
-      break;
-    case 0x60:    /* iadd */
-      printf("%u\tiadd\n", i);
-      /* TODO run iadd */
-      break;
-    case 0xb1:    /* return */
-      printf("%u\treturn\n", i);
-      /* TODO run return */
-      break;
+  while (1) {
+    uint32_t opcode = code->code[jvm->pc];
+    printf("%d: 0x%x (%d)\n", jvm->pc, opcode, opargs[opcode]);
+    uint32_t a[8];
+    int i;
+    for (i = 0; i < opargs[opcode]; i++) {
+      a[i] = code->code[jvm->pc++];
     }
+    optable[opcode](f, a[0], a[1]);
+    if (opcode == OP_return) break;
+    jvm->pc++;
   }
+}
+
+void nop(Frame *f, uint32_t a0, uint32_t a1) {
+  /* do nothing */
+  return;
+}
+
+void ldc(Frame *f, uint32_t a0, uint32_t a1) {
+  /* push item from runtime constant pool */
+  uint8_t tag = f->cp[a0].tag;
+  printf("ldc: flag of #%d is %d\n", a0, tag);
+  /* TODO push the correct item */
+  push_stack(f, 0xbeef);
+}
+void istore_1(Frame *f, uint32_t a0, uint32_t a1) {
+  /* store int into local variable 1 */
+  int32_t op = pop_stack(f);
+  f->locals[1] = op;
+}
+
+void istore_2(Frame *f, uint32_t a0, uint32_t a1) {
+  /* store int into local variable 2 */
+  int32_t op = pop_stack(f);
+  f->locals[2] = op;
+}
+
+void istore_3(Frame *f, uint32_t a0, uint32_t a1) {
+  /* store int into local variable 3 */
+  int32_t op = pop_stack(f);
+  f->locals[3] = op;
+}
+
+void iload_1(Frame *f, uint32_t a0, uint32_t a1) {
+  /* Load int from local variable 1 */
+  int32_t op = f->locals[1];
+  push_stack(f, op);
+}
+
+void iload_2(Frame *f, uint32_t a0, uint32_t a1) {
+  /* Load int from local variable 2 */
+  int32_t op = f->locals[2];
+  push_stack(f, op);
+}
+
+void iadd(Frame *f, uint32_t a0, uint32_t a1) {
+  /* add int */
+  push_stack(f, pop_stack(f) + pop_stack(f));
+}
+
+void return_func(Frame *f, uint32_t a0, uint32_t a1) {
+  /* nothing to do for now */
+  printf("return\n");
 }

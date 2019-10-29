@@ -6,6 +6,7 @@
 #include "classfile.h"
 #include "frame.h"
 #include "methodarea.h"
+#include "opcodes.h"
 
 #define MAX_FRAMES 32
 
@@ -31,3 +32,18 @@ void jvm_load_method(JVM *jvm, uint32_t class_index, uint32_t method_index);
 
 /* Load current method into frame and run it */
 void jvm_run_method(JVM *jvm);
+
+typedef void (*operation)(Frame *, uint32_t, uint32_t);
+
+void nop(Frame *f, uint32_t a0, uint32_t a1);
+void ldc(Frame *f, uint32_t a0, uint32_t a1);
+void istore_1(Frame *f, uint32_t a0, uint32_t a1);
+void istore_2(Frame *f, uint32_t a0, uint32_t a1);
+void istore_3(Frame *f, uint32_t a0, uint32_t a1);
+void iload_1(Frame *f, uint32_t a0, uint32_t a1);
+void iload_2(Frame *f, uint32_t a0, uint32_t a1);
+void iadd(Frame *f, uint32_t a0, uint32_t a1);
+void return_func(Frame *f, uint32_t a0, uint32_t a1);
+
+extern operation optable[N_OPS];
+extern int opargs[N_OPS];

@@ -1,7 +1,6 @@
 #pragma once
 #include <stdio.h>
 #include <stdint.h>
-#include "frame.h"
 
 #define N_OPS 255
 
@@ -217,7 +216,7 @@
 #define OP_freturn            (0xae)
 #define OP_dreturn            (0xaf)
 #define OP_areturn            (0xb0)
-#define OP_RET                (0xb1)
+#define OP_return             (0xb1)
 #define OP_getstatic          (0xb2)
 #define OP_putstatic          (0xb3)
 #define OP_getfield           (0xb4)
@@ -244,11 +243,3 @@
 #define OP_breakpoint         (0xca)
 #define OP_impdep1            (0xfe)
 #define OP_impdep2            (0xff)
-
-typedef void (*operation)(Frame *, uint32_t, uint32_t);
-
-void nop(Frame *f, uint32_t a0, uint32_t a1);
-
-operation function_table[N_OPS] = {
-				   [0] = nop,
-};
