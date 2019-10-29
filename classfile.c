@@ -503,7 +503,7 @@ void print_cp_detail(classfile *cf) {
     case CONSTANT_Utf8                 :
       printf("Utf8:\t");
       char *str = get_cp_string(cf->constant_pool, i);
-      printf("\"%s\"\n", str);
+      printf("%s\n", str);
       break;
     case CONSTANT_Integer              :
       printf("Integer\t");
