@@ -12,6 +12,10 @@ void init_jvm(JVM *jvm) {
 void deinit_jvm(JVM *jvm) {
   deinit_method_area(jvm->method_area);
   free(jvm->method_area);
+  int i;
+  for (i = 0; i < jvm->frame_index; i++) {
+    free(jvm->frames[i]);
+  }
 }
 
 /* Load the classfile into the jvm's MethodArea */
