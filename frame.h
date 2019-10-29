@@ -20,3 +20,4 @@ void deinit_frame(Frame *f);
 
 void push_stack(Frame *f, int32_t operand);
 int32_t pop_stack(Frame *f);
+int32_t peek_stack(Frame *f);

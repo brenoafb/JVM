@@ -25,3 +25,7 @@ int32_t pop_stack(Frame *f) {
   assert(f->i > 0);
   return f->operands[--f->i];
 }
+
+int32_t peek_stack(Frame *f) {
+  return f->operands[f->i];
+}

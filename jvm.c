@@ -62,14 +62,19 @@ void jvm_run_method(JVM *jvm) {
   while (1) {
     uint32_t opcode = code->code[jvm->pc];
     printf("%d: 0x%x (%d)\n", jvm->pc, opcode, opargs[opcode]);
-    uint32_t a[8];
+    uint32_t a[2];
     int i;
     for (i = 0; i < opargs[opcode]; i++) {
-      a[i] = code->code[jvm->pc++];
+      a[i] = code->code[jvm->pc+i+1];
+      printf("load a%d: %d\n", i, a[i]);
     }
     optable[opcode](f, a[0], a[1]);
-    if (opcode == OP_return) break;
-    jvm->pc++;
+    if (opcode == OP_return) {
+      printf("frame->i: %d\n", f->i);
+      printf("Final value in stack: %d (0x%x)\n", peek_stack(f), peek_stack(f));
+      break;
+    }
+    jvm->pc += opargs[opcode] + 1;
   }
 }
 
@@ -81,10 +86,16 @@ void nop(Frame *f, uint32_t a0, uint32_t a1) {
 void ldc(Frame *f, uint32_t a0, uint32_t a1) {
   /* push item from runtime constant pool */
   uint8_t tag = f->cp[a0].tag;
-  printf("ldc: flag of #%d is %d\n", a0, tag);
-  /* TODO push the correct item */
-  push_stack(f, 0xbeef);
+  switch (tag) {
+  case CONSTANT_Integer:
+    printf("Push %d from cp\n", f->cp[a0].info.integer_info.bytes);
+    push_stack(f, f->cp[a0].info.integer_info.bytes);
+    break;
+  default:
+    break;
+  }
 }
+
 void istore_1(Frame *f, uint32_t a0, uint32_t a1) {
   /* store int into local variable 1 */
   int32_t op = pop_stack(f);
