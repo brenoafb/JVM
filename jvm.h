@@ -30,6 +30,22 @@ void jvm_load_class(JVM *jvm, classfile *cf);
 /* Set the current class and current method members */
 void jvm_load_method(JVM *jvm, uint32_t class_index, uint32_t method_index);
 
+/* Creates a class with the current method and pushes it into the frame stack */
+void jvm_push_frame(JVM *jvm);
+
+/* Pop the current frame off the stack and free all its resources */
+void jvm_pop_frame(JVM *jvm);
+
+/* Return a pointer to the frame on top of the stack */
+Frame *jvm_peek_frame(JVM *jvm);
+
+/* Run one jvm cycle */
+/* Returns 0 when return is called, 1 otherwise */
+int jvm_cycle(JVM *jvm);
+
+/* Run until the end */
+void jvm_run(JVM *jvm);
+
 /* Load current method into frame and run it */
 void jvm_run_method(JVM *jvm);
 

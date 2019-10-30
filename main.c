@@ -26,7 +26,8 @@ int main(int argc, char *argv[]) {
   jvm_load_class(&memory, &cf);
   jvm_load_method(&memory, 0, 1); /* load class' main method */
 
-  jvm_run_method(&memory);
+  jvm_push_frame(&memory);
+  jvm_run(&memory);
 
   deinit_jvm(&memory);
   deinit_class_file(&cf);

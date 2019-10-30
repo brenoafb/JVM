@@ -19,7 +19,7 @@ int opargs[N_OPS] = {
 
 void init_jvm(JVM *jvm) {
   jvm->pc = 0;
-  jvm->frame_index = -1; /* no frames initially */
+  jvm->frame_index = 0;
   jvm->method_area = calloc(sizeof(MethodArea), 1);
   init_method_area(jvm->method_area);
   jvm->current_class_index = -1;
@@ -35,18 +35,64 @@ void deinit_jvm(JVM *jvm) {
   }
 }
 
-/* Load the classfile into the jvm's MethodArea */
 void jvm_load_class(JVM *jvm, classfile *cf) {
   method_area_load_class(jvm->method_area, cf);
 }
 
-/* Set the current class and current method members */
 void jvm_load_method(JVM *jvm, uint32_t class_index, uint32_t method_index) {
   jvm->current_class_index = class_index;
   jvm->current_method_index = method_index;
 }
 
-/* Load current method into frame and run it */
+void jvm_push_frame(JVM *jvm) {
+  classfile *class = jvm->method_area->classes[jvm->current_class_index];
+  method_info *method = &class->methods[jvm->current_method_index];
+  Code_attribute *code = &method->attributes[0].info.code;
+  Frame *f = calloc(sizeof(Frame), 1);
+  init_frame(f, code->max_locals, code->max_stack, class->constant_pool);
+  jvm->frames[jvm->frame_index++] = f;
+}
+
+void jvm_pop_frame(JVM *jvm) {
+  Frame *f = jvm->frames[--jvm->frame_index];
+  deinit_frame(f);
+  free(f);
+}
+
+Frame *jvm_peek_frame(JVM *jvm) {
+  if (jvm->frame_index == 0) return NULL;
+  return jvm->frames[jvm->frame_index-1];
+}
+
+int jvm_cycle(JVM *jvm) {
+  int flag = 1;
+  Frame *f = jvm_peek_frame(jvm);
+  classfile *class = jvm->method_area->classes[jvm->current_class_index];
+  method_info *method = &class->methods[jvm->current_method_index];
+  Code_attribute *code = &method->attributes[0].info.code;
+
+  uint32_t opcode = code->code[jvm->pc];
+  printf("%d: 0x%x (%d)\n", jvm->pc, opcode, opargs[opcode]);
+  uint32_t a[2];
+  int i;
+  for (i = 0; i < opargs[opcode]; i++) {
+    a[i] = code->code[jvm->pc+i+1];
+    printf("load a%d: %d\n", i, a[i]);
+  }
+  optable[opcode](f, a[0], a[1]);
+  if (opcode == OP_return) {
+    printf("frame->i: %d\n", f->i);
+    printf("Final value in stack: %d (0x%x)\n", peek_stack(f), peek_stack(f));
+    flag = 0;
+  }
+  jvm->pc += opargs[opcode] + 1;
+  return flag;
+}
+
+void jvm_run(JVM *jvm) {
+  while (jvm_cycle(jvm));
+}
+
 void jvm_run_method(JVM *jvm) {
   classfile *class = jvm->method_area->classes[jvm->current_class_index];
   method_info *method = &class->methods[jvm->current_method_index];
