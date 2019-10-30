@@ -21,15 +21,18 @@ int main(int argc, char *argv[]) {
   JVM memory = {0};
   read_class_file(&cf, fp);
   print_class_file_detail(&cf);
-  init_jvm(&memory);
 
-  jvm_load_class(&memory, &cf);
-  jvm_load_method(&memory, 0, 1); /* load class' main method */
+  if (argc > 2) {
+    init_jvm(&memory);
 
-  jvm_push_frame(&memory);
-  jvm_run(&memory);
+    jvm_load_class(&memory, &cf);
+    jvm_load_method(&memory, 0, 1); /* load class' main method */
 
-  deinit_jvm(&memory);
+    jvm_push_frame(&memory);
+    jvm_run(&memory);
+
+    deinit_jvm(&memory);
+  }
   deinit_class_file(&cf);
   deinit_ac_flags();
 
