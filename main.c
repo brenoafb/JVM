@@ -2,6 +2,7 @@
 #include <stdlib.h>
 #include "types.h"
 #include "classfile.h"
+#include "jvm.h"
 
 int main(int argc, char *argv[]) {
   if (argc < 2) {
@@ -17,11 +18,19 @@ int main(int argc, char *argv[]) {
   }
 
   classfile cf = {0};
+  JVM memory = {0};
   read_class_file(&cf, fp);
-  /* print_class_file_summary(&cf); */
   print_class_file_detail(&cf);
-  deinit_class_file(&cf);
+  init_jvm(&memory);
 
+  jvm_load_class(&memory, &cf);
+  jvm_load_method(&memory, 0, 1); /* load class' main method */
+
+  jvm_push_frame(&memory);
+  jvm_run(&memory);
+
+  deinit_jvm(&memory);
+  deinit_class_file(&cf);
   deinit_ac_flags();
 
   fclose(fp);
