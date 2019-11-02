@@ -858,3 +858,6 @@ void deinit_linenumbertable_attribute(LineNumberTable_attribute *ptr) {
 void deinit_innerclasses_attribute(InnerClasses_attribute *ptr) {
   free(ptr->classes);
 }
+void java_version (uint16_t major,  uint16_t minor, char* version) {
+  sprintf(version, "%d.%d", major, minor);
+}
