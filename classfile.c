@@ -548,12 +548,12 @@ void print_cp_detail(classfile *cf) {
     case CONSTANT_Class                :
       printf("Class\t");
       uint16_t name_index = cf->constant_pool[i].info.class_info.name_index;
-      printf("#%d\n", name_index);
+      printf("%s (#%d)\n", get_cp_string(cf->constant_pool, name_index), name_index);
       break;
     case CONSTANT_String               :
       printf("String\t");
       uint16_t string_index = cf->constant_pool[i].info.string_info.string_index;
-      printf("#%d\n", string_index);
+      printf("%s (#%d)\n", get_cp_string(cf->constant_pool, string_index), string_index);
       break;
     case CONSTANT_Fieldref             :
       printf("Fieldref\t");
@@ -565,7 +565,12 @@ void print_cp_detail(classfile *cf) {
       printf("Methodref\t");
       class_index = cf->constant_pool[i].info.methodref_info.class_index;
       name_and_type_index = cf->constant_pool[i].info.methodref_info.name_and_type_index;
-      printf("#%d.#%d\n", class_index, name_and_type_index);
+      uint16_t class_name_index = cf->constant_pool[class_index].info.class_info.name_index;
+      uint16_t name_name_index = cf->constant_pool[name_and_type_index].info.nameandtype_info.name_index;
+      uint16_t descriptor_name_index = cf->constant_pool[name_and_type_index].info.nameandtype_info.descriptor_index;
+      printf("%s.%s:%s (#%d.#%d)\n", get_cp_string(cf->constant_pool, class_name_index),
+      get_cp_string(cf->constant_pool, name_name_index), get_cp_string(cf->constant_pool, descriptor_name_index), 
+      class_index, name_and_type_index);
       break;
     case CONSTANT_InterfaceMethodref   :
       printf("InterfaceMethodref\t");
@@ -577,7 +582,8 @@ void print_cp_detail(classfile *cf) {
       printf("NameAndType\t");
       name_index = cf->constant_pool[i].info.nameandtype_info.name_index;
       uint16_t descriptor_index = cf->constant_pool[i].info.nameandtype_info.descriptor_index;
-      printf("#%d:#%d\n", name_index, descriptor_index);
+      printf("%s:%s (#%d:#%d)\n", get_cp_string(cf->constant_pool, name_index),
+        get_cp_string(cf->constant_pool, descriptor_name_index), name_index, descriptor_index);
       break;
     }
   }
