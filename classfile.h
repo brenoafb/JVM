@@ -265,4 +265,4 @@ void deinit_innerclasses_attribute(InnerClasses_attribute *ptr);
 /**
 * Montagem da versão da classe
 */
-void java_version (uint16_t major,  uint16_t minor, char* version);
+void print_java_version (uint16_t major,  uint16_t minor);

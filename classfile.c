@@ -476,6 +476,7 @@ void print_class_file_detail(classfile *cf) {
   printf("class %s\n", get_cp_string(cp, class_name_index));
   printf("\tminor version: %d\n", cf->minor_version);
   printf("\tmajor version: %d\n", cf->major_version);
+  print_java_version(cf->major_version, cf->minor_version);
 
   populate_ac_flags_class();
 
@@ -858,6 +859,39 @@ void deinit_linenumbertable_attribute(LineNumberTable_attribute *ptr) {
 void deinit_innerclasses_attribute(InnerClasses_attribute *ptr) {
   free(ptr->classes);
 }
-void java_version (uint16_t major,  uint16_t minor, char* version) {
-  sprintf(version, "%d.%d", major, minor);
+void print_java_version (uint16_t major,  uint16_t minor) {
+  char* version = calloc(sizeof(char), 5);
+  char* major_version;
+  switch (major){
+    case 52:
+      major_version = "J2SE 8";
+    break;
+    case 51:
+      major_version = "J2SE 7";
+    break;
+    case 50:
+      major_version = "J2SE 6.0";
+    break;
+    case 49:
+      major_version = "J2SE 5.0";
+    break;
+    case 48:
+      major_version = "JDK 1.4";
+    break;
+    case 47:
+      major_version = "JDK 1.3";
+    break;
+    case 46:
+      major_version = "JDK 1.2";
+    break;
+    case 45:
+      major_version = "JDK 1.1";
+    break;
+    default:
+      major_version = "0";
+    break;
+  }
+  sprintf(version, "%s.%d", major_version, minor);
+  printf("\t%s\n",version);
+  free(version);
 }
