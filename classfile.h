@@ -146,6 +146,20 @@ char *get_super_name(classfile *cf);
 char *get_cp_string(cp_info *cp, uint16_t index);
 
 /**
+ * Return pointer to string in constant pool table.
+ * Entry in constant pool must have tag CONSTANT_Class.
+ * Indices start at 1.
+ */
+char *get_class_name_string(cp_info *cp, uint16_t class_index);
+
+/**
+ * Return pointer to string in constant pool table, choice betweem descriptor(0) and name(1).
+ * Entry in constant pool must have tag CONSTANT_NameAndType.
+ * Indices start at 1.
+ */
+char *get_name_and_type_string(cp_info *cp, uint16_t index, uint8_t choice);
+
+/**
  * Print class file summary.
  * i.e. Prints the values read but not the tables.
  */
