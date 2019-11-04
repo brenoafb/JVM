@@ -769,6 +769,8 @@ void deinit_class_file(classfile *cf) {
   deinit_constant_pool(cf->constant_pool, cf->cpsize);
   free(cf->constant_pool);
 
+  deinit_interfaces(cf->interfaces);
+
   /* TODO free interfaces */
 }
 
