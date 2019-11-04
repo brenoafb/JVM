@@ -261,3 +261,8 @@ void deinit_linenumbertable_attribute(LineNumberTable_attribute *ptr);
  * @param cp points to a valid constant pool (i.e. read, not deinitialized)
  */
 void deinit_innerclasses_attribute(InnerClasses_attribute *ptr);
+
+/**
+* Montagem da versão da classe
+*/
+void print_java_version (uint16_t major,  uint16_t minor);
