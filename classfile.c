@@ -450,6 +450,27 @@ char *get_cp_string(cp_info *cp, uint16_t index) {
   return (char *) entry->info.utf8_info.bytes;
 }
 
+char *get_class_name_string(cp_info *cp, uint16_t class_index) {
+  assert(cp);
+
+  cp_info *entry = &cp[class_index];
+  assert(entry->tag == CONSTANT_Class);
+
+  return get_cp_string(cp, entry->info.methodref_info.class_index);
+}
+
+char *get_name_and_type_string(cp_info *cp, uint16_t index, uint8_t choice) {
+  assert(cp);
+
+  cp_info *entry = &cp[index];
+  assert(entry->tag == CONSTANT_NameAndType);
+
+  if (choice)
+    return get_cp_string(cp, entry->info.nameandtype_info.name_index);
+  else
+    return get_cp_string(cp, entry->info.nameandtype_info.descriptor_index);
+}
+
 void print_class_file_summary(classfile *cf) {
   if (!cf) return;
   printf("magic=%x\n", cf->magic);
@@ -548,36 +569,45 @@ void print_cp_detail(classfile *cf) {
     case CONSTANT_Class                :
       printf("Class\t");
       uint16_t name_index = cf->constant_pool[i].info.class_info.name_index;
-      printf("#%d\n", name_index);
+      printf("%s (#%d)\n", get_cp_string(cf->constant_pool, name_index), name_index);
       break;
     case CONSTANT_String               :
       printf("String\t");
       uint16_t string_index = cf->constant_pool[i].info.string_info.string_index;
-      printf("#%d\n", string_index);
+      printf("%s (#%d)\n", get_cp_string(cf->constant_pool, string_index), string_index);
       break;
     case CONSTANT_Fieldref             :
       printf("Fieldref\t");
       uint16_t class_index = cf->constant_pool[i].info.fieldref_info.class_index;
       uint16_t name_and_type_index = cf->constant_pool[i].info.fieldref_info.name_and_type_index;
-      printf("#%d.#%d\n", class_index, name_and_type_index);
+      printf("%s.%s:%s (#%d.#%d)\n", get_class_name_string(cf->constant_pool, class_index),
+        get_name_and_type_string(cf->constant_pool, name_and_type_index, 1),
+        get_name_and_type_string(cf->constant_pool, name_and_type_index, 0),
+        class_index, name_and_type_index);
       break;
     case CONSTANT_Methodref            :
       printf("Methodref\t");
       class_index = cf->constant_pool[i].info.methodref_info.class_index;
       name_and_type_index = cf->constant_pool[i].info.methodref_info.name_and_type_index;
-      printf("#%d.#%d\n", class_index, name_and_type_index);
+      printf("%s.%s:%s (#%d.#%d)\n", get_class_name_string(cf->constant_pool, class_index),
+        get_name_and_type_string(cf->constant_pool, name_and_type_index, 1),
+        get_name_and_type_string(cf->constant_pool, name_and_type_index, 0), class_index, name_and_type_index);
       break;
     case CONSTANT_InterfaceMethodref   :
       printf("InterfaceMethodref\t");
       class_index = cf->constant_pool[i].info.methodref_info.class_index;
       name_and_type_index = cf->constant_pool[i].info.methodref_info.name_and_type_index;
-      printf("#%d.#%d\n", class_index, name_and_type_index);
+      printf("%s.%s:%s (#%d.#%d)\n", get_class_name_string(cf->constant_pool, class_index),
+        get_name_and_type_string(cf->constant_pool, name_and_type_index, 1),
+        get_name_and_type_string(cf->constant_pool, name_and_type_index, 0),
+        class_index, name_and_type_index);
       break;
     case CONSTANT_NameAndType          :
       printf("NameAndType\t");
       name_index = cf->constant_pool[i].info.nameandtype_info.name_index;
       uint16_t descriptor_index = cf->constant_pool[i].info.nameandtype_info.descriptor_index;
-      printf("#%d:#%d\n", name_index, descriptor_index);
+      printf("%s:%s (#%d:#%d)\n", get_cp_string(cf->constant_pool, name_index),
+        get_cp_string(cf->constant_pool, descriptor_index), name_index, descriptor_index);
       break;
     }
   }
