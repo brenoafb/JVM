@@ -52,14 +52,40 @@ void jvm_run_method(JVM *jvm);
 typedef void (*operation)(Frame *, uint32_t, uint32_t);
 
 void nop(Frame *f, uint32_t a0, uint32_t a1);
+
 void ldc(Frame *f, uint32_t a0, uint32_t a1);
+
 void istore_1(Frame *f, uint32_t a0, uint32_t a1);
 void istore_2(Frame *f, uint32_t a0, uint32_t a1);
 void istore_3(Frame *f, uint32_t a0, uint32_t a1);
+
 void iload_1(Frame *f, uint32_t a0, uint32_t a1);
 void iload_2(Frame *f, uint32_t a0, uint32_t a1);
+
 void iadd(Frame *f, uint32_t a0, uint32_t a1);
+
 void return_func(Frame *f, uint32_t a0, uint32_t a1);
+
+void invokevirtual(Frame *f, uint32_t a0, uint32_t a1);
+
+void getstatic(Frame *f, uint32_t a0, uint32_t a1);
+
+void ldc2_w(Frame *f, uint32_t a0, uint32_t a1);
+
+void dstore_1(Frame *f, uint32_t a0, uint32_t a1);
+void dstore_2(Frame *f, uint32_t a0, uint32_t a1);
+void dstore_3(Frame *f, uint32_t a0, uint32_t a1);
+
+void dload_1(Frame *f, uint32_t a0, uint32_t a1);
+void dload_2(Frame *f, uint32_t a0, uint32_t a1);
+void dload_3(Frame *f, uint32_t a0, uint32_t a1);
+
+void dadd(Frame *f, uint32_t a0, uint32_t a1);
+void dsub(Frame *f, uint32_t a0, uint32_t a1);
+void ddiv(Frame *f, uint32_t a0, uint32_t a1);
+void dmul(Frame *f, uint32_t a0, uint32_t a1);
+void dneg(Frame *f, uint32_t a0, uint32_t a1);
+
 
 extern operation optable[N_OPS];
 extern int opargs[N_OPS];

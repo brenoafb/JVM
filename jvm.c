@@ -10,10 +10,25 @@ operation optable[N_OPS] = {
 			    [OP_iload_2] = iload_2,
 			    [OP_iadd] = iadd,
 			    [OP_return] = return_func,
+			    [OP_invokevirtual] = invokevirtual,
+			    [OP_getstatic] = getstatic,
+			    [OP_ldc2_w] = ldc2_w,
+			    [OP_dstore_1] = dstore_1,
+			    [OP_dstore_2] = dstore_2,
+			    [OP_dstore_3] = dstore_3,
+			    [OP_dload_1] = dload_1,
+			    [OP_dload_2] = dload_2,
+			    [OP_dload_3] = dload_3,
+			    [OP_dadd] = dadd,
+			    [OP_dsub] = dsub,
+			    [OP_dmul] = dmul,
+			    [OP_ddiv] = ddiv,
+			    [OP_dneg] = dneg,
 };
 
 int opargs[N_OPS] = {
 		     [OP_ldc] = 1,
+		     [OP_invokevirtual] = 2,
 
 };
 
@@ -108,7 +123,7 @@ void jvm_run_method(JVM *jvm) {
   while (1) {
     uint32_t opcode = code->code[jvm->pc];
     printf("%d: 0x%x (%d)\n", jvm->pc, opcode, opargs[opcode]);
-    uint32_t a[2];
+    uint8_t a[2];
     int i;
     for (i = 0; i < opargs[opcode]; i++) {
       a[i] = code->code[jvm->pc+i+1];
@@ -183,4 +198,89 @@ void iadd(Frame *f, uint32_t a0, uint32_t a1) {
 void return_func(Frame *f, uint32_t a0, uint32_t a1) {
   /* nothing to do for now */
   printf("return\n");
+}
+
+void invokevirtual(Frame *f, uint32_t a0, uint32_t a1) {
+  /* TODO */
+  uint32_t index = (a0 << 8) | a1;
+  CONSTANT_Methodref_info methodref_info = f->cp[index].info.methodref_info;
+  uint16_t class_index = methodref_info.class_index;
+  uint16_t name_and_type_index = methodref_info.name_and_type_index;
+
+  printf("invokevirtual: Methodref\t");
+  printf("%s.%s:%s (#%d.#%d)\n", get_class_name_string(f->cp, class_index),
+	 get_name_and_type_string(f->cp, name_and_type_index, 1),
+	 get_name_and_type_string(f->cp, name_and_type_index, 0), class_index, name_and_type_index);
+  return;
+}
+
+void getstatic(Frame *f, uint32_t a0, uint32_t a1) {
+  /* TODO */
+  uint32_t index = (a0 << 8) | a1;
+  CONSTANT_Fieldref_info fieldref_info = f->cp[index].info.fieldref_info;
+  return;
+}
+
+
+void ldc2_w(Frame *f, uint32_t a0, uint32_t a1) {
+  /* TODO */
+  return;
+}
+
+
+void dstore_1(Frame *f, uint32_t a0, uint32_t a1) {
+  /* TODO */
+  return;
+}
+
+void dstore_2(Frame *f, uint32_t a0, uint32_t a1) {
+  /* TODO */
+  return;
+}
+
+void dstore_3(Frame *f, uint32_t a0, uint32_t a1) {
+  /* TODO */
+  return;
+}
+
+
+void dload_1(Frame *f, uint32_t a0, uint32_t a1) {
+  /* TODO */
+  return;
+}
+
+void dload_2(Frame *f, uint32_t a0, uint32_t a1) {
+  /* TODO */
+  return;
+}
+
+void dload_3(Frame *f, uint32_t a0, uint32_t a1) {
+  /* TODO */
+  return;
+}
+
+
+void dadd(Frame *f, uint32_t a0, uint32_t a1) {
+  /* TODO */
+  return;
+}
+
+void dsub(Frame *f, uint32_t a0, uint32_t a1) {
+  /* TODO */
+  return;
+}
+
+void ddiv(Frame *f, uint32_t a0, uint32_t a1) {
+  /* TODO */
+  return;
+}
+
+void dmul(Frame *f, uint32_t a0, uint32_t a1) {
+  /* TODO */
+  return;
+}
+
+void dneg(Frame *f, uint32_t a0, uint32_t a1) {
+  /* TODO */
+  return;
 }
