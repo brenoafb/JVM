@@ -184,3 +184,77 @@ void return_func(Frame *f, uint32_t a0, uint32_t a1) {
   /* nothing to do for now */
   printf("return\n");
 }
+
+void invokevirtual(Frame *f, uint32_t a0, uint32_t a1) {
+  /* TODO */
+  return;
+}
+
+void getstatic(Frame *f, uint32_t a0, uint32_t a1) {
+  /* TODO */
+  return;
+}
+
+
+void ldc2_w(Frame *f, uint32_t a0, uint32_t a1) {
+  /* TODO */
+  return;
+}
+
+
+void dstore_1(Frame *f, uint32_t a0, uint32_t a1) {
+  /* TODO */
+  return;
+}
+
+void dstore_2(Frame *f, uint32_t a0, uint32_t a1) {
+  /* TODO */
+  return;
+}
+
+void dstore_3(Frame *f, uint32_t a0, uint32_t a1) {
+  /* TODO */
+  return;
+}
+
+
+void dload_1(Frame *f, uint32_t a0, uint32_t a1) {
+  /* TODO */
+  return;
+}
+
+void dload_2(Frame *f, uint32_t a0, uint32_t a1) {
+  /* TODO */
+  return;
+}
+
+void dload_3(Frame *f, uint32_t a0, uint32_t a1) {
+  /* TODO */
+  return;
+}
+
+
+void dadd(Frame *f, uint32_t a0, uint32_t a1) {
+  /* TODO */
+  return;
+}
+
+void dsub(Frame *f, uint32_t a0, uint32_t a1) {
+  /* TODO */
+  return;
+}
+
+void ddiv(Frame *f, uint32_t a0, uint32_t a1) {
+  /* TODO */
+  return;
+}
+
+void dmul(Frame *f, uint32_t a0, uint32_t a1) {
+  /* TODO */
+  return;
+}
+
+void dneg(Frame *f, uint32_t a0, uint32_t a1) {
+  /* TODO */
+  return;
+}
