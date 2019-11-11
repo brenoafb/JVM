@@ -10,6 +10,20 @@ operation optable[N_OPS] = {
 			    [OP_iload_2] = iload_2,
 			    [OP_iadd] = iadd,
 			    [OP_return] = return_func,
+			    [OP_invokevirtual] = invokevirtual,
+			    [OP_getstatic] = getstatic,
+			    [OP_ldc2w_w] = ldc2_w,
+			    [OP_dstore_1] = dstore_1,
+			    [OP_dstore_2] = dstore_2,
+			    [OP_dstore_3] = dstore_3,
+			    [OP_dload_1] = dload_1,
+			    [OP_dload_2] = dload_2,
+			    [OP_dload_3] = dload_3,
+			    [OP_dadd] = dadd,
+			    [OP_dsub] = dsub,
+			    [OP_dmul] = dmul,
+			    [OP_ddiv] = ddiv,
+			    [OP_dneg] = dneg,
 };
 
 int opargs[N_OPS] = {
