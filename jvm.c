@@ -28,6 +28,7 @@ operation optable[N_OPS] = {
 
 int opargs[N_OPS] = {
 		     [OP_ldc] = 1,
+		     [OP_invokevirtual] = 2,
 
 };
 
@@ -122,7 +123,7 @@ void jvm_run_method(JVM *jvm) {
   while (1) {
     uint32_t opcode = code->code[jvm->pc];
     printf("%d: 0x%x (%d)\n", jvm->pc, opcode, opargs[opcode]);
-    uint32_t a[2];
+    uint8_t a[2];
     int i;
     for (i = 0; i < opargs[opcode]; i++) {
       a[i] = code->code[jvm->pc+i+1];
@@ -201,11 +202,22 @@ void return_func(Frame *f, uint32_t a0, uint32_t a1) {
 
 void invokevirtual(Frame *f, uint32_t a0, uint32_t a1) {
   /* TODO */
+  uint32_t index = (a0 << 8) | a1;
+  CONSTANT_Methodref_info methodref_info = f->cp[index].info.methodref_info;
+  uint16_t class_index = methodref_info.class_index;
+  uint16_t name_and_type_index = methodref_info.name_and_type_index;
+
+  printf("invokevirtual: Methodref\t");
+  printf("%s.%s:%s (#%d.#%d)\n", get_class_name_string(f->cp, class_index),
+	 get_name_and_type_string(f->cp, name_and_type_index, 1),
+	 get_name_and_type_string(f->cp, name_and_type_index, 0), class_index, name_and_type_index);
   return;
 }
 
 void getstatic(Frame *f, uint32_t a0, uint32_t a1) {
   /* TODO */
+  uint32_t index = (a0 << 8) | a1;
+  CONSTANT_Fieldref_info fieldref_info = f->cp[index].info.fieldref_info;
   return;
 }
 
