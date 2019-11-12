@@ -29,6 +29,8 @@ operation optable[N_OPS] = {
 int opargs[N_OPS] = {
 		     [OP_ldc] = 1,
 		     [OP_invokevirtual] = 2,
+		     [OP_getstatic] = 2,
+		     [OP_ldc2_w] = 2,
 
 };
 
@@ -148,6 +150,8 @@ void nop(Frame *f, uint32_t a0, uint32_t a1) {
 }
 
 void ldc(Frame *f, uint32_t a0, uint32_t a1) {
+  uint16_t index;
+  char *str;
   /* push item from runtime constant pool */
   uint8_t tag = f->cp[a0].tag;
   switch (tag) {
@@ -155,6 +159,15 @@ void ldc(Frame *f, uint32_t a0, uint32_t a1) {
     printf("Push %d from cp\n", f->cp[a0].info.integer_info.bytes);
     push_stack(f, f->cp[a0].info.integer_info.bytes);
     break;
+  case CONSTANT_Float:
+    printf("Push %f from cp\n", f->cp[a0].info.float_info.bytes);
+    push_stack(f, f->cp[a0].info.float_info.bytes);
+    break;
+  case CONSTANT_String:
+    index = f->cp[a0].info.string_info.string_index;
+    str = get_cp_string(f->cp, index);
+    printf("Push \'%s\' from cp\n", str);
+    push_stack(f, str);
   default:
     break;
   }
@@ -206,11 +219,24 @@ void invokevirtual(Frame *f, uint32_t a0, uint32_t a1) {
   CONSTANT_Methodref_info methodref_info = f->cp[index].info.methodref_info;
   uint16_t class_index = methodref_info.class_index;
   uint16_t name_and_type_index = methodref_info.name_and_type_index;
+  char *name = get_name_and_type_string(f->cp, name_and_type_index, 1);
 
   printf("invokevirtual: Methodref\t");
   printf("%s.%s:%s (#%d.#%d)\n", get_class_name_string(f->cp, class_index),
 	 get_name_and_type_string(f->cp, name_and_type_index, 1),
 	 get_name_and_type_string(f->cp, name_and_type_index, 0), class_index, name_and_type_index);
+
+  if (strcmp(name, "println") == 0) {
+    /* pop two arguments by default (placeholder) */
+    /* first popped is string reference */
+    char *str = pop_stack(f);
+    printf("String printed is: \'%s\'\n", str);
+
+    /* second popped is getstatic dummy value (see getstatic definition) */
+    uint32_t dummy = pop_stack(f);
+    printf("Dummy: %x\n", dummy);
+  }
+
   return;
 }
 
@@ -218,6 +244,19 @@ void getstatic(Frame *f, uint32_t a0, uint32_t a1) {
   /* TODO */
   uint32_t index = (a0 << 8) | a1;
   CONSTANT_Fieldref_info fieldref_info = f->cp[index].info.fieldref_info;
+  uint16_t class_index = fieldref_info.class_index;
+  uint16_t name_and_type_index = fieldref_info.name_and_type_index;
+
+  char *class_name = get_class_name_string(f->cp, class_index);
+  char *name = get_name_and_type_string(f->cp, name_and_type_index, 1);
+  if ((strcmp(class_name, "java/lang/System") == 0)
+      && (strcmp(name, "out") == 0)) {
+    /* io operations will be handled by c code */
+    /* push a dummy value onto the stack */
+    push_stack(f, 0xbeefbeef);
+  } else {
+    /* TODO */
+  }
   return;
 }
 
