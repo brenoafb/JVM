@@ -16,16 +16,16 @@ void deinit_frame(Frame *f) {
   free(f->operands);
 }
 
-void push_stack(Frame *f, int32_t operand) {
+void push_stack(Frame *f, uint64_t operand) {
   assert(f->i < f->n_operands);
   f->operands[f->i++] = operand;
 }
 
-int32_t pop_stack(Frame *f) {
+uint64_t pop_stack(Frame *f) {
   assert(f->i > 0);
   return f->operands[--f->i];
 }
 
-int32_t peek_stack(Frame *f) {
+uint64_t peek_stack(Frame *f) {
   return f->operands[f->i];
 }
