@@ -269,10 +269,8 @@ void ldc2_w(Frame *f, uint32_t a0, uint32_t a1) {
 
 void dstore_1(Frame *f, uint32_t a0, uint32_t a1) {
   /* store a double into local variable 1 and 2 */
-  uint64_t op = pop_stack(f);
-
-  uint64_t half_n_1 = op & 0xFFFF0000;
-  uint64_t half_n_2 = op & 0x0000FFFF;
+  uint64_t half_n_1 = pop_stack(f);
+  uint64_t half_n_2 = pop_stack(f);
 
   memcpy(f->locals + 1, &half_n_1, 4);
   memcpy(f->locals + 2, &half_n_2, 4);
@@ -282,10 +280,8 @@ void dstore_1(Frame *f, uint32_t a0, uint32_t a1) {
 
 void dstore_2(Frame *f, uint32_t a0, uint32_t a1) {
   /* store a double into local variable 2 and 3 */
-  uint64_t op = pop_stack(f);
-
-  uint64_t half_n_1 = op & 0xFFFF0000;
-  uint64_t half_n_2 = op & 0x0000FFFF;
+  uint64_t half_n_1 = pop_stack(f);
+  uint64_t half_n_2 = pop_stack(f);
 
   memcpy(f->locals + 2, &half_n_1, 4);
   memcpy(f->locals + 3, &half_n_2, 4);
@@ -294,10 +290,8 @@ void dstore_2(Frame *f, uint32_t a0, uint32_t a1) {
 
 void dstore_3(Frame *f, uint32_t a0, uint32_t a1) {
   /* store a double into local variable 3 and 4 */
-  uint64_t op = pop_stack(f);
-
-  uint64_t half_n_1 = op & 0xFFFF0000;
-  uint64_t half_n_2 = op & 0x0000FFFF;
+  uint64_t half_n_1 = pop_stack(f);
+  uint64_t half_n_2 = pop_stack(f);
 
   memcpy(f->locals + 3, &half_n_1, 4);
   memcpy(f->locals + 4, &half_n_2, 4);
@@ -310,9 +304,8 @@ void dload_1(Frame *f, uint32_t a0, uint32_t a1) {
   uint64_t half_n_1 = f->locals[1];
   uint64_t half_n_2 = f->locals[2];
 
-  uint64_t double_n = (half_n_1 << 32) ^ half_n_2;
-
-  push_stack(f, double_n);
+  push_stack(f, half_n_2);
+  push_stack(f, half_n_1);
 
   return;
 }
@@ -322,9 +315,8 @@ void dload_2(Frame *f, uint32_t a0, uint32_t a1) {
   uint64_t half_n_1 = f->locals[2];
   uint64_t half_n_2 = f->locals[3];
 
-  uint64_t double_n = (half_n_1 << 32) ^ half_n_2;
-  
-  push_stack(f, double_n);
+  push_stack(f, half_n_2);
+  push_stack(f, half_n_1);
   return;
 }
 
@@ -333,9 +325,8 @@ void dload_3(Frame *f, uint32_t a0, uint32_t a1) {
   uint64_t half_n_1 = f->locals[3];
   uint64_t half_n_2 = f->locals[4];
 
-  uint64_t double_n = (half_n_1 << 32) ^ half_n_2;
-  
-  push_stack(f, double_n);
+  push_stack(f, half_n_2);
+  push_stack(f, half_n_1);
   return;
 }
 
