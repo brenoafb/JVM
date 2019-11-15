@@ -24,6 +24,7 @@ operation optable[N_OPS] = {
 			    [OP_dmul] = dmul,
 			    [OP_ddiv] = ddiv,
 			    [OP_dneg] = dneg,
+			    [OP_bipush] = bipush,
 };
 
 int opargs[N_OPS] = {
@@ -31,6 +32,7 @@ int opargs[N_OPS] = {
 		     [OP_invokevirtual] = 2,
 		     [OP_getstatic] = 2,
 		     [OP_ldc2_w] = 2,
+		     [OP_bipush] = 1,
 
 };
 
@@ -227,14 +229,18 @@ void invokevirtual(Frame *f, uint32_t a0, uint32_t a1) {
 
   if (strcmp(name, "println") == 0) {
     if (strcmp(type, "(Ljava/lang/String;)V")) {
-      /* pop two arguments by default (placeholder) */
-      /* first popped is string reference */
+      /* print string */
       char *str = pop_stack(f);
       printf("String printed is: \'%s\'\n", str);
 
-      /* second popped is getstatic dummy value (see getstatic definition) */
-      int32_t dummy = pop_stack(f);
+    } else if (strcmp(type, "(I)V")) {
+      /* print int */
+      int32_t value = pop_stack(f);
+      printf("Int printed is: %d\n", value);
+
     }
+    /* pop getstatic dummy value (view getstatic definition) */
+    int32_t dummy = pop_stack(f);
   }
 
   return;
@@ -322,4 +328,13 @@ void dmul(Frame *f, uint32_t a0, uint32_t a1) {
 void dneg(Frame *f, uint32_t a0, uint32_t a1) {
   /* TODO */
   return;
+}
+
+
+void bipush(Frame *f, uint32_t a0, uint32_t a1) {
+  /* TODO */
+  char byte = a0;
+  int32_t sign_ext = byte;
+  uint64_t value = *((uint64_t *) (&sign_ext));
+  push_stack(f, value);
 }
