@@ -228,15 +228,16 @@ void invokevirtual(Frame *f, uint32_t a0, uint32_t a1) {
 	 name, type);
 
   if (strcmp(name, "println") == 0) {
-    if (strcmp(type, "(Ljava/lang/String;)V")) {
+    if (strcmp(type, "(Ljava/lang/String;)V") == 0) {
       /* print string */
       char *str = pop_stack(f);
       printf("String printed is: \'%s\'\n", str);
 
-    } else if (strcmp(type, "(I)V")) {
+    } else if (strcmp(type, "(I)V") == 0) {
       /* print int */
-      int32_t value = pop_stack(f);
-      printf("Int printed is: %d\n", value);
+      uint64_t value = pop_stack(f);
+      int32_t integer = *((int32_t *) (&value));
+      printf("Int printed is: %d\n", integer);
 
     }
     /* pop getstatic dummy value (view getstatic definition) */
