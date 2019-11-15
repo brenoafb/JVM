@@ -214,27 +214,27 @@ void return_func(Frame *f, uint32_t a0, uint32_t a1) {
 }
 
 void invokevirtual(Frame *f, uint32_t a0, uint32_t a1) {
-  /* TODO */
   uint32_t index = (a0 << 8) | a1;
   CONSTANT_Methodref_info methodref_info = f->cp[index].info.methodref_info;
   uint16_t class_index = methodref_info.class_index;
   uint16_t name_and_type_index = methodref_info.name_and_type_index;
   char *name = get_name_and_type_string(f->cp, name_and_type_index, 1);
+  char *type = get_name_and_type_string(f->cp, name_and_type_index, 0);
 
   printf("invokevirtual: Methodref\t");
-  printf("%s.%s:%s (#%d.#%d)\n", get_class_name_string(f->cp, class_index),
-	 get_name_and_type_string(f->cp, name_and_type_index, 1),
-	 get_name_and_type_string(f->cp, name_and_type_index, 0), class_index, name_and_type_index);
+  printf("class: %s, name: %s, type: %s\n", get_class_name_string(f->cp, class_index),
+	 name, type);
 
   if (strcmp(name, "println") == 0) {
-    /* pop two arguments by default (placeholder) */
-    /* first popped is string reference */
-    char *str = pop_stack(f);
-    printf("String printed is: \'%s\'\n", str);
+    if (strcmp(type, "(Ljava/lang/String;)V")) {
+      /* pop two arguments by default (placeholder) */
+      /* first popped is string reference */
+      char *str = pop_stack(f);
+      printf("String printed is: \'%s\'\n", str);
 
-    /* second popped is getstatic dummy value (see getstatic definition) */
-    uint32_t dummy = pop_stack(f);
-    printf("Dummy: %x\n", dummy);
+      /* second popped is getstatic dummy value (see getstatic definition) */
+      int32_t dummy = pop_stack(f);
+    }
   }
 
   return;
