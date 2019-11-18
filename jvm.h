@@ -49,6 +49,9 @@ void jvm_run(JVM *jvm);
 /* Load current method into frame and run it */
 void jvm_run_method(JVM *jvm);
 
+/* Returns whether jvm is currently running main method */
+int jvm_in_main(JVM *jvm);
+
 typedef void (*operation)(Frame *, uint32_t, uint32_t);
 
 void nop(Frame *f, uint32_t a0, uint32_t a1);
