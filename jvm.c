@@ -223,25 +223,34 @@ void invokevirtual(Frame *f, uint32_t a0, uint32_t a1) {
   char *name = get_name_and_type_string(f->cp, name_and_type_index, 1);
   char *type = get_name_and_type_string(f->cp, name_and_type_index, 0);
 
+  #ifdef DEBUG
   printf("invokevirtual: Methodref\t");
   printf("class: %s, name: %s, type: %s\n", get_class_name_string(f->cp, class_index),
 	 name, type);
+  #endif
 
   if (strcmp(name, "println") == 0) {
     if (strcmp(type, "(Ljava/lang/String;)V") == 0) {
       /* print string */
       char *str = pop_stack(f);
-      printf("String printed is: \'%s\'\n", str);
+      #ifdef DEBUG
+      printf("println(String): \'%s\'\n", str);
+      #else
+      printf("%s\n", str);
+      #endif
 
     } else if (strcmp(type, "(I)V") == 0) {
       /* print int */
       uint64_t value = pop_stack(f);
       int32_t integer = *((int32_t *) (&value));
-      printf("Int printed is: %d\n", integer);
+      printf("println(Int): %d\n", integer);
 
     }
     /* pop getstatic dummy value (view getstatic definition) */
-    int32_t dummy = pop_stack(f);
+    uint32_t dummy = pop_stack(f);
+    #ifdef DEBUG
+    printf("dummy: 0x%x\n", dummy);
+    #endif
   }
 
   return;
@@ -260,7 +269,7 @@ void getstatic(Frame *f, uint32_t a0, uint32_t a1) {
       && (strcmp(name, "out") == 0)) {
     /* io operations will be handled by c code */
     /* push a dummy value onto the stack */
-    push_stack(f, 0xbeefbeef);
+    push_stack(f, 0xcc0de);
   } else {
     /* TODO */
   }
