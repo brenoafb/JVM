@@ -206,7 +206,7 @@
 #define OP_i2b               (0x91)
 #define OP_i2c               (0x92)
 #define OP_i2s               (0x93)
-#define OP_got               (0xa7)
+#define OP_goto              (0xa7)
 #define OP_jsr                (0xa8)
 #define OP_ret                (0xa9)
 #define OP_tableswitch        (0xaa)
