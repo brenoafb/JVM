@@ -95,7 +95,7 @@ void iconst_0(Frame *f, uint32_t a0, uint32_t a1);
 void iconst_1(Frame *f, uint32_t a0, uint32_t a1);
 void iconst_2(Frame *f, uint32_t a0, uint32_t a1);
 
-
+void if_icmpge(Frame *f, uint32_t a0, uint32_t a1);
 
 extern operation optable[N_OPS];
 extern int opargs[N_OPS];
