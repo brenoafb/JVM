@@ -25,6 +25,9 @@ operation optable[N_OPS] = {
 			    [OP_ddiv] = ddiv,
 			    [OP_dneg] = dneg,
 			    [OP_bipush] = bipush,
+			    [OP_iconst_0] = iconst_0,
+			    [OP_iconst_1] = iconst_1,
+			    [OP_iconst_2] = iconst_2,
 };
 
 int opargs[N_OPS] = {
@@ -388,4 +391,16 @@ void bipush(Frame *f, uint32_t a0, uint32_t a1) {
   int32_t sign_ext = byte;
   uint64_t value = *((uint64_t *) (&sign_ext));
   push_stack(f, value);
+}
+
+void iconst_0(Frame *f, uint32_t a0, uint32_t a1) {
+  push_stack(f, 0);
+}
+
+void iconst_1(Frame *f, uint32_t a0, uint32_t a1) {
+  push_stack(f, 1);
+}
+
+void iconst_2(Frame *f, uint32_t a0, uint32_t a1) {
+  push_stack(f, 2);
 }
