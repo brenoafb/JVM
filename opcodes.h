@@ -243,3 +243,5 @@
 #define OP_breakpoint         (0xca)
 #define OP_impdep1            (0xfe)
 #define OP_impdep2            (0xff)
+
+extern char *strings_opcodes[];
