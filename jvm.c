@@ -12,6 +12,7 @@ operation optable[N_OPS] = {
 			    [OP_return] = return_func,
 			    [OP_invokevirtual] = invokevirtual,
 			    [OP_getstatic] = getstatic,
+          [OP_ldc_w] = ldc_w,
 			    [OP_ldc2_w] = ldc2_w,
 			    [OP_dstore_1] = dstore_1,
 			    [OP_dstore_2] = dstore_2,
@@ -261,8 +262,61 @@ void getstatic(Frame *f, uint32_t a0, uint32_t a1) {
 }
 
 
+void ldc_w(Frame *f, uint32_t a0, uint32_t a1) {
+  uint16_t index, cp_index;
+  char *str;
+
+  index = (a0 << 8) + a1;
+  /* push item from runtime constant pool */
+  uint8_t tag = f->cp[index].tag;
+  switch (tag) {
+  case CONSTANT_Integer:
+    printf("Push %d from cp\n", f->cp[index].info.integer_info.bytes);
+    push_stack(f, f->cp[index].info.integer_info.bytes);
+    break;
+  case CONSTANT_Float:
+    printf("Push %f from cp\n", f->cp[index].info.float_info.bytes);
+    push_stack(f, f->cp[index].info.float_info.bytes);
+    break;
+  case CONSTANT_String:
+    cp_index = f->cp[index].info.string_info.string_index;
+    str = get_cp_string(f->cp, cp_index);
+    printf("Push \'%s\' from cp\n", str);
+    push_stack(f, str);
+  default:
+    break;
+  }
+  return;
+}
+
 void ldc2_w(Frame *f, uint32_t a0, uint32_t a1) {
-  /* TODO */
+  uint16_t index, cp_index;
+  char *str;
+  uint32_t high_bytes;
+  uint32_t low_bytes;
+  int64_t value = (((int64_t) high_bytes) << 32) + ((int64_t)low_bytes);
+
+  index = (a0 << 8) + a1;
+  /* push item from runtime constant pool */
+  uint8_t tag = f->cp[index].tag;
+  switch (tag) {
+  case CONSTANT_Long:
+    high_bytes = f->cp[index].info.long_info.high_bytes;
+    push_stack(f, high_bytes);
+    low_bytes = f->cp[index].info.long_info.low_bytes;
+    push_stack(f, low_bytes);
+    printf("Push %ld from cp\n", value);
+    break;
+  case CONSTANT_Double:
+    high_bytes = f->cp[index].info.double_info.high_bytes;
+    push_stack(f, high_bytes);
+    low_bytes = f->cp[index].info.double_info.low_bytes;
+    push_stack(f, low_bytes);
+    printf("Push %lf from cp\n", value);
+    break;
+  default:
+    break;
+  }
   return;
 }
 
