@@ -389,7 +389,36 @@ void dload_3(Frame *f, uint32_t a0, uint32_t a1) {
 
 
 void dadd(Frame *f, uint32_t a0, uint32_t a1) {
-  /* TODO */
+ 
+/* Pop of first operand, 64 bits = two pops of 32 bits each */
+uint64_t first_half_operand_1 = pop_stack(f);
+uint64_t second_half_operand_1 = pop_stack(f);
+
+/*Pop of second operand,64 bits = two pops of 32 bits each */
+uint64_t first_half_operand_2 = pop_stack(f);
+uint64_t second_half_operand_2 = pop_stack(f);
+	
+/*Concatenate the 2 halfs to get the first double operand */
+uint64_t first_operand = (first_half_operand_1 << 32) | second_half_operand_1; 
+ 
+/*Concatenate the 2 halfs to get the second double operand */
+uint64_t second_operand = (first_half_operand_2 << 32) | second_half_operand_2; 
+	
+/*Execute dadd instruction */
+uint64_t result = first_operand + second_operand;
+
+/*Divide the result into two 32 bits registers */
+	
+uint32_t first_half_result = uint32_t((result & 0XFFFFFFFF00000000) >> 32);
+
+uint32_t second_half_result = uint32_t(result & 0x00000000FFFFFFFF);
+	
+/*Store in frame making 2 pushes */
+
+push_stack(f, second_half_result);
+
+push_stack(f,first_half_result);
+	
   return;
 }
 
