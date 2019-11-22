@@ -405,7 +405,9 @@ uint64_t first_operand = (first_half_operand_1 << 32) | second_half_operand_1;
 uint64_t second_operand = (first_half_operand_2 << 32) | second_half_operand_2; 
 	
 /*Execute dadd instruction */
-uint64_t result = first_operand + second_operand;
+uint64_t result_int = first_operand + second_operand;
+	
+//double result = (double)result_int;
 
 /*Divide the result into two 32 bits registers */
 	
