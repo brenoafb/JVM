@@ -389,7 +389,7 @@ void dload_3(Frame *f, uint32_t a0, uint32_t a1) {
 
 
 void dadd(Frame *f, uint32_t a0, uint32_t a1) {
- 
+
 /* Pop of first operand, 64 bits = two pops of 32 bits each */
 uint64_t first_half_operand_1 = pop_stack(f);
 uint64_t second_half_operand_1 = pop_stack(f);
@@ -397,159 +397,158 @@ uint64_t second_half_operand_1 = pop_stack(f);
 /*Pop of second operand,64 bits = two pops of 32 bits each */
 uint64_t first_half_operand_2 = pop_stack(f);
 uint64_t second_half_operand_2 = pop_stack(f);
-	
+
 /*Concatenate the 2 halfs to get the first double operand */
-uint64_t first_operand = (first_half_operand_1 << 32) | second_half_operand_1; 
+uint64_t first_operand = (first_half_operand_1 << 32) | second_half_operand_1;
 
-/*Convert to double type*/	
+/*Convert to double type*/
 double operand_1 = *((double*)(&first_operand));
- 
-/*Concatenate the 2 halfs to get the second double operand */
-uint64_t second_operand = (first_half_operand_2 << 32) | second_half_operand_2; 
 
-/*Convert to double type*/	
+/*Concatenate the 2 halfs to get the second double operand */
+uint64_t second_operand = (first_half_operand_2 << 32) | second_half_operand_2;
+
+/*Convert to double type*/
 double operand_2 = *((double*)(&second_operand));
-	
+
 /*Execute dadd instruction */
 double result = operand_1 + operand_2;
-	
-/*Divide the result into two 32 bits registers */
-	
-uint64_t first_half_result = (uint64_t)((result & 0XFFFFFFFF00000000) >> 32);
 
-uint64_t second_half_result = (uint64_t)(result & 0x00000000FFFFFFFF);
-	
-/*Store in frame making 2 pushes */
+/*Divide the result into two 32 bits registers */
+
+uint64_t first_half_result = ((uint64_t)(result) & 0XFFFFFFFF00000000) >> 32;
+
+uint64_t second_half_result = ((uint64_t)(result)) & 0x00000000FFFFFFFF;
+
+/*Store in frame making 2 pushes*/
 
 push_stack(f, second_half_result);
 
 push_stack(f,first_half_result);
-	
+
   return;
 }
 
 
 void dsub(Frame *f, uint32_t a0, uint32_t a1) {
 
-/* Pop of first operand, 64 bits = two pops of 32 bits each */
-  uint64_t first_half_operand_1 = pop_stack(f);
-  uint64_t second_half_operand_1 = pop_stack(f);
-	
+  /* Pop of first operand, 64 bits = two pops of 32 bits each */
+uint64_t first_half_operand_1 = pop_stack(f);
+uint64_t second_half_operand_1 = pop_stack(f);
+
 /*Pop of second operand,64 bits = two pops of 32 bits each */
-  uint64_t first_half_operand_2 = pop_stack(f);
-  uint64_t second_half_operand_2 = pop_stack(f);
-	
- /*Concatenate the 2 halfs to get the first double operand */
-  uint64_t first_operand = (first_half_operand_1 << 32) | second_half_operand_1; 
+uint64_t first_half_operand_2 = pop_stack(f);
+uint64_t second_half_operand_2 = pop_stack(f);
 
- /*Convert to double type*/	
-  double operand_1 = *((double*)(&first_operand));
- 
- /*Concatenate the 2 halfs to get the second double operand */
-  uint64_t second_operand = (first_half_operand_2 << 32) | second_half_operand_2; 
+/*Concatenate the 2 halfs to get the first double operand */
+uint64_t first_operand = (first_half_operand_1 << 32) | second_half_operand_1;
 
- /*Convert to double type*/	
-  double operand_2 = *((double*)(&second_operand));
-	
- /*Execute dsub instruction */
-  double result = operand_1 - operand_2;
-  	
- /*Divide the result into two 32 bits registers */
-	
-  uint64_t first_half_result = (uint64_t)((result & 0XFFFFFFFF00000000) >> 32);
+/*Convert to double type*/
+double operand_1 = *((double*)(&first_operand));
 
-  uint64_t second_half_result = (uint64_t)(result & 0x00000000FFFFFFFF);
-	
-/*Store in frame making 2 pushes */
+/*Concatenate the 2 halfs to get the second double operand */
+uint64_t second_operand = (first_half_operand_2 << 32) | second_half_operand_2;
 
-  push_stack(f, second_half_result);
+/*Convert to double type*/
+double operand_2 = *((double*)(&second_operand));
 
-  push_stack(f,first_half_result);
+/*Execute dadd instruction */
+double result = operand_1 - operand_2;
+
+/*Divide the result into two 32 bits registers */
+
+uint64_t first_half_result = ((uint64_t)(result) & 0XFFFFFFFF00000000) >> 32;
+
+uint64_t second_half_result = ((uint64_t)(result)) & 0x00000000FFFFFFFF;
+
+/*Store in frame making 2 pushes*/
+
+push_stack(f, second_half_result);
+
+push_stack(f,first_half_result);
 
   return;
 }
 
-
-
 void ddiv(Frame *f, uint32_t a0, uint32_t a1) {
-  
-/* Pop of first operand, 64 bits = two pops of 32 bits each */
-  uint64_t first_half_operand_1 = pop_stack(f);
-  uint64_t second_half_operand_1 = pop_stack(f);
-	
+
+  /* Pop of first operand, 64 bits = two pops of 32 bits each */
+uint64_t first_half_operand_1 = pop_stack(f);
+uint64_t second_half_operand_1 = pop_stack(f);
+
 /*Pop of second operand,64 bits = two pops of 32 bits each */
-  uint64_t first_half_operand_2 = pop_stack(f);
-  uint64_t second_half_operand_2 = pop_stack(f);
-	
+uint64_t first_half_operand_2 = pop_stack(f);
+uint64_t second_half_operand_2 = pop_stack(f);
+
 /*Concatenate the 2 halfs to get the first double operand */
-  uint64_t first_operand = (first_half_operand_1 << 32) | second_half_operand_1; 
+uint64_t first_operand = (first_half_operand_1 << 32) | second_half_operand_1;
 
- /*Convert to double type*/	
-  double operand_1 = *((double*)(&first_operand));
- 
- /*Concatenate the 2 halfs to get the second double operand */
-  uint64_t second_operand = (first_half_operand_2 << 32) | second_half_operand_2; 
+/*Convert to double type*/
+double operand_1 = *((double*)(&first_operand));
 
- /*Convert to double type*/	
-  double operand_2 = *((double*)(&second_operand));
-	
- /*Execute ddiv instruction */
-  double result = (operand_1) / (operand_2);
-  	
- /*Divide the result into two 32 bits registers */
-	
-  uint64_t first_half_result = (uint64_t)((result & 0XFFFFFFFF00000000) >> 32);
+/*Concatenate the 2 halfs to get the second double operand */
+uint64_t second_operand = (first_half_operand_2 << 32) | second_half_operand_2;
 
-  uint64_t second_half_result = (uint64_t)(result & 0x00000000FFFFFFFF);
-	
-/*Store in frame making 2 pushes */
+/*Convert to double type*/
+double operand_2 = *((double*)(&second_operand));
 
-  push_stack(f, second_half_result);
+/*Execute dadd instruction */
+double result = operand_1 / operand_2;
 
-  push_stack(f,first_half_result);
+/*Divide the result into two 32 bits registers */
+
+uint64_t first_half_result = ((uint64_t)(result) & 0XFFFFFFFF00000000) >> 32;
+
+uint64_t second_half_result = ((uint64_t)(result)) & 0x00000000FFFFFFFF;
+
+/*Store in frame making 2 pushes*/
+
+push_stack(f, second_half_result);
+
+push_stack(f,first_half_result);
+
   return;
 }
 
 void dmul(Frame *f, uint32_t a0, uint32_t a1) {
-  
-/* Pop of first operand, 64 bits = two pops of 32 bits each */
-  uint64_t first_half_operand_1 = pop_stack(f);
-  uint64_t second_half_operand_1 = pop_stack(f);
-	
+
+  /* Pop of first operand, 64 bits = two pops of 32 bits each */
+uint64_t first_half_operand_1 = pop_stack(f);
+uint64_t second_half_operand_1 = pop_stack(f);
+
 /*Pop of second operand,64 bits = two pops of 32 bits each */
-  uint64_t first_half_operand_2 = pop_stack(f);
-  uint64_t second_half_operand_2 = pop_stack(f);
+uint64_t first_half_operand_2 = pop_stack(f);
+uint64_t second_half_operand_2 = pop_stack(f);
 
 /*Concatenate the 2 halfs to get the first double operand */
-  uint64_t first_operand = (first_half_operand_1 << 32) | second_half_operand_1; 
+uint64_t first_operand = (first_half_operand_1 << 32) | second_half_operand_1;
 
- /*Convert to double type*/	
-  double operand_1 = *((double*)(&first_operand));
- 
- /*Concatenate the 2 halfs to get the second double operand */
-  uint64_t second_operand = (first_half_operand_2 << 32) | second_half_operand_2; 
+/*Convert to double type*/
+double operand_1 = *((double*)(&first_operand));
 
- /*Convert to double type*/	
-  double operand_2 = *((double*)(&second_operand));
-	
- /*Execute dmul instruction */
-  double result = (operand_1) * (operand_2);
-  	
- /*Divide the result into two 32 bits registers */
-	
-  uint64_t first_half_result = (uint64_t)((result & 0XFFFFFFFF00000000) >> 32);
+/*Concatenate the 2 halfs to get the second double operand */
+uint64_t second_operand = (first_half_operand_2 << 32) | second_half_operand_2;
 
-  uint64_t second_half_result = (uint64_t)(result & 0x00000000FFFFFFFF);
-	
-/*Store in frame making 2 pushes */
+/*Convert to double type*/
+double operand_2 = *((double*)(&second_operand));
 
-  push_stack(f, second_half_result);
+/*Execute dadd instruction */
+double result = operand_1 * operand_2;
 
-  push_stack(f,first_half_result);	
-	
-	
-  return;
+/*Divide the result into two 32 bits registers */
+
+uint64_t first_half_result = ((uint64_t)(result) & 0XFFFFFFFF00000000) >> 32;
+
+uint64_t second_half_result = ((uint64_t)(result)) & 0x00000000FFFFFFFF;
+
+/*Store in frame making 2 pushes*/
+
+push_stack(f, second_half_result);
+
+push_stack(f,first_half_result);
+
+    return;
 }
+
 
 void dneg(Frame *f, uint32_t a0, uint32_t a1) {
   
