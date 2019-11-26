@@ -1,3 +1,4 @@
+
 CC=gcc
 CFLAGS= -g -ansi -I. -UDEBUG
 DEPS = types.h utils.h constant_info.h classfile.h access_flags.h jvm.h methodarea.h opcodes.h frame.h
