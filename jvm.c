@@ -42,6 +42,7 @@ operation optable[N_OPS] = {
 
 int opargs[N_OPS] = {
 		     [OP_ldc] = 1,
+		     [OP_iload] = 1,
 		     [OP_istore] = 1,
 		     [OP_invokevirtual] = 2,
 		     [OP_getstatic] = 2,
