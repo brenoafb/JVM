@@ -7,8 +7,10 @@ operation optable[N_OPS] = {
 			    [OP_istore_1] = istore_1,
 			    [OP_istore_2] = istore_2,
 			    [OP_istore_3] = istore_3,
+			    [OP_iload] = iload,
 			    [OP_iload_1] = iload_1,
 			    [OP_iload_2] = iload_2,
+			    [OP_iload_3] = iload_3,
 			    [OP_iadd] = iadd,
 			    [OP_return] = return_func,
 			    [OP_invokevirtual] = invokevirtual,
@@ -254,6 +256,12 @@ void istore_3(Frame *f, uint32_t a0, uint32_t a1) {
   f->locals[3] = op;
 }
 
+void iload(Frame *f, uint32_t a0, uint32_t a1) {
+  /* Load int from local variable a0 */
+  int32_t op = f->locals[a0];
+  push_stack(f, op);
+}
+
 void iload_1(Frame *f, uint32_t a0, uint32_t a1) {
   /* Load int from local variable 1 */
   int32_t op = f->locals[1];
@@ -263,6 +271,12 @@ void iload_1(Frame *f, uint32_t a0, uint32_t a1) {
 void iload_2(Frame *f, uint32_t a0, uint32_t a1) {
   /* Load int from local variable 2 */
   int32_t op = f->locals[2];
+  push_stack(f, op);
+}
+
+void iload_3(Frame *f, uint32_t a0, uint32_t a1) {
+  /* Load int from local variable 3 */
+  int32_t op = f->locals[3];
   push_stack(f, op);
 }
 
