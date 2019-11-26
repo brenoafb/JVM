@@ -25,6 +25,11 @@ operation optable[N_OPS] = {
 			    [OP_dmul] = dmul,
 			    [OP_ddiv] = ddiv,
 			    [OP_dneg] = dneg,
+			    [OP_bipush] = bipush,
+			    [OP_iconst_0] = iconst_0,
+			    [OP_iconst_1] = iconst_1,
+			    [OP_iconst_2] = iconst_2,
+			    [OP_if_icmpge] = if_icmpge,
 };
 
 int opargs[N_OPS] = {
@@ -69,7 +74,7 @@ int opargs[N_OPS] = {
           [OP_jsr_w] = 4,
           /*[OP_lookupswitch] = 8,
           [OP_tableswitch] = 16,*/
-
+		     [OP_if_icmpge] = 2,
 };
 
 void init_jvm(JVM *jvm) {
@@ -79,6 +84,7 @@ void init_jvm(JVM *jvm) {
   init_method_area(jvm->method_area);
   jvm->current_class_index = -1;
   jvm->current_method_index = -1;
+  jvm->jmp = false;
 }
 
 void deinit_jvm(JVM *jvm) {
@@ -104,7 +110,7 @@ void jvm_push_frame(JVM *jvm) {
   method_info *method = &class->methods[jvm->current_method_index];
   Code_attribute *code = &method->attributes[0].info.code;
   Frame *f = calloc(sizeof(Frame), 1);
-  init_frame(f, code->max_locals, code->max_stack, class->constant_pool);
+  init_frame(f, jvm, code->max_locals, code->max_stack, class->constant_pool);
   jvm->frames[jvm->frame_index++] = f;
 }
 
@@ -127,20 +133,30 @@ int jvm_cycle(JVM *jvm) {
   Code_attribute *code = &method->attributes[0].info.code;
 
   uint32_t opcode = code->code[jvm->pc];
+  jvm->jmp = false;
+
+#ifdef DEBUG
   printf("%d: 0x%x (%d)\n", jvm->pc, opcode, opargs[opcode]);
+#endif
+
   uint32_t a[2];
   int i;
   for (i = 0; i < opargs[opcode]; i++) {
     a[i] = code->code[jvm->pc+i+1];
+#ifdef DEBUG
     printf("load a%d: %d\n", i, a[i]);
+#endif
   }
   optable[opcode](f, a[0], a[1]);
-  if (opcode == OP_return) {
+  if (opcode == OP_return && jvm_in_main(jvm)) {
+#ifdef DEBUG
     printf("frame->i: %d\n", f->i);
-    printf("Final value in stack: %d (0x%x)\n", peek_stack(f), peek_stack(f));
+    if (f->i > 0) printf("Final value in stack: %d (0x%x)\n", peek_stack(f), peek_stack(f));
+#endif
+
     flag = 0;
   }
-  jvm->pc += opargs[opcode] + 1;
+  if (!jvm->jmp) jvm->pc += opargs[opcode] + 1;
   return flag;
 }
 
@@ -153,26 +169,37 @@ void jvm_run_method(JVM *jvm) {
   method_info *method = &class->methods[jvm->current_method_index];
   Code_attribute *code = &method->attributes[0].info.code;
   Frame *f = calloc(sizeof(Frame), 1);
-  init_frame(f, code->max_locals, code->max_stack, class->constant_pool);
+  init_frame(f, jvm, code->max_locals, code->max_stack, class->constant_pool);
 
+#ifdef DEBUG
   printf("Current class: %s\n", get_class_name(jvm->method_area->classes[0]));
   printf("Current method: %s\n", get_cp_string(class->constant_pool, method->name_index));
   printf("Current method descriptor: %s\n", get_cp_string(class->constant_pool, method->descriptor_index));
   printf("Max locals:%d\nMax stack: %d\n", code->max_locals, code->max_stack);
+#endif
 
   while (1) {
     uint32_t opcode = code->code[jvm->pc];
+
+#ifdef DEBUG
     printf("%d: 0x%x (%d)\n", jvm->pc, opcode, opargs[opcode]);
+#endif
+
     uint8_t a[2];
     int i;
     for (i = 0; i < opargs[opcode]; i++) {
       a[i] = code->code[jvm->pc+i+1];
+
+#ifdef DEBUG
       printf("load a%d: %d\n", i, a[i]);
+#endif
     }
     optable[opcode](f, a[0], a[1]);
     if (opcode == OP_return) {
+#ifdef DEBUG
       printf("frame->i: %d\n", f->i);
-      printf("Final value in stack: %d (0x%x)\n", peek_stack(f), peek_stack(f));
+      if (f->i > 0) printf("Final value in stack: %d (0x%x)\n", peek_stack(f), peek_stack(f));
+#endif
       break;
     }
     jvm->pc += opargs[opcode] + 1;
@@ -180,6 +207,11 @@ void jvm_run_method(JVM *jvm) {
 
   deinit_frame(f);
   free(f);
+}
+
+int jvm_in_main(JVM *jvm) {
+  /* TODO */
+  return 1;
 }
 
 void nop(Frame *f, uint32_t a0, uint32_t a1) {
@@ -194,17 +226,27 @@ void ldc(Frame *f, uint32_t a0, uint32_t a1) {
   uint8_t tag = f->cp[a0].tag;
   switch (tag) {
   case CONSTANT_Integer:
+#ifdef DEBUG
     printf("Push %d from cp\n", f->cp[a0].info.integer_info.bytes);
+#endif
+
     push_stack(f, f->cp[a0].info.integer_info.bytes);
     break;
   case CONSTANT_Float:
+#ifdef DEBUG
     printf("Push %f from cp\n", f->cp[a0].info.float_info.bytes);
+#endif
+
     push_stack(f, f->cp[a0].info.float_info.bytes);
     break;
   case CONSTANT_String:
     index = f->cp[a0].info.string_info.string_index;
     str = get_cp_string(f->cp, index);
+
+#ifdef DEBUG
     printf("Push \'%s\' from cp\n", str);
+#endif
+
     push_stack(f, str);
   default:
     break;
@@ -248,31 +290,51 @@ void iadd(Frame *f, uint32_t a0, uint32_t a1) {
 
 void return_func(Frame *f, uint32_t a0, uint32_t a1) {
   /* nothing to do for now */
+#ifdef DEBUG
   printf("return\n");
+#endif
 }
 
 void invokevirtual(Frame *f, uint32_t a0, uint32_t a1) {
-  /* TODO */
   uint32_t index = (a0 << 8) | a1;
   CONSTANT_Methodref_info methodref_info = f->cp[index].info.methodref_info;
   uint16_t class_index = methodref_info.class_index;
   uint16_t name_and_type_index = methodref_info.name_and_type_index;
   char *name = get_name_and_type_string(f->cp, name_and_type_index, 1);
+  char *type = get_name_and_type_string(f->cp, name_and_type_index, 0);
 
+#ifdef DEBUG
   printf("invokevirtual: Methodref\t");
-  printf("%s.%s:%s (#%d.#%d)\n", get_class_name_string(f->cp, class_index),
-	 get_name_and_type_string(f->cp, name_and_type_index, 1),
-	 get_name_and_type_string(f->cp, name_and_type_index, 0), class_index, name_and_type_index);
+  printf("class: %s, name: %s, type: %s\n", get_class_name_string(f->cp, class_index),
+	 name, type);
+#endif
 
   if (strcmp(name, "println") == 0) {
-    /* pop two arguments by default (placeholder) */
-    /* first popped is string reference */
-    char *str = pop_stack(f);
-    printf("String printed is: \'%s\'\n", str);
+    if (strcmp(type, "(Ljava/lang/String;)V") == 0) {
+      /* print string */
+      char *str = pop_stack(f);
+#ifdef DEBUG
+      printf("println(String): \'%s\'\n", str);
+#else
+      printf("%s\n", str);
+#endif
 
-    /* second popped is getstatic dummy value (see getstatic definition) */
+    } else if (strcmp(type, "(I)V") == 0) {
+      /* print int */
+      uint64_t value = pop_stack(f);
+      int32_t integer = *((int32_t *) (&value));
+
+#ifdef DEBUG
+      printf("println(Int): %d\n", integer);
+#else
+      printf("%d\n", integer);
+#endif
+    }
+    /* pop getstatic dummy value (view getstatic definition) */
     uint32_t dummy = pop_stack(f);
-    printf("Dummy: %x\n", dummy);
+#ifdef DEBUG
+    printf("dummy: 0x%x\n", dummy);
+#endif
   }
 
   return;
@@ -291,7 +353,7 @@ void getstatic(Frame *f, uint32_t a0, uint32_t a1) {
       && (strcmp(name, "out") == 0)) {
     /* io operations will be handled by c code */
     /* push a dummy value onto the stack */
-    push_stack(f, 0xbeefbeef);
+    push_stack(f, 0xcc0de);
   } else {
     /* TODO */
   }
@@ -359,33 +421,65 @@ void ldc2_w(Frame *f, uint32_t a0, uint32_t a1) {
 
 
 void dstore_1(Frame *f, uint32_t a0, uint32_t a1) {
-  /* TODO */
+  /* store a double into local variable 1 and 2 */
+  uint64_t half_n_1 = pop_stack(f);
+  uint64_t half_n_2 = pop_stack(f);
+
+  memcpy(f->locals + 1, &half_n_1, 4);
+  memcpy(f->locals + 2, &half_n_2, 4);
+
   return;
 }
 
 void dstore_2(Frame *f, uint32_t a0, uint32_t a1) {
-  /* TODO */
+  /* store a double into local variable 2 and 3 */
+  uint64_t half_n_1 = pop_stack(f);
+  uint64_t half_n_2 = pop_stack(f);
+
+  memcpy(f->locals + 2, &half_n_1, 4);
+  memcpy(f->locals + 3, &half_n_2, 4);
   return;
 }
 
 void dstore_3(Frame *f, uint32_t a0, uint32_t a1) {
-  /* TODO */
+  /* store a double into local variable 3 and 4 */
+  uint64_t half_n_1 = pop_stack(f);
+  uint64_t half_n_2 = pop_stack(f);
+
+  memcpy(f->locals + 3, &half_n_1, 4);
+  memcpy(f->locals + 4, &half_n_2, 4);
   return;
 }
 
 
 void dload_1(Frame *f, uint32_t a0, uint32_t a1) {
-  /* TODO */
+  /* load double from local variable 1 and 2*/
+  uint64_t half_n_1 = f->locals[1];
+  uint64_t half_n_2 = f->locals[2];
+
+  push_stack(f, half_n_2);
+  push_stack(f, half_n_1);
+
   return;
 }
 
 void dload_2(Frame *f, uint32_t a0, uint32_t a1) {
-  /* TODO */
+  /* load double from local variable 2 and 3*/
+  uint64_t half_n_1 = f->locals[2];
+  uint64_t half_n_2 = f->locals[3];
+
+  push_stack(f, half_n_2);
+  push_stack(f, half_n_1);
   return;
 }
 
 void dload_3(Frame *f, uint32_t a0, uint32_t a1) {
-  /* TODO */
+  /* load double from local variable 3 and 4*/
+  uint64_t half_n_1 = f->locals[3];
+  uint64_t half_n_2 = f->locals[4];
+
+  push_stack(f, half_n_2);
+  push_stack(f, half_n_1);
   return;
 }
 
@@ -413,4 +507,44 @@ void dmul(Frame *f, uint32_t a0, uint32_t a1) {
 void dneg(Frame *f, uint32_t a0, uint32_t a1) {
   /* TODO */
   return;
+}
+
+
+void bipush(Frame *f, uint32_t a0, uint32_t a1) {
+  /* TODO */
+  char byte = a0;
+  int32_t sign_ext = byte;
+  uint64_t value = *((uint64_t *) (&sign_ext));
+  push_stack(f, value);
+}
+
+void iconst_0(Frame *f, uint32_t a0, uint32_t a1) {
+  push_stack(f, 0);
+}
+
+void iconst_1(Frame *f, uint32_t a0, uint32_t a1) {
+  push_stack(f, 1);
+}
+
+void iconst_2(Frame *f, uint32_t a0, uint32_t a1) {
+  push_stack(f, 2);
+}
+
+void if_icmpge(Frame *f, uint32_t a0, uint32_t a1) {
+  uint32_t pop1 = pop_stack(f);
+  uint32_t pop2 = pop_stack(f);
+
+  int32_t value2 = *((int32_t *) (&pop1));
+  int32_t value1 = *((int32_t *) (&pop2));
+
+  if (value1 >= value2) {
+    uint16_t offset = (a0 << 8) | a1;
+    JVM *jvm = f->jvm;
+    uint16_t new_addr = jvm->pc + offset;
+#ifdef DEBUG
+    printf("if_icmpge: set pc to 0x%x (%u)\n", new_addr, new_addr);
+#endif
+    jvm->pc = new_addr;
+    jvm->jmp = true;
+  }
 }

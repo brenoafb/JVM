@@ -3,6 +3,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <stdint.h>
+#include <stdbool.h>
 #include "classfile.h"
 #include "frame.h"
 #include "methodarea.h"
@@ -19,6 +20,7 @@ typedef struct JVM {
   /* NativeMethodArea nma; */
   int32_t current_class_index;
   int32_t current_method_index;
+  bool jmp;
 } JVM;
 
 void init_jvm(JVM *jvm);
@@ -48,6 +50,9 @@ void jvm_run(JVM *jvm);
 
 /* Load current method into frame and run it */
 void jvm_run_method(JVM *jvm);
+
+/* Returns whether jvm is currently running main method */
+int jvm_in_main(JVM *jvm);
 
 typedef void (*operation)(Frame *, uint32_t, uint32_t);
 
@@ -87,6 +92,13 @@ void ddiv(Frame *f, uint32_t a0, uint32_t a1);
 void dmul(Frame *f, uint32_t a0, uint32_t a1);
 void dneg(Frame *f, uint32_t a0, uint32_t a1);
 
+void bipush(Frame *f, uint32_t a0, uint32_t a1);
+
+void iconst_0(Frame *f, uint32_t a0, uint32_t a1);
+void iconst_1(Frame *f, uint32_t a0, uint32_t a1);
+void iconst_2(Frame *f, uint32_t a0, uint32_t a1);
+
+void if_icmpge(Frame *f, uint32_t a0, uint32_t a1);
 
 extern operation optable[N_OPS];
 extern int opargs[N_OPS];
