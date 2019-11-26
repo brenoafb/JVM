@@ -3,6 +3,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <stdint.h>
+#include <stdbool.h>
 #include "classfile.h"
 #include "frame.h"
 #include "methodarea.h"
@@ -19,6 +20,7 @@ typedef struct JVM {
   /* NativeMethodArea nma; */
   int32_t current_class_index;
   int32_t current_method_index;
+  bool jmp;
 } JVM;
 
 void init_jvm(JVM *jvm);
@@ -90,6 +92,12 @@ void dmul(Frame *f, uint32_t a0, uint32_t a1);
 void dneg(Frame *f, uint32_t a0, uint32_t a1);
 
 void bipush(Frame *f, uint32_t a0, uint32_t a1);
+
+void iconst_0(Frame *f, uint32_t a0, uint32_t a1);
+void iconst_1(Frame *f, uint32_t a0, uint32_t a1);
+void iconst_2(Frame *f, uint32_t a0, uint32_t a1);
+
+void if_icmpge(Frame *f, uint32_t a0, uint32_t a1);
 
 extern operation optable[N_OPS];
 extern int opargs[N_OPS];
