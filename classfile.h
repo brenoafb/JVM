@@ -7,6 +7,7 @@
 #include "utils.h"
 #include "types.h"
 #include "access_flags.h"
+#include "opcodes.h"
 
 /**
  * Represents the class file.
