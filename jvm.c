@@ -413,17 +413,25 @@ void ldc_w(Frame *f, uint32_t a0, uint32_t a1) {
   uint8_t tag = f->cp[index].tag;
   switch (tag) {
   case CONSTANT_Integer:
-    printf("Push %d from cp\n", f->cp[index].info.integer_info.bytes);
+    #ifdef DEBUG
+    printf("ldc_w: Push %d from cp\n", f->cp[index].info.integer_info.bytes);
+    #endif
     push_stack(f, f->cp[index].info.integer_info.bytes);
     break;
   case CONSTANT_Float:
-    printf("Push %f from cp\n", f->cp[index].info.float_info.bytes);
+    #ifdef DEBUG
+    printf("ldc_w: Push %f from cp\n", f->cp[index].info.float_info.bytes);
+    #endif
     push_stack(f, f->cp[index].info.float_info.bytes);
     break;
   case CONSTANT_String:
     cp_index = f->cp[index].info.string_info.string_index;
     str = get_cp_string(f->cp, cp_index);
-    printf("Push \'%s\' from cp\n", str);
+
+    #ifdef DEBUG
+    printf("ldc_w: Push \'%s\' from cp\n", str);
+    #endif
+
     push_stack(f, str);
   default:
     break;
@@ -447,14 +455,18 @@ void ldc2_w(Frame *f, uint32_t a0, uint32_t a1) {
     push_stack(f, low_bytes);
     high_bytes = f->cp[index].info.long_info.high_bytes;
     push_stack(f, high_bytes);
-    printf("Push %ld from cp\n", value);
+    #ifdef DEBUG
+    printf("ldc2_w: Push %ld from cp\n", value);
+    #endif
     break;
   case CONSTANT_Double:
     low_bytes = f->cp[index].info.double_info.low_bytes;
     push_stack(f, low_bytes);
     high_bytes = f->cp[index].info.double_info.high_bytes;
     push_stack(f, high_bytes);
-    printf("Push %lf from cp\n", value);
+    #ifdef DEBUG
+    printf("ldc2_w: Push %lf from cp\n", value);
+    #endif
     break;
   default:
     break;
