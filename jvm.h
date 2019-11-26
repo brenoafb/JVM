@@ -60,12 +60,15 @@ void nop(Frame *f, uint32_t a0, uint32_t a1);
 
 void ldc(Frame *f, uint32_t a0, uint32_t a1);
 
+void istore(Frame *f, uint32_t a0, uint32_t a1);
 void istore_1(Frame *f, uint32_t a0, uint32_t a1);
 void istore_2(Frame *f, uint32_t a0, uint32_t a1);
 void istore_3(Frame *f, uint32_t a0, uint32_t a1);
 
+void iload(Frame *f, uint32_t a0, uint32_t a1);
 void iload_1(Frame *f, uint32_t a0, uint32_t a1);
 void iload_2(Frame *f, uint32_t a0, uint32_t a1);
+void iload_3(Frame *f, uint32_t a0, uint32_t a1);
 
 void iadd(Frame *f, uint32_t a0, uint32_t a1);
 
@@ -97,8 +100,14 @@ void bipush(Frame *f, uint32_t a0, uint32_t a1);
 void iconst_0(Frame *f, uint32_t a0, uint32_t a1);
 void iconst_1(Frame *f, uint32_t a0, uint32_t a1);
 void iconst_2(Frame *f, uint32_t a0, uint32_t a1);
+void iconst_3(Frame *f, uint32_t a0, uint32_t a1);
 
+void if_icmpeq(Frame *f, uint32_t a0, uint32_t a1);
+void if_icmpne(Frame *f, uint32_t a0, uint32_t a1);
+void if_icmplt(Frame *f, uint32_t a0, uint32_t a1);
 void if_icmpge(Frame *f, uint32_t a0, uint32_t a1);
+void if_icmpgt(Frame *f, uint32_t a0, uint32_t a1);
+void if_icmple(Frame *f, uint32_t a0, uint32_t a1);
 
 extern operation optable[N_OPS];
 extern int opargs[N_OPS];
