@@ -3,6 +3,7 @@
 operation optable[N_OPS] = {
 			    [OP_nop] = nop,
 			    [OP_ldc] = ldc,
+			    [OP_istore] = istore,
 			    [OP_istore_1] = istore_1,
 			    [OP_istore_2] = istore_2,
 			    [OP_istore_3] = istore_3,
@@ -38,6 +39,7 @@ operation optable[N_OPS] = {
 
 int opargs[N_OPS] = {
 		     [OP_ldc] = 1,
+		     [OP_istore] = 1,
 		     [OP_invokevirtual] = 2,
 		     [OP_getstatic] = 2,
 		     [OP_ldc2_w] = 2,
@@ -225,6 +227,12 @@ void ldc(Frame *f, uint32_t a0, uint32_t a1) {
   default:
     break;
   }
+}
+
+void istore(Frame *f, uint32_t a0, uint32_t a1) {
+  /* store int into local variable a0 */
+  int32_t op = pop_stack(f);
+  f->locals[a0] = op;
 }
 
 void istore_1(Frame *f, uint32_t a0, uint32_t a1) {
@@ -564,3 +572,5 @@ void if_icmple(Frame *f, uint32_t a0, uint32_t a1) {
     jvm->jmp = true;
   }
 }
+
+void istore(Frame *f, uint32_t a0, uint32_t a1);
