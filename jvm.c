@@ -29,6 +29,7 @@ operation optable[N_OPS] = {
 			    [OP_iconst_0] = iconst_0,
 			    [OP_iconst_1] = iconst_1,
 			    [OP_iconst_2] = iconst_2,
+			    [OP_iconst_3] = iconst_3,
 			    [OP_if_icmpeq] = if_icmpeq,
 			    [OP_if_icmpne] = if_icmpne,
 			    [OP_if_icmplt] = if_icmplt,
@@ -457,6 +458,10 @@ void iconst_1(Frame *f, uint32_t a0, uint32_t a1) {
 
 void iconst_2(Frame *f, uint32_t a0, uint32_t a1) {
   push_stack(f, 2);
+}
+
+void iconst_3(Frame *f, uint32_t a0, uint32_t a1) {
+  push_stack(f, 3);
 }
 
 void if_icmpeq(Frame *f, uint32_t a0, uint32_t a1) {
