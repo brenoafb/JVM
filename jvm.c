@@ -338,17 +338,17 @@ void ldc2_w(Frame *f, uint32_t a0, uint32_t a1) {
   uint8_t tag = f->cp[index].tag;
   switch (tag) {
   case CONSTANT_Long:
-    high_bytes = f->cp[index].info.long_info.high_bytes;
-    push_stack(f, high_bytes);
     low_bytes = f->cp[index].info.long_info.low_bytes;
     push_stack(f, low_bytes);
+    high_bytes = f->cp[index].info.long_info.high_bytes;
+    push_stack(f, high_bytes);
     printf("Push %ld from cp\n", value);
     break;
   case CONSTANT_Double:
-    high_bytes = f->cp[index].info.double_info.high_bytes;
-    push_stack(f, high_bytes);
     low_bytes = f->cp[index].info.double_info.low_bytes;
     push_stack(f, low_bytes);
+    high_bytes = f->cp[index].info.double_info.high_bytes;
+    push_stack(f, high_bytes);
     printf("Push %lf from cp\n", value);
     break;
   default:
