@@ -361,7 +361,18 @@ void invokevirtual(Frame *f, uint32_t a0, uint32_t a1) {
 #else
       printf("%d\n", integer);
 #endif
-    }
+    } else if (strcmp(type, "(D)V") == 0 {
+	/* print double */
+	uint64_t pop1 = pop_stack(f);
+	uint64_t pop2 = pop_stack(f);
+	uint64_t x = (pop1 << 32) | pop2;
+	double db = *((double *) &x);
+#ifdef DEBUG
+      printf("println(double): %f\n", db);
+#else
+      printf("%f\n", db);
+#endif
+      }
     /* pop getstatic dummy value (view getstatic definition) */
     uint32_t dummy = pop_stack(f);
 #ifdef DEBUG
