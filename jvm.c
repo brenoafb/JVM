@@ -28,7 +28,12 @@ operation optable[N_OPS] = {
 			    [OP_iconst_0] = iconst_0,
 			    [OP_iconst_1] = iconst_1,
 			    [OP_iconst_2] = iconst_2,
+			    [OP_if_icmpeq] = if_icmpeq,
+			    [OP_if_icmpne] = if_icmpne,
+			    [OP_if_icmplt] = if_icmplt,
 			    [OP_if_icmpge] = if_icmpge,
+			    [OP_if_icmpgt] = if_icmpgt,
+			    [OP_if_icmple] = if_icmple,
 };
 
 int opargs[N_OPS] = {
@@ -37,7 +42,12 @@ int opargs[N_OPS] = {
 		     [OP_getstatic] = 2,
 		     [OP_ldc2_w] = 2,
 		     [OP_bipush] = 1,
+		     [OP_if_icmpeq] = 2,
+		     [OP_if_icmpne] = 2,
+		     [OP_if_icmplt] = 2,
 		     [OP_if_icmpge] = 2,
+		     [OP_if_icmpgt] = 2,
+		     [OP_if_icmple] = 2,
 
 };
 
@@ -441,6 +451,63 @@ void iconst_2(Frame *f, uint32_t a0, uint32_t a1) {
   push_stack(f, 2);
 }
 
+void if_icmpeq(Frame *f, uint32_t a0, uint32_t a1) {
+  uint32_t pop1 = pop_stack(f);
+  uint32_t pop2 = pop_stack(f);
+
+  int32_t value2 = *((int32_t *) (&pop1));
+  int32_t value1 = *((int32_t *) (&pop2));
+
+  if (value1 == value2) {
+    uint16_t offset = (a0 << 8) | a1;
+    JVM *jvm = f->jvm;
+    uint16_t new_addr = jvm->pc + offset;
+#ifdef DEBUG
+    printf("if_icmpeq: set pc to 0x%x (%u)\n", new_addr, new_addr);
+#endif
+    jvm->pc = new_addr;
+    jvm->jmp = true;
+  }
+}
+
+void if_icmpne(Frame *f, uint32_t a0, uint32_t a1) {
+  uint32_t pop1 = pop_stack(f);
+  uint32_t pop2 = pop_stack(f);
+
+  int32_t value2 = *((int32_t *) (&pop1));
+  int32_t value1 = *((int32_t *) (&pop2));
+
+  if (value1 != value2) {
+    uint16_t offset = (a0 << 8) | a1;
+    JVM *jvm = f->jvm;
+    uint16_t new_addr = jvm->pc + offset;
+#ifdef DEBUG
+    printf("if_icmpeq: set pc to 0x%x (%u)\n", new_addr, new_addr);
+#endif
+    jvm->pc = new_addr;
+    jvm->jmp = true;
+  }
+}
+
+void if_icmplt(Frame *f, uint32_t a0, uint32_t a1) {
+  uint32_t pop1 = pop_stack(f);
+  uint32_t pop2 = pop_stack(f);
+
+  int32_t value2 = *((int32_t *) (&pop1));
+  int32_t value1 = *((int32_t *) (&pop2));
+
+  if (value1 < value2) {
+    uint16_t offset = (a0 << 8) | a1;
+    JVM *jvm = f->jvm;
+    uint16_t new_addr = jvm->pc + offset;
+#ifdef DEBUG
+    printf("if_icmpeq: set pc to 0x%x (%u)\n", new_addr, new_addr);
+#endif
+    jvm->pc = new_addr;
+    jvm->jmp = true;
+  }
+}
+
 void if_icmpge(Frame *f, uint32_t a0, uint32_t a1) {
   uint32_t pop1 = pop_stack(f);
   uint32_t pop2 = pop_stack(f);
@@ -454,6 +521,44 @@ void if_icmpge(Frame *f, uint32_t a0, uint32_t a1) {
     uint16_t new_addr = jvm->pc + offset;
 #ifdef DEBUG
     printf("if_icmpge: set pc to 0x%x (%u)\n", new_addr, new_addr);
+#endif
+    jvm->pc = new_addr;
+    jvm->jmp = true;
+  }
+}
+
+void if_icmpgt(Frame *f, uint32_t a0, uint32_t a1) {
+  uint32_t pop1 = pop_stack(f);
+  uint32_t pop2 = pop_stack(f);
+
+  int32_t value2 = *((int32_t *) (&pop1));
+  int32_t value1 = *((int32_t *) (&pop2));
+
+  if (value1 > value2) {
+    uint16_t offset = (a0 << 8) | a1;
+    JVM *jvm = f->jvm;
+    uint16_t new_addr = jvm->pc + offset;
+#ifdef DEBUG
+    printf("if_icmpeq: set pc to 0x%x (%u)\n", new_addr, new_addr);
+#endif
+    jvm->pc = new_addr;
+    jvm->jmp = true;
+  }
+}
+
+void if_icmple(Frame *f, uint32_t a0, uint32_t a1) {
+  uint32_t pop1 = pop_stack(f);
+  uint32_t pop2 = pop_stack(f);
+
+  int32_t value2 = *((int32_t *) (&pop1));
+  int32_t value1 = *((int32_t *) (&pop2));
+
+  if (value1 <= value2) {
+    uint16_t offset = (a0 << 8) | a1;
+    JVM *jvm = f->jvm;
+    uint16_t new_addr = jvm->pc + offset;
+#ifdef DEBUG
+    printf("if_icmpeq: set pc to 0x%x (%u)\n", new_addr, new_addr);
 #endif
     jvm->pc = new_addr;
     jvm->jmp = true;
