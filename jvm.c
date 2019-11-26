@@ -702,5 +702,3 @@ void if_icmple(Frame *f, uint32_t a0, uint32_t a1) {
     jvm->jmp = true;
   }
 }
-
-void istore(Frame *f, uint32_t a0, uint32_t a1);
