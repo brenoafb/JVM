@@ -3,6 +3,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <stdint.h>
+#include <stdbool.h>
 #include "classfile.h"
 #include "frame.h"
 #include "methodarea.h"
@@ -19,6 +20,7 @@ typedef struct JVM {
   /* NativeMethodArea nma; */
   int32_t current_class_index;
   int32_t current_method_index;
+  bool jmp;
 } JVM;
 
 void init_jvm(JVM *jvm);

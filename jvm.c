@@ -48,6 +48,7 @@ void init_jvm(JVM *jvm) {
   init_method_area(jvm->method_area);
   jvm->current_class_index = -1;
   jvm->current_method_index = -1;
+  jvm->jmp = false;
 }
 
 void deinit_jvm(JVM *jvm) {
@@ -96,6 +97,7 @@ int jvm_cycle(JVM *jvm) {
   Code_attribute *code = &method->attributes[0].info.code;
 
   uint32_t opcode = code->code[jvm->pc];
+  jvm->jmp = false;
 
 #ifdef DEBUG
   printf("%d: 0x%x (%d)\n", jvm->pc, opcode, opargs[opcode]);
@@ -118,7 +120,7 @@ int jvm_cycle(JVM *jvm) {
 
     flag = 0;
   }
-  jvm->pc += opargs[opcode] + 1;
+  if (!jvm->jmp) jvm->pc += opargs[opcode] + 1;
   return flag;
 }
 
@@ -411,19 +413,17 @@ void if_icmpge(Frame *f, uint32_t a0, uint32_t a1) {
   uint32_t pop1 = pop_stack(f);
   uint32_t pop2 = pop_stack(f);
 
-  int32_t value1 = *((int32_t *) (&pop1));
-  int32_t value2 = *((int32_t *) (&pop2));
-
-#ifdef DEBUG
-  printf("if_icmpge: %d <= %d ?\n", value1, value2);
-#endif
+  int32_t value2 = *((int32_t *) (&pop1));
+  int32_t value1 = *((int32_t *) (&pop2));
 
   if (value1 >= value2) {
-#ifdef DEBUG
-    uint16_t branch_addr = (a0 << 8) | a1;
-    printf("if_icmpge: set pc to 0x%x (%u)\n", branch_addr, branch_addr);
-#endif
+    uint16_t offset = (a0 << 8) | a1;
     JVM *jvm = f->jvm;
-    jvm->pc = a0;
+    uint16_t new_addr = jvm->pc + offset;
+#ifdef DEBUG
+    printf("if_icmpge: set pc to 0x%x (%u)\n", new_addr, new_addr);
+#endif
+    jvm->pc = new_addr;
+    jvm->jmp = true;
   }
 }
