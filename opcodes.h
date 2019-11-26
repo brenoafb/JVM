@@ -212,6 +212,7 @@
 #define OP_if_icmpge         (0xa2)
 #define OP_if_icmpgt         (0xa3)
 #define OP_if_icmple         (0xa4)
+#define OP_goto              (0xa7)
 #define OP_jsr                (0xa8)
 #define OP_ret                (0xa9)
 #define OP_tableswitch        (0xaa)
