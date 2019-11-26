@@ -78,6 +78,7 @@ void invokevirtual(Frame *f, uint32_t a0, uint32_t a1);
 
 void getstatic(Frame *f, uint32_t a0, uint32_t a1);
 
+void ldc_w(Frame *f, uint32_t a0, uint32_t a1);
 void ldc2_w(Frame *f, uint32_t a0, uint32_t a1);
 
 void dstore_1(Frame *f, uint32_t a0, uint32_t a1);

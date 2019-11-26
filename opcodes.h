@@ -212,7 +212,6 @@
 #define OP_if_icmpge         (0xa2)
 #define OP_if_icmpgt         (0xa3)
 #define OP_if_icmple         (0xa4)
-#define OP_got               (0xa7)
 #define OP_jsr                (0xa8)
 #define OP_ret                (0xa9)
 #define OP_tableswitch        (0xaa)
@@ -249,3 +248,5 @@
 #define OP_breakpoint         (0xca)
 #define OP_impdep1            (0xfe)
 #define OP_impdep2            (0xff)
+
+extern char *strings_opcodes[];

@@ -15,6 +15,7 @@ operation optable[N_OPS] = {
 			    [OP_return] = return_func,
 			    [OP_invokevirtual] = invokevirtual,
 			    [OP_getstatic] = getstatic,
+          [OP_ldc_w] = ldc_w,
 			    [OP_ldc2_w] = ldc2_w,
 			    [OP_dstore_1] = dstore_1,
 			    [OP_dstore_2] = dstore_2,
@@ -41,20 +42,53 @@ operation optable[N_OPS] = {
 };
 
 int opargs[N_OPS] = {
-		     [OP_ldc] = 1,
-		     [OP_iload] = 1,
-		     [OP_istore] = 1,
-		     [OP_invokevirtual] = 2,
-		     [OP_getstatic] = 2,
-		     [OP_ldc2_w] = 2,
-		     [OP_bipush] = 1,
 		     [OP_if_icmpeq] = 2,
 		     [OP_if_icmpne] = 2,
 		     [OP_if_icmplt] = 2,
 		     [OP_if_icmpge] = 2,
 		     [OP_if_icmpgt] = 2,
 		     [OP_if_icmple] = 2,
-
+		      [OP_ldc] = 1,
+          [OP_iload] = 1,
+          [OP_lload] = 1,
+          [OP_fload] = 1,
+          [OP_dload] = 1,
+          [OP_aload] = 1,
+          [OP_istore] = 1,
+          [OP_lstore] = 1,
+          [OP_fstore] = 1,
+          [OP_dstore] = 1,
+          [OP_astore] = 1,
+          [OP_ret] = 1,
+          [OP_bipush] = 1,
+          [OP_newarray] = 1,
+		      [OP_ldc_w] = 2,
+		      [OP_ldc2_w] = 2,
+		      [OP_getstatic] = 2,
+          [OP_putstatic] = 2,
+          [OP_getfield] = 2,
+          [OP_putfield] = 2,
+          [OP_invokevirtual] = 2,
+          [OP_invokespecial] = 2,
+          [OP_invokestatic] = 2,
+          [OP_new] = 2,
+          [OP_anewarray] = 2,
+          [OP_checkcast] = 2,
+          [OP_instanceof] = 2,
+          [OP_iinc] = 2,
+          [OP_sipush] = 2,
+          [OP_goto] = 2,
+          [OP_jsr] = 2,
+          [OP_ifnull] = 2,
+          [OP_ifnonnull] = 2,
+          [OP_multianewarray] = 3,
+          /*[OP_wide] = 3,*/
+          [OP_invokeinterface] = 4,
+          [OP_invokedynamic] = 4,
+          [OP_goto_w] = 4,
+          [OP_jsr_w] = 4,
+          /*[OP_lookupswitch] = 8,
+          [OP_tableswitch] = 16,*/
 };
 
 void init_jvm(JVM *jvm) {
@@ -359,8 +393,61 @@ void getstatic(Frame *f, uint32_t a0, uint32_t a1) {
 }
 
 
+void ldc_w(Frame *f, uint32_t a0, uint32_t a1) {
+  uint16_t index, cp_index;
+  char *str;
+
+  index = (a0 << 8) + a1;
+  /* push item from runtime constant pool */
+  uint8_t tag = f->cp[index].tag;
+  switch (tag) {
+  case CONSTANT_Integer:
+    printf("Push %d from cp\n", f->cp[index].info.integer_info.bytes);
+    push_stack(f, f->cp[index].info.integer_info.bytes);
+    break;
+  case CONSTANT_Float:
+    printf("Push %f from cp\n", f->cp[index].info.float_info.bytes);
+    push_stack(f, f->cp[index].info.float_info.bytes);
+    break;
+  case CONSTANT_String:
+    cp_index = f->cp[index].info.string_info.string_index;
+    str = get_cp_string(f->cp, cp_index);
+    printf("Push \'%s\' from cp\n", str);
+    push_stack(f, str);
+  default:
+    break;
+  }
+  return;
+}
+
 void ldc2_w(Frame *f, uint32_t a0, uint32_t a1) {
-  /* TODO */
+  uint16_t index, cp_index;
+  char *str;
+  uint32_t high_bytes;
+  uint32_t low_bytes;
+  int64_t value = (((int64_t) high_bytes) << 32) + ((int64_t)low_bytes);
+
+  index = (a0 << 8) + a1;
+  /* push item from runtime constant pool */
+  uint8_t tag = f->cp[index].tag;
+  switch (tag) {
+  case CONSTANT_Long:
+    low_bytes = f->cp[index].info.long_info.low_bytes;
+    push_stack(f, low_bytes);
+    high_bytes = f->cp[index].info.long_info.high_bytes;
+    push_stack(f, high_bytes);
+    printf("Push %ld from cp\n", value);
+    break;
+  case CONSTANT_Double:
+    low_bytes = f->cp[index].info.double_info.low_bytes;
+    push_stack(f, low_bytes);
+    high_bytes = f->cp[index].info.double_info.high_bytes;
+    push_stack(f, high_bytes);
+    printf("Push %lf from cp\n", value);
+    break;
+  default:
+    break;
+  }
   return;
 }
 

@@ -744,7 +744,7 @@ void print_code_attribute(Code_attribute *ptr, cp_info *cp) {
 	   ptr->max_locals);
     uint32_t i;
     for (i = 0; i < ptr->code_length; i++) {
-      printf("\t\t %d\t0x%x\n", i, ptr->code[i]);
+      printf("\t\t %d\t%s\t(0x%x)\n", i, strings_opcodes[ptr->code[i]] ,ptr->code[i]);
     }
 
     for (i = 0; i < ptr->attributes_count; i++) {
