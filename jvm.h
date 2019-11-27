@@ -86,6 +86,7 @@ void nop(Frame *f, uint32_t a0, uint32_t a1);
 void ldc(Frame *f, uint32_t a0, uint32_t a1);
 
 void istore(Frame *f, uint32_t a0, uint32_t a1);
+void istore_0(Frame *f, uint32_t a0, uint32_t a1);
 void istore_1(Frame *f, uint32_t a0, uint32_t a1);
 void istore_2(Frame *f, uint32_t a0, uint32_t a1);
 void istore_3(Frame *f, uint32_t a0, uint32_t a1);
@@ -110,10 +111,14 @@ void getstatic(Frame *f, uint32_t a0, uint32_t a1);
 void ldc_w(Frame *f, uint32_t a0, uint32_t a1);
 void ldc2_w(Frame *f, uint32_t a0, uint32_t a1);
 
+void dstore(Frame *f, uint32_t a0, uint32_t a1);
+void dstore_0(Frame *f, uint32_t a0, uint32_t a1);
 void dstore_1(Frame *f, uint32_t a0, uint32_t a1);
 void dstore_2(Frame *f, uint32_t a0, uint32_t a1);
 void dstore_3(Frame *f, uint32_t a0, uint32_t a1);
 
+void dload(Frame *f, uint32_t a0, uint32_t a1);
+void dload_0(Frame *f, uint32_t a0, uint32_t a1);
 void dload_1(Frame *f, uint32_t a0, uint32_t a1);
 void dload_2(Frame *f, uint32_t a0, uint32_t a1);
 void dload_3(Frame *f, uint32_t a0, uint32_t a1);
