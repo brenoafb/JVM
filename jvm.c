@@ -536,6 +536,7 @@ void invokevirtual(Frame *f, uint32_t a0, uint32_t a1) {
       printf("%f\n", x);
       #endif
     }
+
     /* pop getstatic dummy value (view getstatic definition) */
     uint32_t dummy = pop_stack(f);
     #ifdef DEBUG
