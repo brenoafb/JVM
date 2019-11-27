@@ -22,6 +22,11 @@ void push_stack(Frame *f, uint64_t operand) {
   f->operands[f->i++] = operand;
 }
 
+void memcpy_stack(Frame *f, void* operand) {
+  assert(f->i < f->n_operands);
+  memcpy(f->operands + f->i++, operand, 4);
+}
+
 uint64_t pop_stack(Frame *f) {
   assert(f->i > 0);
   return f->operands[--f->i];

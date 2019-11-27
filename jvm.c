@@ -777,15 +777,18 @@ void if_icmple(Frame *f, uint32_t a0, uint32_t a1) {
 }
 
 void fconst_0(Frame *f, uint32_t a0, uint32_t a1) {
-  push_stack(f, 0.0);
+  float op = 0.0;
+  memcpy_stack(f, &op);
 }
 
 void fconst_1(Frame *f, uint32_t a0, uint32_t a1) {
-  push_stack(f, 1.0);
+  float op = 1.0;
+  memcpy_stack(f, &op);
 }
 
 void fconst_2(Frame *f, uint32_t a0, uint32_t a1) {
-  push_stack(f, 2.0);
+  float op = 2.0;
+  memcpy_stack(f, &op);
 }
 
 void fstore(Frame *f, uint32_t a0, uint32_t a1) {
