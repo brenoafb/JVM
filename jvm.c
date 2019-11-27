@@ -425,11 +425,21 @@ void invokevirtual(Frame *f, uint32_t a0, uint32_t a1) {
       uint64_t x = (pop1 << 32) | pop2;
       double db = *((double *) &x);
 #ifdef DEBUG
-      printf("println(double): %f\n", db);
+      printf("println(double): %lf\n", db);
 #else
-      printf("%f\n", db);
+      printf("%lf\n", db);
+#endif
+    } else if (strcmp(type, "(F)V") == 0) {
+      /* print float */
+      uint64_t pop = pop_stack(f);
+      float f_value = *((float *) &pop);
+#ifdef DEBUG
+      printf("println(float): %f\n", f_value);
+#else
+      printf("%f\n", f_value);
 #endif
     }
+
     /* pop getstatic dummy value (view getstatic definition) */
     uint32_t dummy = pop_stack(f);
 #ifdef DEBUG
