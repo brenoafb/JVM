@@ -4,10 +4,12 @@ operation optable[N_OPS] = {
 			    [OP_nop] = nop,
 			    [OP_ldc] = ldc,
 			    [OP_istore] = istore,
+          [OP_istore_0] = istore_0,
 			    [OP_istore_1] = istore_1,
 			    [OP_istore_2] = istore_2,
 			    [OP_istore_3] = istore_3,
 			    [OP_iload] = iload,
+          [OP_iload_0] = iload_1,
 			    [OP_iload_1] = iload_1,
 			    [OP_iload_2] = iload_2,
 			    [OP_iload_3] = iload_3,
@@ -15,11 +17,15 @@ operation optable[N_OPS] = {
 			    [OP_return] = return_func,
 			    [OP_invokevirtual] = invokevirtual,
 			    [OP_getstatic] = getstatic,
-	  [OP_ldc_w] = ldc_w,
+	        [OP_ldc_w] = ldc_w,
 			    [OP_ldc2_w] = ldc2_w,
+          [OP_dstore] = dstore,
+          [OP_dstore_0] = dstore_0,
 			    [OP_dstore_1] = dstore_1,
 			    [OP_dstore_2] = dstore_2,
 			    [OP_dstore_3] = dstore_3,
+          [OP_dload] = dload,
+          [OP_dload_0] = dload_0,
 			    [OP_dload_1] = dload_1,
 			    [OP_dload_2] = dload_2,
 			    [OP_dload_3] = dload_3,
@@ -39,56 +45,59 @@ operation optable[N_OPS] = {
 			    [OP_if_icmpge] = if_icmpge,
 			    [OP_if_icmpgt] = if_icmpgt,
 			    [OP_if_icmple] = if_icmple,
+          [OP_fconst_0] = fconst_0,
+          [OP_fconst_1] = fconst_1,
+          [OP_fconst_2] = fconst_2,
 };
 
 int opargs[N_OPS] = {
-		     [OP_if_icmpeq] = 2,
-		     [OP_if_icmpne] = 2,
-		     [OP_if_icmplt] = 2,
-		     [OP_if_icmpge] = 2,
-		     [OP_if_icmpgt] = 2,
-		     [OP_if_icmple] = 2,
+		      [OP_if_icmpeq] = 2,
+		      [OP_if_icmpne] = 2,
+		      [OP_if_icmplt] = 2,
+		      [OP_if_icmpge] = 2,
+		      [OP_if_icmpgt] = 2,
+		      [OP_if_icmple] = 2,
 		      [OP_ldc] = 1,
-	  [OP_iload] = 1,
-	  [OP_lload] = 1,
-	  [OP_fload] = 1,
-	  [OP_dload] = 1,
-	  [OP_aload] = 1,
-	  [OP_istore] = 1,
-	  [OP_lstore] = 1,
-	  [OP_fstore] = 1,
-	  [OP_dstore] = 1,
-	  [OP_astore] = 1,
-	  [OP_ret] = 1,
-	  [OP_bipush] = 1,
-	  [OP_newarray] = 1,
-		      [OP_ldc_w] = 2,
-		      [OP_ldc2_w] = 2,
-		      [OP_getstatic] = 2,
-	  [OP_putstatic] = 2,
-	  [OP_getfield] = 2,
-	  [OP_putfield] = 2,
-	  [OP_invokevirtual] = 2,
-	  [OP_invokespecial] = 2,
-	  [OP_invokestatic] = 2,
-	  [OP_new] = 2,
-	  [OP_anewarray] = 2,
-	  [OP_checkcast] = 2,
-	  [OP_instanceof] = 2,
-	  [OP_iinc] = 2,
-	  [OP_sipush] = 2,
-	  [OP_goto] = 2,
-	  [OP_jsr] = 2,
-	  [OP_ifnull] = 2,
-	  [OP_ifnonnull] = 2,
-	  [OP_multianewarray] = 3,
-	  /*[OP_wide] = 3,*/
-	  [OP_invokeinterface] = 4,
-	  [OP_invokedynamic] = 4,
-	  [OP_goto_w] = 4,
-	  [OP_jsr_w] = 4,
-	  /*[OP_lookupswitch] = 8,
-	  [OP_tableswitch] = 16,*/
+      	  [OP_iload] = 1,
+      	  [OP_lload] = 1,
+      	  [OP_fload] = 1,
+      	  [OP_dload] = 1,
+      	  [OP_aload] = 1,
+      	  [OP_istore] = 1,
+      	  [OP_lstore] = 1,
+      	  [OP_fstore] = 1,
+      	  [OP_dstore] = 1,
+      	  [OP_astore] = 1,
+      	  [OP_ret] = 1,
+      	  [OP_bipush] = 1,
+      	  [OP_newarray] = 1,
+      		[OP_ldc_w] = 2,
+      		[OP_ldc2_w] = 2,
+      		[OP_getstatic] = 2,
+      	  [OP_putstatic] = 2,
+      	  [OP_getfield] = 2,
+      	  [OP_putfield] = 2,
+      	  [OP_invokevirtual] = 2,
+      	  [OP_invokespecial] = 2,
+      	  [OP_invokestatic] = 2,
+      	  [OP_new] = 2,
+      	  [OP_anewarray] = 2,
+      	  [OP_checkcast] = 2,
+      	  [OP_instanceof] = 2,
+      	  [OP_iinc] = 2,
+      	  [OP_sipush] = 2,
+      	  [OP_goto] = 2,
+      	  [OP_jsr] = 2,
+      	  [OP_ifnull] = 2,
+      	  [OP_ifnonnull] = 2,
+      	  [OP_multianewarray] = 3,
+      	  /*[OP_wide] = 3,*/
+      	  [OP_invokeinterface] = 4,
+      	  [OP_invokedynamic] = 4,
+      	  [OP_goto_w] = 4,
+      	  [OP_jsr_w] = 4,
+      	  /*[OP_lookupswitch] = 8,
+      	  [OP_tableswitch] = 16,*/
 };
 
 void init_jvm(JVM *jvm) {
@@ -273,6 +282,12 @@ void istore(Frame *f, uint32_t a0, uint32_t a1) {
   f->locals[a0] = op;
 }
 
+void istore_0(Frame *f, uint32_t a0, uint32_t a1) {
+  /* store int into local variable 0 */
+  int32_t op = pop_stack(f);
+  f->locals[0] = op;
+}
+
 void istore_1(Frame *f, uint32_t a0, uint32_t a1) {
   /* store int into local variable 1 */
   int32_t op = pop_stack(f);
@@ -294,6 +309,12 @@ void istore_3(Frame *f, uint32_t a0, uint32_t a1) {
 void iload(Frame *f, uint32_t a0, uint32_t a1) {
   /* Load int from local variable a0 */
   int32_t op = f->locals[a0];
+  push_stack(f, op);
+}
+
+void iload_0(Frame *f, uint32_t a0, uint32_t a1) {
+  /* Load int from local variable 0 */
+  int32_t op = f->locals[0];
   push_stack(f, op);
 }
 
@@ -474,6 +495,27 @@ void ldc2_w(Frame *f, uint32_t a0, uint32_t a1) {
   return;
 }
 
+void dstore(Frame *f, uint32_t a0, uint32_t a1) {
+  /* store a double into local variable a0 and a0 + 1 */
+  uint64_t half_n_1 = pop_stack(f);
+  uint64_t half_n_2 = pop_stack(f);
+
+  memcpy(f->locals + a0, &half_n_1, 4);
+  memcpy(f->locals + a0 + 1, &half_n_2, 4);
+
+  return;
+}
+
+void dstore_0(Frame *f, uint32_t a0, uint32_t a1) {
+  /* store a double into local variable 0 and 1 */
+  uint64_t half_n_1 = pop_stack(f);
+  uint64_t half_n_2 = pop_stack(f);
+
+  memcpy(f->locals + 0, &half_n_1, 4);
+  memcpy(f->locals + 1, &half_n_2, 4);
+
+  return;
+}
 
 void dstore_1(Frame *f, uint32_t a0, uint32_t a1) {
   /* store a double into local variable 1 and 2 */
@@ -506,6 +548,27 @@ void dstore_3(Frame *f, uint32_t a0, uint32_t a1) {
   return;
 }
 
+void dload(Frame *f, uint32_t a0, uint32_t a1) {
+  /* load double from local variable a0 and a0 + 1*/
+  uint64_t half_n_1 = f->locals[a0];
+  uint64_t half_n_2 = f->locals[a0 + 1];
+
+  push_stack(f, half_n_2);
+  push_stack(f, half_n_1);
+
+  return;
+}
+
+void dload_0(Frame *f, uint32_t a0, uint32_t a1) {
+  /* load double from local variable 0 and 1*/
+  uint64_t half_n_1 = f->locals[0];
+  uint64_t half_n_2 = f->locals[1];
+
+  push_stack(f, half_n_2);
+  push_stack(f, half_n_1);
+
+  return;
+}
 
 void dload_1(Frame *f, uint32_t a0, uint32_t a1) {
   /* load double from local variable 1 and 2*/
@@ -701,4 +764,46 @@ void if_icmple(Frame *f, uint32_t a0, uint32_t a1) {
     jvm->pc = new_addr;
     jvm->jmp = true;
   }
+}
+
+void fconst_0(Frame *f, uint32_t a0, uint32_t a1) {
+  push_stack(f, 0.0);
+}
+
+void fconst_1(Frame *f, uint32_t a0, uint32_t a1) {
+  push_stack(f, 1.0);
+}
+
+void fconst_2(Frame *f, uint32_t a0, uint32_t a1) {
+  push_stack(f, 2.0);
+}
+
+void fstore(Frame *f, uint32_t a0, uint32_t a1) {
+  /* store float into local variable a0 */
+  int32_t op = pop_stack(f);
+  memcpy(f->locals + a0, &op, 4);
+}
+
+void fstore_0(Frame *f, uint32_t a0, uint32_t a1) {
+  /* store float into local variable 0 */
+  int32_t op = pop_stack(f);
+  memcpy(f->locals + 0, &op, 4);
+}
+
+void fstore_1(Frame *f, uint32_t a0, uint32_t a1) {
+  /* store float into local variable 1 */
+  int32_t op = pop_stack(f);
+  memcpy(f->locals + 1, &op, 4);
+}
+
+void fstore_2(Frame *f, uint32_t a0, uint32_t a1) {
+  /* store float into local variable 2 */
+  int32_t op = pop_stack(f);
+  memcpy(f->locals + 2, &op, 4);
+}
+
+void fstore_3(Frame *f, uint32_t a0, uint32_t a1) {
+  /* store float into local variable 3 */
+  int32_t op = pop_stack(f);
+  memcpy(f->locals + 3, &op, 4);
 }
