@@ -48,6 +48,16 @@ operation optable[N_OPS] = {
           [OP_fconst_0] = fconst_0,
           [OP_fconst_1] = fconst_1,
           [OP_fconst_2] = fconst_2,
+          [OP_fstore] = fstore,
+          [OP_fstore_0] = fstore_0,
+          [OP_fstore_1] = fstore_1,
+          [OP_fstore_2] = fstore_2,
+          [OP_fstore_3] = fstore_3,
+          [OP_fload] = fload,
+          [OP_fload_0] = fload_0,
+          [OP_fload_1] = fload_1,
+          [OP_fload_2] = fload_2,
+          [OP_fload_3] = fload_3,
 };
 
 int opargs[N_OPS] = {
@@ -806,4 +816,44 @@ void fstore_3(Frame *f, uint32_t a0, uint32_t a1) {
   /* store float into local variable 3 */
   int32_t op = pop_stack(f);
   memcpy(f->locals + 3, &op, 4);
+}
+
+void fload(Frame *f, uint32_t a0, uint32_t a1) {
+  /* load float from local variable a0*/
+  uint32_t op = f->locals[a0];
+  push_stack(f, op);
+
+  return;
+}
+
+void fload_0(Frame *f, uint32_t a0, uint32_t a1) {
+  /* load float from local variable 0*/
+  uint32_t op = f->locals[0];
+  push_stack(f, op);
+
+  return;
+}
+
+void fload_1(Frame *f, uint32_t a0, uint32_t a1) {
+  /* load float from local variable 1*/
+  uint32_t op = f->locals[1];
+  push_stack(f, op);
+
+  return;
+}
+
+void fload_2(Frame *f, uint32_t a0, uint32_t a1) {
+  /* load float from local variable 2*/
+  uint32_t op = f->locals[2];
+  push_stack(f, op);
+
+  return;
+}
+
+void fload_3(Frame *f, uint32_t a0, uint32_t a1) {
+  /* load float from local variable 3*/
+  uint32_t op = f->locals[3];
+  push_stack(f, op);
+
+  return;
 }
