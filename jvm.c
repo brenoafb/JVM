@@ -8,12 +8,16 @@ operation optable[N_OPS] = {
 			    [OP_istore_2] = istore_2,
 			    [OP_istore_3] = istore_3,
 			    [OP_iload] = iload,
+			    [OP_iload_0] = iload_0,
 			    [OP_iload_1] = iload_1,
 			    [OP_iload_2] = iload_2,
 			    [OP_iload_3] = iload_3,
 			    [OP_iadd] = iadd,
+			    [OP_isub] = isub,
 			    [OP_return] = return_func,
+			    [OP_ireturn] = ireturn,
 			    [OP_invokevirtual] = invokevirtual,
+			    [OP_invokestatic] = invokestatic,
 			    [OP_getstatic] = getstatic,
 			    [OP_ldc_w] = ldc_w,
 			    [OP_ldc2_w] = ldc2_w,
@@ -100,6 +104,7 @@ void init_jvm(JVM *jvm) {
   jvm->current_class_index = -1;
   jvm->current_method_index = -1;
   jvm->jmp = false;
+  jvm->ret = false;
 }
 
 void deinit_jvm(JVM *jvm) {
@@ -111,8 +116,30 @@ void deinit_jvm(JVM *jvm) {
   }
 }
 
-void jvm_load_class(JVM *jvm, classfile *cf) {
-  method_area_load_class(jvm->method_area, cf);
+void jvm_load_classfile(JVM *jvm, classfile *cf) {
+  method_area_load_classfile(jvm->method_area, cf);
+}
+
+void jvm_load_class(JVM *jvm, char *class_name) {
+  method_area_load_class(jvm->method_area, class_name);
+}
+
+void jvm_set_current_class(JVM *jvm, char *class_name) {
+  int index = method_area_class_lookup(jvm->method_area, class_name);
+  jvm->current_class_index = index;
+}
+
+void jvm_set_current_method(JVM *jvm, char *method_name) {
+  classfile *class = jvm_get_current_class(jvm);
+  int i;
+  for (i = 0; i < class->methods_count; i++) {
+    method_info *method = &class->methods[i];
+    char *curr_method_name = get_cp_string(class->constant_pool, method->name_index);
+    if (strcmp(curr_method_name, method_name) == 0) {
+      jvm->current_method_index = i;
+      return;
+    }
+  }
 }
 
 void jvm_load_method(JVM *jvm, uint32_t class_index, uint32_t method_index) {
@@ -146,12 +173,14 @@ char *jvm_get_current_method_name(JVM *jvm) {
 }
 
 void jvm_push_frame(JVM *jvm) {
-  classfile *class = jvm->method_area->classes[jvm->current_class_index];
-  method_info *method = &class->methods[jvm->current_method_index];
+  classfile *class = jvm_get_current_class(jvm);
+  method_info *method = jvm_get_current_method(jvm);
   Code_attribute *code = &method->attributes[0].info.code;
   Frame *f = calloc(sizeof(Frame), 1);
-  init_frame(f, jvm, code->max_locals, code->max_stack, class->constant_pool);
+  init_frame(f, jvm, code->max_locals, code->max_stack, class->constant_pool,
+	     jvm->current_class_index, jvm->current_method_index);
   jvm->frames[jvm->frame_index++] = f;
+  jvm->pc = 0;
 }
 
 void jvm_pop_frame(JVM *jvm) {
@@ -168,8 +197,7 @@ Frame *jvm_peek_frame(JVM *jvm) {
 int jvm_cycle(JVM *jvm) {
   int flag = 1;                  /* will be set to 0 if returns from main in this cycle */
   Frame *f = jvm_peek_frame(jvm);
-  classfile *class = jvm->method_area->classes[jvm->current_class_index];
-  method_info *method = &class->methods[jvm->current_method_index];
+  method_info *method = jvm_get_current_method(jvm);
   Code_attribute *code = &method->attributes[0].info.code;
 
   uint32_t opcode = code->code[jvm->pc];
@@ -196,7 +224,22 @@ int jvm_cycle(JVM *jvm) {
 
     flag = 0;
   }
-  if (!jvm->jmp) jvm->pc += opargs[opcode] + 1;
+
+  if (jvm->ret) {
+    /* free called method's frame */
+    jvm_pop_frame(jvm);
+
+    /* restore context */
+    Frame *f = jvm_peek_frame(jvm);
+    jvm->pc = f->pc;
+    jvm->current_class_index = f->class_index;
+    jvm->current_method_index = f->method_index;
+    if (opcode != OP_return) push_stack(f, jvm->retval);
+
+    jvm->ret = false;
+  }
+
+  if (!jvm->jmp && opcode != OP_invokestatic) jvm->pc += opargs[opcode] + 1;
   return flag;
 }
 
@@ -209,7 +252,8 @@ void jvm_run_method(JVM *jvm) {
   method_info *method = &class->methods[jvm->current_method_index];
   Code_attribute *code = &method->attributes[0].info.code;
   Frame *f = calloc(sizeof(Frame), 1);
-  init_frame(f, jvm, code->max_locals, code->max_stack, class->constant_pool);
+  init_frame(f, jvm, code->max_locals, code->max_stack, class->constant_pool, jvm->current_class_index,
+	     jvm->current_method_index);
 
 #ifdef DEBUG
   printf("Current class: %s\n", get_class_name(jvm->method_area->classes[0]));
@@ -323,6 +367,12 @@ void iload(Frame *f, uint32_t a0, uint32_t a1) {
   push_stack(f, op);
 }
 
+void iload_0(Frame *f, uint32_t a0, uint32_t a1) {
+  /* Load int from local variable 0 */
+  int32_t op = f->locals[0];
+  push_stack(f, op);
+}
+
 void iload_1(Frame *f, uint32_t a0, uint32_t a1) {
   /* Load int from local variable 1 */
   int32_t op = f->locals[1];
@@ -342,15 +392,35 @@ void iload_3(Frame *f, uint32_t a0, uint32_t a1) {
 }
 
 void iadd(Frame *f, uint32_t a0, uint32_t a1) {
-  /* add int */
   push_stack(f, pop_stack(f) + pop_stack(f));
 }
 
+void isub(Frame *f, uint32_t a0, uint32_t a1) {
+  int32_t v1 = pop_stack(f);
+  int32_t v2 = pop_stack(f);
+  push_stack(f, v2 - v1);
+}
+
 void return_func(Frame *f, uint32_t a0, uint32_t a1) {
-  /* nothing to do for now */
 #ifdef DEBUG
   printf("return\n");
 #endif
+
+  JVM *jvm = f->jvm;
+  if (!jvm_in_main(jvm)) {
+    jvm->ret = true;
+  }
+}
+
+void ireturn(Frame *f, uint32_t a0, uint32_t a1) {
+  /* get value to be returned */
+  int retval = pop_stack(f);
+  JVM *jvm = f->jvm;
+  jvm->ret = true;
+  jvm->retval = retval;
+  #ifdef DEBUG
+  printf("ireturn (%d 0x%x)\n", retval, retval);
+  #endif
 }
 
 void invokevirtual(Frame *f, uint32_t a0, uint32_t a1) {
@@ -406,6 +476,43 @@ void invokevirtual(Frame *f, uint32_t a0, uint32_t a1) {
 #endif
   }
 
+  return;
+}
+
+void invokestatic(Frame *f, uint32_t a0, uint32_t a1) {
+  /* TODO */
+  uint32_t index = (a0 << 8) | a1;
+  CONSTANT_Methodref_info methodref_info = f->cp[index].info.methodref_info;
+  uint16_t class_index = methodref_info.class_index;
+  char *class_name = get_class_name_string(f->cp, class_index);
+  uint16_t name_and_type_index = methodref_info.name_and_type_index;
+  char *method_name = get_name_and_type_string(f->cp, name_and_type_index, 1);
+  char *type = get_name_and_type_string(f->cp, name_and_type_index, 0);
+#ifdef DEBUG
+  printf("invokestatic: Methodref\t");
+  printf("class: %s, name: %s, type: %s\n", class_name,
+	 method_name, type);
+#endif
+  JVM *jvm = f->jvm;
+
+  /* save context variables */
+  f->pc = jvm->pc + 2;
+  f->class_index = jvm->current_class_index;
+  f->method_index = jvm->current_method_index;
+
+  jvm_load_class(jvm, class_name);
+  jvm_set_current_class(jvm, class_name);
+  jvm_set_current_method(jvm, method_name);
+  jvm_push_frame(jvm);
+
+  if (strcmp(type, "(I)I") == 0) {
+    Frame *f1 = jvm_peek_frame(jvm);
+    int32_t arg = pop_stack(f);
+    #ifdef DEBUG
+    printf("invokevirtual: arg = %d (0x%x)\n", arg, arg);
+    #endif
+    f1->locals[0] = arg;
+  }
   return;
 }
 

@@ -10,7 +10,9 @@ int main(int argc, char *argv[]) {
     return 0;
   }
 
-  const char *filename = argv[1];
+  char filename[BUFSIZE];
+  strcpy(filename, argv[1]);
+  strcat(filename, ".class");
   FILE *fp = fopen(filename, "r");
   if (!fp) {
     printf("Error opening file %s.\n", filename);
@@ -20,13 +22,14 @@ int main(int argc, char *argv[]) {
   classfile cf = {0};
   JVM memory = {0};
   read_class_file(&cf, fp);
-  print_class_file_detail(&cf);
+  /* print_class_file_detail(&cf); */
 
   if (argc > 2) {
     init_jvm(&memory);
 
-    jvm_load_class(&memory, &cf);
-    jvm_load_method(&memory, 0, 1); /* load class' main method */
+    jvm_load_class(&memory, argv[1]);
+    jvm_set_current_class(&memory, argv[1]);
+    jvm_set_current_method(&memory, "main");
 
     jvm_push_frame(&memory);
     jvm_run(&memory);

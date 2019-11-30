@@ -21,23 +21,40 @@ typedef struct JVM {
   int32_t current_class_index;
   int32_t current_method_index;
   bool jmp;
+  bool ret;
+  uint64_t retval;
 } JVM;
 
 void init_jvm(JVM *jvm);
 void deinit_jvm(JVM *jvm);
 
 /* Load the classfile into the jvm's MethodArea */
-void jvm_load_class(JVM *jvm, classfile *cf);
+void jvm_load_classfile(JVM *jvm, classfile *cf);
+
+/* Load class with name (if needed) into jvm's MethodArea */
+void jvm_load_class(JVM *jvm, char *class_name);
+
+/* Set class which owns current method being run */
+/* Assumes class is already loaded */
+void jvm_set_current_class(JVM *jvm, char *class_name);
+
+/* Set current method to run */
+void jvm_set_current_method(JVM *jvm, char *method_name);
 
 /* Set the current class and current method members */
+/* Assumes that the current class does contain the method required */
 void jvm_load_method(JVM *jvm, uint32_t class_index, uint32_t method_index);
 
+/* Returns a reference to the class which runs the method being run */
 classfile *jvm_get_current_class(JVM *jvm);
 
+/* Returns the name of the class which runs the method being run */
 char *jvm_get_current_class_name(JVM *jvm);
 
+/* Returns a reference to the method being run */
 method_info *jvm_get_current_method(JVM *jvm);
 
+/* Returns the name of the method being run */
 char *jvm_get_current_method_name(JVM *jvm);
 
 /* Creates a class with the current method and pushes it into the frame stack */
@@ -74,15 +91,19 @@ void istore_2(Frame *f, uint32_t a0, uint32_t a1);
 void istore_3(Frame *f, uint32_t a0, uint32_t a1);
 
 void iload(Frame *f, uint32_t a0, uint32_t a1);
+void iload_0(Frame *f, uint32_t a0, uint32_t a1);
 void iload_1(Frame *f, uint32_t a0, uint32_t a1);
 void iload_2(Frame *f, uint32_t a0, uint32_t a1);
 void iload_3(Frame *f, uint32_t a0, uint32_t a1);
 
+void isub(Frame *f, uint32_t a0, uint32_t a1);
 void iadd(Frame *f, uint32_t a0, uint32_t a1);
 
 void return_func(Frame *f, uint32_t a0, uint32_t a1);
+void ireturn(Frame *f, uint32_t a0, uint32_t a1);
 
 void invokevirtual(Frame *f, uint32_t a0, uint32_t a1);
+void invokestatic(Frame *f, uint32_t a0, uint32_t a1);
 
 void getstatic(Frame *f, uint32_t a0, uint32_t a1);
 

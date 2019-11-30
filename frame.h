@@ -14,9 +14,13 @@ typedef struct Frame {
   uint64_t *operands;      /* stack of operands                    */
   uint32_t i;              /* top of stack index                   */
   cp_info *cp;             /* reference to constant pool of class  */
+  uint32_t pc;             /* jvm's pc upon method call            */
+  int32_t class_index;     /* class index in method area           */
+  int32_t method_index;    /* method index in class                */
 } Frame;
 
-void init_frame(Frame *f, void *jvm, uint32_t n_locals, uint32_t n_operands, cp_info *cp);
+void init_frame(Frame *f, void *jvm, uint32_t n_locals, uint32_t n_operands, cp_info *cp,
+		int32_t class_index, int32_t method_index);
 void deinit_frame(Frame *f);
 
 void push_stack(Frame *f, uint64_t operand);
