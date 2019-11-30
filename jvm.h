@@ -29,7 +29,10 @@ void init_jvm(JVM *jvm);
 void deinit_jvm(JVM *jvm);
 
 /* Load the classfile into the jvm's MethodArea */
-void jvm_load_class(JVM *jvm, classfile *cf);
+void jvm_load_classfile(JVM *jvm, classfile *cf);
+
+/* Load class with name (if needed) into jvm's MethodArea */
+void jvm_load_class(JVM *jvm, char *class_name);
 
 /* Set the current class and current method members */
 void jvm_load_method(JVM *jvm, uint32_t class_index, uint32_t method_index);
