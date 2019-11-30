@@ -120,6 +120,31 @@ void jvm_load_method(JVM *jvm, uint32_t class_index, uint32_t method_index) {
   jvm->current_method_index = method_index;
 }
 
+classfile *jvm_get_current_class(JVM *jvm) {
+  classfile *class = jvm->method_area->classes[jvm->current_class_index];
+  return class;
+}
+
+char *jvm_get_current_class_name(JVM *jvm) {
+  Frame *f = jvm_peek_frame(jvm);
+  classfile *class = jvm_get_current_class(jvm);
+  CONSTANT_Class_info class_info = f->cp[class->this_class].info.class_info;
+  return get_cp_string(f->cp, class_info.name_index);
+}
+
+method_info *jvm_get_current_method(JVM *jvm) {
+  classfile *class = jvm_get_current_class(jvm);
+  method_info *method = &class->methods[jvm->current_method_index];
+  return method;
+}
+
+char *jvm_get_current_method_name(JVM *jvm) {
+  Frame *f = jvm_peek_frame(jvm);
+  method_info *method = jvm_get_current_method(jvm);
+  char *str = get_cp_string(f->cp, method->name_index);
+  return str;
+}
+
 void jvm_push_frame(JVM *jvm) {
   classfile *class = jvm->method_area->classes[jvm->current_class_index];
   method_info *method = &class->methods[jvm->current_method_index];
@@ -225,10 +250,7 @@ void jvm_run_method(JVM *jvm) {
 }
 
 int jvm_in_main(JVM *jvm) {
-  Frame *f = jvm_peek_frame(jvm);
-  classfile *class = jvm->method_area->classes[jvm->current_class_index];
-  method_info *method = &class->methods[jvm->current_method_index];
-  char *str = get_cp_string(f->cp, method->name_index);
+  char *str = jvm_get_current_method_name(jvm);
   return strcmp(str, "main") == 0;
 }
 

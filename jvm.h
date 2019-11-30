@@ -32,6 +32,14 @@ void jvm_load_class(JVM *jvm, classfile *cf);
 /* Set the current class and current method members */
 void jvm_load_method(JVM *jvm, uint32_t class_index, uint32_t method_index);
 
+classfile *jvm_get_current_class(JVM *jvm);
+
+char *jvm_get_current_class_name(JVM *jvm);
+
+method_info *jvm_get_current_method(JVM *jvm);
+
+char *jvm_get_current_method_name(JVM *jvm);
+
 /* Creates a class with the current method and pushes it into the frame stack */
 void jvm_push_frame(JVM *jvm);
 
