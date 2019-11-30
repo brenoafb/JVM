@@ -5,8 +5,8 @@ void init_method_area(MethodArea *ma) {
 }
 
 void deinit_method_area(MethodArea *ma) {
-  /* nothing to do so far */
-  for (int i = 0; i < ma->n_classes; i++) {
+  int i;
+  for (i = 0; i < ma->n_classes; i++) {
     deinit_class_file(ma->classes[i]);
     free(ma->classes[i]);
   }
@@ -36,7 +36,8 @@ void method_area_load_classfile(MethodArea *ma, classfile *cf) {
 }
 
 int method_area_class_lookup(MethodArea *ma, char *class_name) {
-  for (int i = 0; i < ma->n_classes; i++) {
+  int i;
+  for (i = 0; i < ma->n_classes; i++) {
     classfile *cf = ma->classes[i];
     uint32_t index = cf->this_class;
     CONSTANT_Class_info class_info = cf->constant_pool[index].info.class_info;

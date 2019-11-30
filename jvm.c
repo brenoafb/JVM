@@ -128,7 +128,8 @@ void jvm_set_current_class(JVM *jvm, char *class_name) {
 
 void jvm_set_current_method(JVM *jvm, char *method_name) {
   classfile *class = jvm_get_current_class(jvm);
-  for (int i = 0; i < class->methods_count; i++) {
+  int i;
+  for (i = 0; i < class->methods_count; i++) {
     method_info *method = &class->methods[i];
     char *curr_method_name = get_cp_string(class->constant_pool, method->name_index);
     if (strcmp(curr_method_name, method_name) == 0) {

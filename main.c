@@ -10,7 +10,9 @@ int main(int argc, char *argv[]) {
     return 0;
   }
 
-  const char *filename = argv[1];
+  char filename[BUFSIZE];
+  strcpy(filename, argv[1]);
+  strcat(filename, ".class");
   FILE *fp = fopen(filename, "r");
   if (!fp) {
     printf("Error opening file %s.\n", filename);
