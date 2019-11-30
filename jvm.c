@@ -407,6 +407,9 @@ void return_func(Frame *f, uint32_t a0, uint32_t a1) {
 }
 
 void ireturn(Frame *f, uint32_t a0, uint32_t a1) {
+  #ifdef DEBUG
+  printf("ireturn\n");
+  #endif
   /* get value to be returned */
   int retval = pop_stack(f);
   JVM *jvm = f->jvm;
@@ -495,6 +498,12 @@ void invokestatic(Frame *f, uint32_t a0, uint32_t a1) {
   jvm_set_current_class(jvm, class_name);
   jvm_set_current_method(jvm, method_name);
   jvm_push_frame(jvm);
+
+  if (strcmp(type, "(I)I") == 0) {
+    Frame *f1 = jvm_peek_frame(jvm);
+    uint64_t arg = pop_stack(f);
+    f1->locals[0] = arg;
+  }
   return;
 }
 
