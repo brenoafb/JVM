@@ -8,6 +8,7 @@
 #include "types.h"
 
 #define MAX_CLASSES 32
+#define BUFSIZE 256
 
 typedef struct MethodArea {
   uint32_t n_classes;
@@ -16,4 +17,7 @@ typedef struct MethodArea {
 
 void init_method_area(MethodArea *ma);
 void deinit_method_area(MethodArea *ma);
-void method_area_load_class(MethodArea *ma, classfile *cf);
+void method_area_load_class(MethodArea *ma, char *class_name);
+void method_area_load_classfile(MethodArea *ma, classfile *cf);
+
+int method_area_class_lookup(MethodArea *ma, char *class_name);
