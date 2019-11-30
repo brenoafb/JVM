@@ -1,6 +1,7 @@
 #include "frame.h"
 
-void init_frame(Frame *f, void *jvm, uint32_t n_locals, uint32_t n_operands, cp_info *cp) {
+void init_frame(Frame *f, void *jvm, uint32_t n_locals, uint32_t n_operands, cp_info *cp,
+		int32_t class_index, int32_t method_index) {
   f->jvm = jvm;
   f->n_locals = n_locals;
   f->locals = calloc(sizeof(int32_t), n_locals);
@@ -10,6 +11,9 @@ void init_frame(Frame *f, void *jvm, uint32_t n_locals, uint32_t n_operands, cp_
   assert(f->operands);
   f->i = 0;
   f->cp = cp;
+
+  f->class_index = class_index;
+  f->method_index = method_index;
 }
 
 void deinit_frame(Frame *f) {

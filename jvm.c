@@ -151,7 +151,8 @@ void jvm_push_frame(JVM *jvm) {
   method_info *method = &class->methods[jvm->current_method_index];
   Code_attribute *code = &method->attributes[0].info.code;
   Frame *f = calloc(sizeof(Frame), 1);
-  init_frame(f, jvm, code->max_locals, code->max_stack, class->constant_pool);
+  init_frame(f, jvm, code->max_locals, code->max_stack, class->constant_pool,
+	     jvm->current_class_index, jvm->current_method_index);
   jvm->frames[jvm->frame_index++] = f;
 }
 
@@ -225,7 +226,8 @@ void jvm_run_method(JVM *jvm) {
   method_info *method = &class->methods[jvm->current_method_index];
   Code_attribute *code = &method->attributes[0].info.code;
   Frame *f = calloc(sizeof(Frame), 1);
-  init_frame(f, jvm, code->max_locals, code->max_stack, class->constant_pool);
+  init_frame(f, jvm, code->max_locals, code->max_stack, class->constant_pool, jvm->current_class_index,
+	     jvm->current_method_index);
 
 #ifdef DEBUG
   printf("Current class: %s\n", get_class_name(jvm->method_area->classes[0]));
@@ -372,8 +374,9 @@ void return_func(Frame *f, uint32_t a0, uint32_t a1) {
 void ireturn(Frame *f, uint32_t a0, uint32_t a1) {
   /* get value to be returned */
   int retval = pop_stack(f);
-  f->jvm->iret = true;
-  f->jvm->retval = retval;
+  JVM *jvm = f->jvm;
+  jvm->iret = true;
+  jvm->retval = retval;
 }
 
 void invokevirtual(Frame *f, uint32_t a0, uint32_t a1) {
