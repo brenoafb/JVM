@@ -141,7 +141,7 @@ Frame *jvm_peek_frame(JVM *jvm) {
 }
 
 int jvm_cycle(JVM *jvm) {
-  int flag = 1;
+  int flag = 1;                  /* will be set to 0 if returns from main in this cycle */
   Frame *f = jvm_peek_frame(jvm);
   classfile *class = jvm->method_area->classes[jvm->current_class_index];
   method_info *method = &class->methods[jvm->current_method_index];
@@ -225,8 +225,11 @@ void jvm_run_method(JVM *jvm) {
 }
 
 int jvm_in_main(JVM *jvm) {
-  /* TODO */
-  return 1;
+  Frame *f = jvm_peek_frame(jvm);
+  classfile *class = jvm->method_area->classes[jvm->current_class_index];
+  method_info *method = &class->methods[jvm->current_method_index];
+  char *str = get_cp_string(f->cp, method->name_index);
+  return strcmp(str, "main") == 0;
 }
 
 void nop(Frame *f, uint32_t a0, uint32_t a1) {
