@@ -30,3 +30,18 @@ uint64_t pop_stack(Frame *f) {
 uint64_t peek_stack(Frame *f) {
   return f->operands[f->i];
 }
+
+void push_stack_double(Frame *f, double d) {
+  uint64_t hex = *((uint64_t *) (& d));
+  uint32_t hi = hex >> 32;
+  uint32_t lo = hex;
+  push_stack(f, lo);
+  push_stack(f, hi);
+}
+
+double pop_stack_double(Frame *f) {
+  uint64_t hi = pop_stack(f);
+  uint64_t lo = pop_stack(f);
+  uint64_t hex = (hi << 32) | lo;
+  return *((double *)(& hex));
+}
