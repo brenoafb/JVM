@@ -435,6 +435,11 @@ void invokevirtual(Frame *f, uint32_t a0, uint32_t a1) {
   return;
 }
 
+void invokestatic(Frame *f, uint32_t a0, uint32_t a1) {
+  /* TODO */
+  return;
+}
+
 void getstatic(Frame *f, uint32_t a0, uint32_t a1) {
   /* TODO */
   uint32_t index = (a0 << 8) | a1;
