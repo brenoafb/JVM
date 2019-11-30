@@ -22,3 +22,6 @@ void deinit_frame(Frame *f);
 void push_stack(Frame *f, uint64_t operand);
 uint64_t pop_stack(Frame *f);
 uint64_t peek_stack(Frame *f);
+
+void push_stack_double(Frame *f, double d);
+double pop_stack_double(Frame *f);

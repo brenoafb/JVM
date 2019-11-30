@@ -94,6 +94,7 @@ void dsub(Frame *f, uint32_t a0, uint32_t a1);
 void ddiv(Frame *f, uint32_t a0, uint32_t a1);
 void dmul(Frame *f, uint32_t a0, uint32_t a1);
 void dneg(Frame *f, uint32_t a0, uint32_t a1);
+void drem(Frame *f, uint32_t a0, uint32_t a1);
 
 void bipush(Frame *f, uint32_t a0, uint32_t a1);
 

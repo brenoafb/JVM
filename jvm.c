@@ -15,7 +15,7 @@ operation optable[N_OPS] = {
 			    [OP_return] = return_func,
 			    [OP_invokevirtual] = invokevirtual,
 			    [OP_getstatic] = getstatic,
-	  [OP_ldc_w] = ldc_w,
+			    [OP_ldc_w] = ldc_w,
 			    [OP_ldc2_w] = ldc2_w,
 			    [OP_dstore_1] = dstore_1,
 			    [OP_dstore_2] = dstore_2,
@@ -28,6 +28,7 @@ operation optable[N_OPS] = {
 			    [OP_dmul] = dmul,
 			    [OP_ddiv] = ddiv,
 			    [OP_dneg] = dneg,
+			    [OP_drem] = drem,
 			    [OP_bipush] = bipush,
 			    [OP_iconst_0] = iconst_0,
 			    [OP_iconst_1] = iconst_1,
@@ -48,47 +49,47 @@ int opargs[N_OPS] = {
 		     [OP_if_icmpge] = 2,
 		     [OP_if_icmpgt] = 2,
 		     [OP_if_icmple] = 2,
-		      [OP_ldc] = 1,
-	  [OP_iload] = 1,
-	  [OP_lload] = 1,
-	  [OP_fload] = 1,
-	  [OP_dload] = 1,
-	  [OP_aload] = 1,
-	  [OP_istore] = 1,
-	  [OP_lstore] = 1,
-	  [OP_fstore] = 1,
-	  [OP_dstore] = 1,
-	  [OP_astore] = 1,
-	  [OP_ret] = 1,
-	  [OP_bipush] = 1,
-	  [OP_newarray] = 1,
-		      [OP_ldc_w] = 2,
-		      [OP_ldc2_w] = 2,
-		      [OP_getstatic] = 2,
-	  [OP_putstatic] = 2,
-	  [OP_getfield] = 2,
-	  [OP_putfield] = 2,
-	  [OP_invokevirtual] = 2,
-	  [OP_invokespecial] = 2,
-	  [OP_invokestatic] = 2,
-	  [OP_new] = 2,
-	  [OP_anewarray] = 2,
-	  [OP_checkcast] = 2,
-	  [OP_instanceof] = 2,
-	  [OP_iinc] = 2,
-	  [OP_sipush] = 2,
-	  [OP_goto] = 2,
-	  [OP_jsr] = 2,
-	  [OP_ifnull] = 2,
-	  [OP_ifnonnull] = 2,
-	  [OP_multianewarray] = 3,
-	  /*[OP_wide] = 3,*/
-	  [OP_invokeinterface] = 4,
-	  [OP_invokedynamic] = 4,
-	  [OP_goto_w] = 4,
-	  [OP_jsr_w] = 4,
-	  /*[OP_lookupswitch] = 8,
-	  [OP_tableswitch] = 16,*/
+		     [OP_ldc] = 1,
+		     [OP_iload] = 1,
+		     [OP_lload] = 1,
+		     [OP_fload] = 1,
+		     [OP_dload] = 1,
+		     [OP_aload] = 1,
+		     [OP_istore] = 1,
+		     [OP_lstore] = 1,
+		     [OP_fstore] = 1,
+		     [OP_dstore] = 1,
+		     [OP_astore] = 1,
+		     [OP_ret] = 1,
+		     [OP_bipush] = 1,
+		     [OP_newarray] = 1,
+		     [OP_ldc_w] = 2,
+		     [OP_ldc2_w] = 2,
+		     [OP_getstatic] = 2,
+		     [OP_putstatic] = 2,
+		     [OP_getfield] = 2,
+		     [OP_putfield] = 2,
+		     [OP_invokevirtual] = 2,
+		     [OP_invokespecial] = 2,
+		     [OP_invokestatic] = 2,
+		     [OP_new] = 2,
+		     [OP_anewarray] = 2,
+		     [OP_checkcast] = 2,
+		     [OP_instanceof] = 2,
+		     [OP_iinc] = 2,
+		     [OP_sipush] = 2,
+		     [OP_goto] = 2,
+		     [OP_jsr] = 2,
+		     [OP_ifnull] = 2,
+		     [OP_ifnonnull] = 2,
+		     [OP_multianewarray] = 3,
+		     /*[OP_wide] = 3,*/
+		     [OP_invokeinterface] = 4,
+		     [OP_invokedynamic] = 4,
+		     [OP_goto_w] = 4,
+		     [OP_jsr_w] = 4,
+		     /*[OP_lookupswitch] = 8,
+		       [OP_tableswitch] = 16,*/
 };
 
 void init_jvm(JVM *jvm) {
@@ -362,17 +363,17 @@ void invokevirtual(Frame *f, uint32_t a0, uint32_t a1) {
       printf("%d\n", integer);
 #endif
     } else if (strcmp(type, "(D)V") == 0) {
-	/* print double */
-	uint64_t pop1 = pop_stack(f);
-	uint64_t pop2 = pop_stack(f);
-	uint64_t x = (pop1 << 32) | pop2;
-	double db = *((double *) &x);
+      /* print double */
+      uint64_t pop1 = pop_stack(f);
+      uint64_t pop2 = pop_stack(f);
+      uint64_t x = (pop1 << 32) | pop2;
+      double db = *((double *) &x);
 #ifdef DEBUG
       printf("println(double): %f\n", db);
 #else
       printf("%f\n", db);
 #endif
-      }
+    }
     /* pop getstatic dummy value (view getstatic definition) */
     uint32_t dummy = pop_stack(f);
 #ifdef DEBUG
@@ -413,24 +414,24 @@ void ldc_w(Frame *f, uint32_t a0, uint32_t a1) {
   uint8_t tag = f->cp[index].tag;
   switch (tag) {
   case CONSTANT_Integer:
-    #ifdef DEBUG
+#ifdef DEBUG
     printf("ldc_w: Push %d from cp\n", f->cp[index].info.integer_info.bytes);
-    #endif
+#endif
     push_stack(f, f->cp[index].info.integer_info.bytes);
     break;
   case CONSTANT_Float:
-    #ifdef DEBUG
+#ifdef DEBUG
     printf("ldc_w: Push %f from cp\n", f->cp[index].info.float_info.bytes);
-    #endif
+#endif
     push_stack(f, f->cp[index].info.float_info.bytes);
     break;
   case CONSTANT_String:
     cp_index = f->cp[index].info.string_info.string_index;
     str = get_cp_string(f->cp, cp_index);
 
-    #ifdef DEBUG
+#ifdef DEBUG
     printf("ldc_w: Push \'%s\' from cp\n", str);
-    #endif
+#endif
 
     push_stack(f, str);
   default:
@@ -455,18 +456,18 @@ void ldc2_w(Frame *f, uint32_t a0, uint32_t a1) {
     push_stack(f, low_bytes);
     high_bytes = f->cp[index].info.long_info.high_bytes;
     push_stack(f, high_bytes);
-    #ifdef DEBUG
+#ifdef DEBUG
     printf("ldc2_w: Push %ld from cp\n", value);
-    #endif
+#endif
     break;
   case CONSTANT_Double:
     low_bytes = f->cp[index].info.double_info.low_bytes;
     push_stack(f, low_bytes);
     high_bytes = f->cp[index].info.double_info.high_bytes;
     push_stack(f, high_bytes);
-    #ifdef DEBUG
+#ifdef DEBUG
     printf("ldc2_w: Push %lf from cp\n", value);
-    #endif
+#endif
     break;
   default:
     break;
@@ -540,171 +541,45 @@ void dload_3(Frame *f, uint32_t a0, uint32_t a1) {
 
 
 void dadd(Frame *f, uint32_t a0, uint32_t a1) {
-
-
- /* Pop of first operand, 64 bits = two pops of 32 bits each */
-uint64_t first_half_operand_1 = pop_stack(f);
-uint64_t second_half_operand_1 = pop_stack(f);
-
-/*Pop of second operand,64 bits = two pops of 32 bits each */
-uint64_t first_half_operand_2 = pop_stack(f);
-uint64_t second_half_operand_2 = pop_stack(f);
-
-/*Concatenate the 2 halfs to get the first double operand */
-uint64_t first_operand = (first_half_operand_1 << 32) | second_half_operand_1;
-
-/*Convert to double type*/
-double operand_1 = *((double*)(&first_operand));
-
-/*Concatenate the 2 halfs to get the second double operand */
-uint64_t second_operand = (first_half_operand_2 << 32) | second_half_operand_2;
-
-/*Convert to double type*/
-double operand_2 = *((double*)(&second_operand));
-
-/*Execute dadd instruction */
-double result = operand_1 + operand_2;
-
-/*Divide the result into two 32 bits registers */
-
-uint64_t first_half_result = ((uint64_t)(result) & 0XFFFFFFFF00000000) >> 32;
-
-uint64_t second_half_result = ((uint64_t)(result)) & 0x00000000FFFFFFFF;
-
-/*Store in frame making 2 pushes*/
-
-push_stack(f, second_half_result);
-
-push_stack(f,first_half_result);
-
-
-  return;
+  double d1 = pop_stack_double(f);
+  double d2 = pop_stack_double(f);
+  double result = d1 + d2;
+  push_stack_double(f, result);
 }
 
 void dsub(Frame *f, uint32_t a0, uint32_t a1) {
-
-  /* Pop of first operand, 64 bits = two pops of 32 bits each */
-uint64_t first_half_operand_1 = pop_stack(f);
-uint64_t second_half_operand_1 = pop_stack(f);
-
-/*Pop of second operand,64 bits = two pops of 32 bits each */
-uint64_t first_half_operand_2 = pop_stack(f);
-uint64_t second_half_operand_2 = pop_stack(f);
-
-/*Concatenate the 2 halfs to get the first double operand */
-uint64_t first_operand = (first_half_operand_1 << 32) | second_half_operand_1;
-
-/*Convert to double type*/
-double operand_1 = *((double*)(&first_operand));
-
-/*Concatenate the 2 halfs to get the second double operand */
-uint64_t second_operand = (first_half_operand_2 << 32) | second_half_operand_2;
-
-/*Convert to double type*/
-double operand_2 = *((double*)(&second_operand));
-
-/*Execute dadd instruction */
-double result = operand_1 - operand_2;
-
-/*Divide the result into two 32 bits registers */
-
-uint64_t first_half_result = ((uint64_t)(result) & 0XFFFFFFFF00000000) >> 32;
-
-uint64_t second_half_result = ((uint64_t)(result)) & 0x00000000FFFFFFFF;
-
-/*Store in frame making 2 pushes*/
-
-push_stack(f, second_half_result);
-
-push_stack(f,first_half_result);
-
-  return;
+  double d1 = pop_stack_double(f);
+  double d2 = pop_stack_double(f);
+  double result = d1 - d2;
+  push_stack_double(f, result);
 }
 
 void ddiv(Frame *f, uint32_t a0, uint32_t a1) {
-
-  /* Pop of first operand, 64 bits = two pops of 32 bits each */
-uint64_t first_half_operand_1 = pop_stack(f);
-uint64_t second_half_operand_1 = pop_stack(f);
-
-/*Pop of second operand,64 bits = two pops of 32 bits each */
-uint64_t first_half_operand_2 = pop_stack(f);
-uint64_t second_half_operand_2 = pop_stack(f);
-
-/*Concatenate the 2 halfs to get the first double operand */
-uint64_t first_operand = (first_half_operand_1 << 32) | second_half_operand_1;
-
-/*Convert to double type*/
-double operand_1 = *((double*)(&first_operand));
-
-/*Concatenate the 2 halfs to get the second double operand */
-uint64_t second_operand = (first_half_operand_2 << 32) | second_half_operand_2;
-
-/*Convert to double type*/
-double operand_2 = *((double*)(&second_operand));
-
-/*Execute dadd instruction */
-double result = operand_1 / operand_2;
-
-/*Divide the result into two 32 bits registers */
-
-uint64_t first_half_result = ((uint64_t)(result) & 0XFFFFFFFF00000000) >> 32;
-
-uint64_t second_half_result = ((uint64_t)(result)) & 0x00000000FFFFFFFF;
-
-/*Store in frame making 2 pushes*/
-
-push_stack(f, second_half_result);
-
-push_stack(f,first_half_result);
-
-  return;
+  double d1 = pop_stack_double(f);
+  double d2 = pop_stack_double(f);
+  double result = d1 / d2;
+  push_stack_double(f, result);
 }
 
 void dmul(Frame *f, uint32_t a0, uint32_t a1) {
-
-  /* Pop of first operand, 64 bits = two pops of 32 bits each */
-uint64_t first_half_operand_1 = pop_stack(f);
-uint64_t second_half_operand_1 = pop_stack(f);
-
-/*Pop of second operand,64 bits = two pops of 32 bits each */
-uint64_t first_half_operand_2 = pop_stack(f);
-uint64_t second_half_operand_2 = pop_stack(f);
-
-/*Concatenate the 2 halfs to get the first double operand */
-uint64_t first_operand = (first_half_operand_1 << 32) | second_half_operand_1;
-
-/*Convert to double type*/
-double operand_1 = *((double*)(&first_operand));
-
-/*Concatenate the 2 halfs to get the second double operand */
-uint64_t second_operand = (first_half_operand_2 << 32) | second_half_operand_2;
-
-/*Convert to double type*/
-double operand_2 = *((double*)(&second_operand));
-
-/*Execute dadd instruction */
-double result = operand_1 * operand_2;
-
-/*Divide the result into two 32 bits registers */
-
-uint64_t first_half_result = ((uint64_t)(result) & 0XFFFFFFFF00000000) >> 32;
-
-uint64_t second_half_result = ((uint64_t)(result)) & 0x00000000FFFFFFFF;
-
-/*Store in frame making 2 pushes*/
-
-push_stack(f, second_half_result);
-
-push_stack(f,first_half_result);
-
-    return;
+  double d1 = pop_stack_double(f);
+  double d2 = pop_stack_double(f);
+  double result = d1 * d2;
+  push_stack_double(f, result);
 }
 void dneg(Frame *f, uint32_t a0, uint32_t a1) {
-  /* TODO */
-  return;
+  double d1 = pop_stack_double(f);
+  double result = -d1;
+  push_stack_double(f, result);
 }
 
+void drem(Frame *f, uint32_t a0, uint32_t a1) {
+  double d1 = pop_stack_double(f);
+  double d2 = pop_stack_double(f);
+  int q = d1/d2;
+  double result = d1 - (d2 * q);
+  push_stack_double(f, result);
+}
 
 void bipush(Frame *f, uint32_t a0, uint32_t a1) {
   /* TODO */
