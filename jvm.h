@@ -34,15 +34,27 @@ void jvm_load_classfile(JVM *jvm, classfile *cf);
 /* Load class with name (if needed) into jvm's MethodArea */
 void jvm_load_class(JVM *jvm, char *class_name);
 
+/* Set class which owns current method being run */
+/* Assumes class is already loaded */
+void jvm_set_current_class(JVM *jvm, char *class_name);
+
+/* Set current method to run */
+void jvm_set_current_method(JVM *jvm, char *method_name);
+
 /* Set the current class and current method members */
+/* Assumes that the current class does contain the method required */
 void jvm_load_method(JVM *jvm, uint32_t class_index, uint32_t method_index);
 
+/* Returns a reference to the class which runs the method being run */
 classfile *jvm_get_current_class(JVM *jvm);
 
+/* Returns the name of the class which runs the method being run */
 char *jvm_get_current_class_name(JVM *jvm);
 
+/* Returns a reference to the method being run */
 method_info *jvm_get_current_method(JVM *jvm);
 
+/* Returns the name of the method being run */
 char *jvm_get_current_method_name(JVM *jvm);
 
 /* Creates a class with the current method and pushes it into the frame stack */
