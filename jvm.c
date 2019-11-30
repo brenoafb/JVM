@@ -396,7 +396,9 @@ void iadd(Frame *f, uint32_t a0, uint32_t a1) {
 }
 
 void isub(Frame *f, uint32_t a0, uint32_t a1) {
-  push_stack(f, pop_stack(f) - pop_stack(f));
+  int32_t v1 = pop_stack(f);
+  int32_t v2 = pop_stack(f);
+  push_stack(f, v2 - v1);
 }
 
 void return_func(Frame *f, uint32_t a0, uint32_t a1) {
@@ -411,14 +413,14 @@ void return_func(Frame *f, uint32_t a0, uint32_t a1) {
 }
 
 void ireturn(Frame *f, uint32_t a0, uint32_t a1) {
-  #ifdef DEBUG
-  printf("ireturn\n");
-  #endif
   /* get value to be returned */
   int retval = pop_stack(f);
   JVM *jvm = f->jvm;
   jvm->ret = true;
   jvm->retval = retval;
+  #ifdef DEBUG
+  printf("ireturn (%d 0x%x)\n", retval, retval);
+  #endif
 }
 
 void invokevirtual(Frame *f, uint32_t a0, uint32_t a1) {
@@ -505,7 +507,10 @@ void invokestatic(Frame *f, uint32_t a0, uint32_t a1) {
 
   if (strcmp(type, "(I)I") == 0) {
     Frame *f1 = jvm_peek_frame(jvm);
-    uint64_t arg = pop_stack(f);
+    int32_t arg = pop_stack(f);
+    #ifdef DEBUG
+    printf("invokevirtual: arg = %d (0x%x)\n", arg, arg);
+    #endif
     f1->locals[0] = arg;
   }
   return;

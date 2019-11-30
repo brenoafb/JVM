@@ -1,7 +1,28 @@
 public class Fibonacci {
     public static void main(String []args) {
-	int n = 10;
+	System.out.println("Fib(0)");
+	int n = 0;
 	int x = fib(n);
+	System.out.println(x);
+
+	System.out.println("Fib(1)");
+	n = 1;
+	x = fib(n);
+	System.out.println(x);
+
+	System.out.println("Fib(2)");
+	n = 2;
+	x = fib(n);
+	System.out.println(x);
+
+	System.out.println("Fib(3)");
+	n = 3;
+	x = fib(n);
+	System.out.println(x);
+
+	System.out.println("Fib(10)");
+	n = 10;
+	x = fib(n);
 	System.out.println(x);
     }
 
