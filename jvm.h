@@ -96,6 +96,7 @@ void iload_1(Frame *f, uint32_t a0, uint32_t a1);
 void iload_2(Frame *f, uint32_t a0, uint32_t a1);
 void iload_3(Frame *f, uint32_t a0, uint32_t a1);
 
+void isub(Frame *f, uint32_t a0, uint32_t a1);
 void iadd(Frame *f, uint32_t a0, uint32_t a1);
 
 void return_func(Frame *f, uint32_t a0, uint32_t a1);

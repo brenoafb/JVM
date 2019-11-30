@@ -13,6 +13,7 @@ operation optable[N_OPS] = {
 			    [OP_iload_2] = iload_2,
 			    [OP_iload_3] = iload_3,
 			    [OP_iadd] = iadd,
+			    [OP_isub] = isub,
 			    [OP_return] = return_func,
 			    [OP_ireturn] = ireturn,
 			    [OP_invokevirtual] = invokevirtual,
@@ -391,8 +392,11 @@ void iload_3(Frame *f, uint32_t a0, uint32_t a1) {
 }
 
 void iadd(Frame *f, uint32_t a0, uint32_t a1) {
-  /* add int */
   push_stack(f, pop_stack(f) + pop_stack(f));
+}
+
+void isub(Frame *f, uint32_t a0, uint32_t a1) {
+  push_stack(f, pop_stack(f) - pop_stack(f));
 }
 
 void return_func(Frame *f, uint32_t a0, uint32_t a1) {
