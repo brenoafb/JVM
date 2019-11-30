@@ -13,6 +13,7 @@ operation optable[N_OPS] = {
 			    [OP_iload_3] = iload_3,
 			    [OP_iadd] = iadd,
 			    [OP_return] = return_func,
+			    [OP_ireturn] = ireturn,
 			    [OP_invokevirtual] = invokevirtual,
 			    [OP_getstatic] = getstatic,
 			    [OP_ldc_w] = ldc_w,
@@ -196,6 +197,21 @@ int jvm_cycle(JVM *jvm) {
 
     flag = 0;
   }
+
+  if (jvm->iret) {
+    /* free called method's frame */
+    jvm_pop_frame(jvm);
+
+    /* restore context */
+    Frame *f = jvm_peek_frame(jvm);
+    jvm->pc = f->pc;
+    jvm->current_class_index = f->class_index;
+    jvm->current_method_index = f->method_index;
+    push_stack(f, jvm->retval);
+
+    jvm->iret = false;
+  }
+
   if (!jvm->jmp) jvm->pc += opargs[opcode] + 1;
   return flag;
 }
@@ -351,6 +367,13 @@ void return_func(Frame *f, uint32_t a0, uint32_t a1) {
 #ifdef DEBUG
   printf("return\n");
 #endif
+}
+
+void ireturn(Frame *f, uint32_t a0, uint32_t a1) {
+  /* get value to be returned */
+  int retval = pop_stack(f);
+  f->jvm->iret = true;
+  f->jvm->retval = retval;
 }
 
 void invokevirtual(Frame *f, uint32_t a0, uint32_t a1) {

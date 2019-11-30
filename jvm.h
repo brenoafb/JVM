@@ -21,6 +21,8 @@ typedef struct JVM {
   int32_t current_class_index;
   int32_t current_method_index;
   bool jmp;
+  bool iret;
+  uint64_t retval;
 } JVM;
 
 void init_jvm(JVM *jvm);
@@ -81,6 +83,7 @@ void iload_3(Frame *f, uint32_t a0, uint32_t a1);
 void iadd(Frame *f, uint32_t a0, uint32_t a1);
 
 void return_func(Frame *f, uint32_t a0, uint32_t a1);
+void ireturn(Frame *f, uint32_t a0, uint32_t a1);
 
 void invokevirtual(Frame *f, uint32_t a0, uint32_t a1);
 
