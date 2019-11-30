@@ -25,7 +25,7 @@ int main(int argc, char *argv[]) {
   if (argc > 2) {
     init_jvm(&memory);
 
-    jvm_load_class(&memory, &cf);
+    jvm_load_classfile(&memory, &cf);
     jvm_load_method(&memory, 0, 1); /* load class' main method */
 
     jvm_push_frame(&memory);
