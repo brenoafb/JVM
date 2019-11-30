@@ -121,6 +121,23 @@ void jvm_load_class(JVM *jvm, char *class_name) {
   method_area_load_class(jvm->method_area, class_name);
 }
 
+void jvm_set_current_class(JVM *jvm, char *class_name) {
+  int index = method_area_class_lookup(jvm->method_area, class_name);
+  jvm->current_class_index = index;
+}
+
+void jvm_set_current_method(JVM *jvm, char *method_name) {
+  classfile *class = jvm_get_current_class(jvm);
+  for (int i = 0; i < class->methods_count; i++) {
+    method_info *method = &class->methods[i];
+    char *curr_method_name = get_cp_string(class->constant_pool, method->name_index);
+    if (strcmp(curr_method_name, method_name) == 0) {
+      jvm->current_method_index = i;
+      return;
+    }
+  }
+}
+
 void jvm_load_method(JVM *jvm, uint32_t class_index, uint32_t method_index) {
   jvm->current_class_index = class_index;
   jvm->current_method_index = method_index;
@@ -134,10 +151,6 @@ classfile *jvm_get_current_class(JVM *jvm) {
 char *jvm_get_current_class_name(JVM *jvm) {
   Frame *f = jvm_peek_frame(jvm);
   classfile *class = jvm_get_current_class(jvm);
-  if (!fp) {
-    printf("Error opening file %s.\n", filename);
-    return 1;
-  }
   CONSTANT_Class_info class_info = f->cp[class->this_class].info.class_info;
   return get_cp_string(f->cp, class_info.name_index);
 }
