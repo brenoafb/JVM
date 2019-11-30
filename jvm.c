@@ -113,8 +113,12 @@ void deinit_jvm(JVM *jvm) {
   }
 }
 
-void jvm_load_class(JVM *jvm, classfile *cf) {
-  method_area_load_class(jvm->method_area, cf);
+void jvm_load_classfile(JVM *jvm, classfile *cf) {
+  method_area_load_classfile(jvm->method_area, cf);
+}
+
+void jvm_load_class(JVM *jvm, char *class_name) {
+  method_area_load_class(jvm->method_area, class_name);
 }
 
 void jvm_load_method(JVM *jvm, uint32_t class_index, uint32_t method_index) {
@@ -130,6 +134,10 @@ classfile *jvm_get_current_class(JVM *jvm) {
 char *jvm_get_current_class_name(JVM *jvm) {
   Frame *f = jvm_peek_frame(jvm);
   classfile *class = jvm_get_current_class(jvm);
+  if (!fp) {
+    printf("Error opening file %s.\n", filename);
+    return 1;
+  }
   CONSTANT_Class_info class_info = f->cp[class->this_class].info.class_info;
   return get_cp_string(f->cp, class_info.name_index);
 }
@@ -438,6 +446,29 @@ void invokevirtual(Frame *f, uint32_t a0, uint32_t a1) {
 
 void invokestatic(Frame *f, uint32_t a0, uint32_t a1) {
   /* TODO */
+  uint32_t index = (a0 << 8) | a1;
+  CONSTANT_Methodref_info methodref_info = f->cp[index].info.methodref_info;
+  uint16_t class_index = methodref_info.class_index;
+  char *class_name = get_class_name_string(f->cp, class_index);
+  uint16_t name_and_type_index = methodref_info.name_and_type_index;
+  char *method_name = get_name_and_type_string(f->cp, name_and_type_index, 1);
+  char *type = get_name_and_type_string(f->cp, name_and_type_index, 0);
+#ifdef DEBUG
+  printf("invokestatic: Methodref\t");
+  printf("class: %s, name: %s, type: %s\n", class_name,
+	 method_name, type);
+#endif
+  JVM *jvm = f->jvm;
+
+  /* save context variables */
+  f->pc = jvm->pc + 1;
+  f->class_index = jvm->current_class_index;
+  f->method_index = jvm->current_method_index;
+
+  jvm_load_class(jvm, class_name);
+  jvm_set_current_class(jvm, class_name);
+  jvm_set_current_method(jvm, method_name);
+  jvm_push_frame(jvm);
   return;
 }
 
