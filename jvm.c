@@ -15,6 +15,7 @@ operation optable[N_OPS] = {
 			    [OP_return] = return_func,
 			    [OP_ireturn] = ireturn,
 			    [OP_invokevirtual] = invokevirtual,
+			    [OP_invokestatic] = invokestatic,
 			    [OP_getstatic] = getstatic,
 			    [OP_ldc_w] = ldc_w,
 			    [OP_ldc2_w] = ldc2_w,
