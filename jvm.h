@@ -21,7 +21,7 @@ typedef struct JVM {
   int32_t current_class_index;
   int32_t current_method_index;
   bool jmp;
-  bool iret;
+  bool ret;
   uint64_t retval;
 } JVM;
 
@@ -91,6 +91,7 @@ void istore_2(Frame *f, uint32_t a0, uint32_t a1);
 void istore_3(Frame *f, uint32_t a0, uint32_t a1);
 
 void iload(Frame *f, uint32_t a0, uint32_t a1);
+void iload_0(Frame *f, uint32_t a0, uint32_t a1);
 void iload_1(Frame *f, uint32_t a0, uint32_t a1);
 void iload_2(Frame *f, uint32_t a0, uint32_t a1);
 void iload_3(Frame *f, uint32_t a0, uint32_t a1);
