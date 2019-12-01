@@ -59,6 +59,19 @@ operation optable[N_OPS] = {
 			    [OP_ladd] = ladd,
 			    [OP_iinc] = iinc,
 			    [OP_goto] = goto_func,
+			    [OP_fconst_0] = fconst_0,
+			    [OP_fconst_1] = fconst_1,
+			    [OP_fconst_2] = fconst_2,
+			    [OP_fstore] = fstore,
+			    [OP_fstore_0] = fstore_0,
+			    [OP_fstore_1] = fstore_1,
+			    [OP_fstore_2] = fstore_2,
+			    [OP_fstore_3] = fstore_3,
+			    [OP_fload] = fload,
+			    [OP_fload_0] = fload_0,
+			    [OP_fload_1] = fload_1,
+			    [OP_fload_2] = fload_2,
+			    [OP_fload_3] = fload_3,
 };
 
 int opargs[N_OPS] = {
@@ -988,4 +1001,59 @@ void goto_func(Frame *f, uint32_t a0, uint32_t a1) {
   JVM *jvm = f->jvm;
   jvm->pc += branchoffset;
   jvm->jmp = true;
+}
+
+void fconst_0(Frame *f, uint32_t a0, uint32_t a1) {
+  push_stack_float(f, 0.0f);
+}
+
+void fconst_1(Frame *f, uint32_t a0, uint32_t a1) {
+  push_stack_float(f, 1.0f);
+}
+
+void fconst_2(Frame *f, uint32_t a0, uint32_t a1) {
+  push_stack_float(f, 2.0f);
+}
+
+void fstore(Frame *f, uint32_t a0, uint32_t a1) {
+  float x = pop_stack_float(f);
+  f->locals[a0] = *((int32_t *) (&x));
+}
+
+void fstore_0(Frame *f, uint32_t a0, uint32_t a1) {
+  fstore(f, 0, 0);
+}
+
+void fstore_1(Frame *f, uint32_t a0, uint32_t a1) {
+  fstore(f, 1, 0);
+}
+
+void fstore_2(Frame *f, uint32_t a0, uint32_t a1) {
+  fstore(f, 2, 0);
+}
+
+void fstore_3(Frame *f, uint32_t a0, uint32_t a1) {
+  fstore(f, 3, 0);
+}
+
+void fload(Frame *f, uint32_t a0, uint32_t a1) {
+  int32_t local = f->locals[a0];
+  float x = *((float *) (&local));
+  push_stack_float(f, x);
+}
+
+void fload_0(Frame *f, uint32_t a0, uint32_t a1) {
+  fload(f, 0, 0);
+}
+
+void fload_1(Frame *f, uint32_t a0, uint32_t a1) {
+  fload(f, 1, 0);
+}
+
+void fload_2(Frame *f, uint32_t a0, uint32_t a1) {
+  fload(f, 2, 0);
+}
+
+void fload_3(Frame *f, uint32_t a0, uint32_t a1) {
+  fload(f, 3, 0);
 }
