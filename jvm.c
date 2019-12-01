@@ -43,10 +43,11 @@ operation optable[N_OPS] = {
 			    [OP_lconst_0] = lconst_0,
 			    [OP_lconst_1] = lconst_1,
 			    [OP_lstore] = lstore,
-			    [OP_lstore0] = lstore0,
-			    [OP_lstore1] = lstore1,
-			    [OP_lstore2] = lstore2,
-			    [OP_lstore3] = lstore3,
+			    [OP_lstore_0] = lstore_0,
+			    [OP_lstore_1] = lstore_1,
+			    [OP_lstore_2] = lstore_2,
+			    [OP_lstore_3] = lstore_3,
+			    [OP_lload] = lload,
 };
 
 int opargs[N_OPS] = {
@@ -782,4 +783,11 @@ void lstore_2(Frame *f, uint32_t a0, uint32_t a1) {
 
 void lstore_3(Frame *f, uint32_t a0, uint32_t a1) {
   lstore(f, 3, 0);
+}
+
+void lload(Frame *f, uint32_t a0, uint32_t a1) {
+  uint64_t long1 = *((uint64_t *) (&f->locals[a0]));
+  uint64_t long2 = *((uint64_t *) (&f->locals[a0]));
+  push_stack(f, long2);
+  push_stack(f, long1);
 }
