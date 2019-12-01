@@ -162,7 +162,6 @@ void lload_3(Frame *f, uint32_t a0, uint32_t a1);
 
 void ladd(Frame *f, uint32_t a0, uint32_t a1);
 void lsub(Frame *f, uint32_t a0, uint32_t a1);
-void ldiv(Frame *f, uint32_t a0, uint32_t a1);
 void lmul(Frame *f, uint32_t a0, uint32_t a1);
 
 void iinc(Frame *f, uint32_t a0, uint32_t a1);
