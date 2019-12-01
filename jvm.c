@@ -40,6 +40,8 @@ operation optable[N_OPS] = {
 			    [OP_if_icmpge] = if_icmpge,
 			    [OP_if_icmpgt] = if_icmpgt,
 			    [OP_if_icmple] = if_icmple,
+			    [OP_lconst_0] = lconst_0,
+			    [OP_lconst_1] = lconst_1,
 };
 
 int opargs[N_OPS] = {
@@ -742,4 +744,12 @@ void if_icmple(Frame *f, uint32_t a0, uint32_t a1) {
     jvm->pc = new_addr;
     jvm->jmp = true;
   }
+}
+
+void lconst_0(Frame *f, uint32_t a0, uint32_t a1) {
+  push_stack_long(f, 0);
+}
+
+void lconst_1(Frame *f, uint32_t a0, uint32_t a1) {
+  push_stack_long(f, 1);
 }
