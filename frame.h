@@ -32,3 +32,6 @@ double pop_stack_double(Frame *f);
 
 void push_stack_long(Frame *f, int64_t x);
 int64_t pop_stack_long(Frame *f);
+
+void push_stack_float(Frame *f, float x);
+float pop_stack_float(Frame *f);
