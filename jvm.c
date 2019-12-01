@@ -74,6 +74,7 @@ operation optable[N_OPS] = {
 			    [OP_fload_3] = fload_3,
 			    [OP_fsub] = fsub,
 			    [OP_fadd] = fadd,
+			    [OP_fdiv] = fdiv,
 			    [OP_ifeq] = ifeq,
 			    [OP_ifne] = ifne,
 			    [OP_iflt] = iflt,
@@ -1077,6 +1078,12 @@ void fadd(Frame *f, uint32_t a0, uint32_t a1) {
   float v1 = pop_stack_float(f);
   float v2 = pop_stack_float(f);
   push_stack(f, v2 + v1);
+}
+
+void fdiv(Frame *f, uint32_t a0, uint32_t a1) {
+  float v1 = pop_stack_float(f);
+  float v2 = pop_stack_float(f);
+  push_stack(f, v2 / v1);
 }
 
 void ifeq(Frame *f, uint32_t a0, uint32_t a1) {

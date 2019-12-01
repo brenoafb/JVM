@@ -178,6 +178,7 @@ void fload_3(Frame *f, uint32_t a0, uint32_t a1);
 
 void fsub(Frame *f, uint32_t a0, uint32_t a1);
 void fadd(Frame *f, uint32_t a0, uint32_t a1);
+void fdiv(Frame *f, uint32_t a0, uint32_t a1);
 
 void ifeq(Frame *f, uint32_t a0, uint32_t a1);
 void ifne(Frame *f, uint32_t a0, uint32_t a1);
