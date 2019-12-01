@@ -64,3 +64,13 @@ int64_t pop_stack_long(Frame *f) {
   uint64_t hex = (hi << 32) | lo;
   return *((int64_t *)(& hex));
 }
+
+void push_stack_float(Frame *f, float x) {
+  uint32_t hex = *((uint32_t *) (& x));
+  push_stack(f, hex);
+}
+
+float pop_stack_float(Frame *f) {
+  uint32_t hex = pop_stack(f);
+  return *((float *) (& hex));
+}

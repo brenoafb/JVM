@@ -154,9 +154,40 @@ void lload_1(Frame *f, uint32_t a0, uint32_t a1);
 void lload_2(Frame *f, uint32_t a0, uint32_t a1);
 void lload_3(Frame *f, uint32_t a0, uint32_t a1);
 
+void ladd(Frame *f, uint32_t a0, uint32_t a1);
+
 void iinc(Frame *f, uint32_t a0, uint32_t a1);
 
 void goto_func(Frame *f, uint32_t a0, uint32_t a1);
+
+void fconst_0(Frame *f, uint32_t a0, uint32_t a1);
+void fconst_1(Frame *f, uint32_t a0, uint32_t a1);
+void fconst_2(Frame *f, uint32_t a0, uint32_t a1);
+
+void fstore(Frame *f, uint32_t a0, uint32_t a1);
+void fstore_0(Frame *f, uint32_t a0, uint32_t a1);
+void fstore_1(Frame *f, uint32_t a0, uint32_t a1);
+void fstore_2(Frame *f, uint32_t a0, uint32_t a1);
+void fstore_3(Frame *f, uint32_t a0, uint32_t a1);
+
+void fload(Frame *f, uint32_t a0, uint32_t a1);
+void fload_0(Frame *f, uint32_t a0, uint32_t a1);
+void fload_1(Frame *f, uint32_t a0, uint32_t a1);
+void fload_2(Frame *f, uint32_t a0, uint32_t a1);
+void fload_3(Frame *f, uint32_t a0, uint32_t a1);
+
+void fsub(Frame *f, uint32_t a0, uint32_t a1);
+void fadd(Frame *f, uint32_t a0, uint32_t a1);
+void fdiv(Frame *f, uint32_t a0, uint32_t a1);
+
+void ifeq(Frame *f, uint32_t a0, uint32_t a1);
+void ifne(Frame *f, uint32_t a0, uint32_t a1);
+void iflt(Frame *f, uint32_t a0, uint32_t a1);
+void ifge(Frame *f, uint32_t a0, uint32_t a1);
+void ifgt(Frame *f, uint32_t a0, uint32_t a1);
+void ifle(Frame *f, uint32_t a0, uint32_t a1);
+
+void i2f(Frame *f, uint32_t a0, uint32_t a1);
 
 extern operation optable[N_OPS];
 extern int opargs[N_OPS];
