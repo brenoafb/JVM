@@ -1083,13 +1083,6 @@ void lmul(Frame *f, uint32_t a0, uint32_t a1) {
   push_stack_long(f, result);
 }
 
-void ldiv(Frame *f, uint32_t a0, uint32_t a1) {
-  int64_t long_1 = pop_stack_long(f);
-  int64_t long_2 = pop_stack_long(f);
-  int64_t result = long_1 / long_2;
-  push_stack_long(f, result);
-}
-
 void iinc(Frame *f, uint32_t a0, uint32_t a1) {
   int32_t index = a0;
   int32_t c = ((int8_t) a1);
