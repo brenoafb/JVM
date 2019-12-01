@@ -44,6 +44,20 @@ operation optable[N_OPS] = {
 			    [OP_if_icmpge] = if_icmpge,
 			    [OP_if_icmpgt] = if_icmpgt,
 			    [OP_if_icmple] = if_icmple,
+			    [OP_lconst_0] = lconst_0,
+			    [OP_lconst_1] = lconst_1,
+			    [OP_lstore] = lstore,
+			    [OP_lstore_0] = lstore_0,
+			    [OP_lstore_1] = lstore_1,
+			    [OP_lstore_2] = lstore_2,
+			    [OP_lstore_3] = lstore_3,
+			    [OP_lload] = lload,
+			    [OP_lload_0] = lload_0,
+			    [OP_lload_1] = lload_1,
+			    [OP_lload_2] = lload_2,
+			    [OP_lload_3] = lload_3,
+			    [OP_iinc] = iinc,
+			    [OP_goto] = goto_func,
 };
 
 int opargs[N_OPS] = {
@@ -849,4 +863,77 @@ void if_icmple(Frame *f, uint32_t a0, uint32_t a1) {
     jvm->pc = new_addr;
     jvm->jmp = true;
   }
+}
+
+void lconst_0(Frame *f, uint32_t a0, uint32_t a1) {
+  push_stack_long(f, 0);
+}
+
+void lconst_1(Frame *f, uint32_t a0, uint32_t a1) {
+  push_stack_long(f, 1);
+}
+
+void lstore(Frame *f, uint32_t a0, uint32_t a1) {
+  uint64_t long1 = pop_stack(f);
+  uint64_t long2 = pop_stack(f);
+
+  f->locals[a0] = *((int32_t *) (&long1));
+  f->locals[a0+1] = *((int32_t *) (&long2));
+}
+
+void lstore_0(Frame *f, uint32_t a0, uint32_t a1) {
+  lstore(f, 0, 0);
+}
+
+void lstore_1(Frame *f, uint32_t a0, uint32_t a1) {
+  lstore(f, 1, 0);
+}
+
+
+void lstore_2(Frame *f, uint32_t a0, uint32_t a1) {
+  lstore(f, 2, 0);
+}
+
+void lstore_3(Frame *f, uint32_t a0, uint32_t a1) {
+  lstore(f, 3, 0);
+}
+
+void lload(Frame *f, uint32_t a0, uint32_t a1) {
+  uint64_t long1 = *((uint64_t *) (&f->locals[a0]));
+  uint64_t long2 = *((uint64_t *) (&f->locals[a0]));
+  push_stack(f, long2);
+  push_stack(f, long1);
+}
+
+void lload_0(Frame *f, uint32_t a0, uint32_t a1) {
+  lload(f, 0, 0);
+}
+
+void lload_1(Frame *f, uint32_t a0, uint32_t a1) {
+  lload(f, 1, 0);
+}
+
+void lload_2(Frame *f, uint32_t a0, uint32_t a1) {
+  lload(f, 2, 0);
+}
+
+void lload_3(Frame *f, uint32_t a0, uint32_t a1) {
+  lload(f, 3, 0);
+}
+
+void iinc(Frame *f, uint32_t a0, uint32_t a1) {
+  int32_t index = a0;
+  int32_t c = ((int8_t) a1);
+  f->locals[index] += c;
+}
+
+void goto_func(Frame *f, uint32_t a0, uint32_t a1) {
+  int16_t branchoffset = (a0 << 8) | a1;
+  #ifdef DEBUG
+  printf("goto: %d (0x%x)\n", branchoffset, branchoffset);
+  #endif
+
+  JVM *jvm = f->jvm;
+  jvm->pc += branchoffset;
+  jvm->jmp = true;
 }

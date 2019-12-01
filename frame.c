@@ -49,3 +49,18 @@ double pop_stack_double(Frame *f) {
   uint64_t hex = (hi << 32) | lo;
   return *((double *)(& hex));
 }
+
+void push_stack_long(Frame *f, int64_t x) {
+  uint64_t hex = *((uint64_t *) (& x));
+  uint32_t hi = hex >> 32;
+  uint32_t lo = hex;
+  push_stack(f, lo);
+  push_stack(f, hi);
+}
+
+int64_t pop_stack_long(Frame *f) {
+  uint64_t hi = pop_stack(f);
+  uint64_t lo = pop_stack(f);
+  uint64_t hex = (hi << 32) | lo;
+  return *((int64_t *)(& hex));
+}

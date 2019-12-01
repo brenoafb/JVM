@@ -29,3 +29,6 @@ uint64_t peek_stack(Frame *f);
 
 void push_stack_double(Frame *f, double d);
 double pop_stack_double(Frame *f);
+
+void push_stack_long(Frame *f, int64_t x);
+int64_t pop_stack_long(Frame *f);
