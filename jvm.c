@@ -124,9 +124,8 @@ void init_jvm(JVM *jvm) {
 void deinit_jvm(JVM *jvm) {
   deinit_method_area(jvm->method_area);
   free(jvm->method_area);
-  int i;
-  for (i = 0; i < jvm->frame_index; i++) {
-    free(jvm->frames[i]);
+  while (jvm_peek_frame(jvm)) {
+    jvm_pop_frame(jvm);
   }
 }
 
@@ -445,49 +444,54 @@ void invokevirtual(Frame *f, uint32_t a0, uint32_t a1) {
   char *name = get_name_and_type_string(f->cp, name_and_type_index, 1);
   char *type = get_name_and_type_string(f->cp, name_and_type_index, 0);
 
-#ifdef DEBUG
+  #ifdef DEBUG
   printf("invokevirtual: Methodref\t");
   printf("class: %s, name: %s, type: %s\n", get_class_name_string(f->cp, class_index),
 	 name, type);
-#endif
+  #endif
 
   if (strcmp(name, "println") == 0) {
     if (strcmp(type, "(Ljava/lang/String;)V") == 0) {
       /* print string */
       char *str = pop_stack(f);
-#ifdef DEBUG
+      #ifdef DEBUG
       printf("println(String): \'%s\'\n", str);
-#else
+      #else
       printf("%s\n", str);
-#endif
+      #endif
 
     } else if (strcmp(type, "(I)V") == 0) {
       /* print int */
       uint64_t value = pop_stack(f);
       int32_t integer = *((int32_t *) (&value));
 
-#ifdef DEBUG
+      #ifdef DEBUG
       printf("println(Int): %d\n", integer);
-#else
+      #else
       printf("%d\n", integer);
-#endif
+      #endif
     } else if (strcmp(type, "(D)V") == 0) {
       /* print double */
-      uint64_t pop1 = pop_stack(f);
-      uint64_t pop2 = pop_stack(f);
-      uint64_t x = (pop1 << 32) | pop2;
-      double db = *((double *) &x);
-#ifdef DEBUG
+      double db = pop_stack_double(f);
+      #ifdef DEBUG
       printf("println(double): %f\n", db);
-#else
+      #else
       printf("%f\n", db);
-#endif
+      #endif
+    } else if (strcmp(type, "(J)V") == 0) {
+      /* print long */
+      int64_t x = pop_stack_long(f);
+      #ifdef DEBUG
+      printf("println(long): %ld\n", x);
+      #else
+      printf("%ld\n", x);
+      #endif
     }
     /* pop getstatic dummy value (view getstatic definition) */
     uint32_t dummy = pop_stack(f);
-#ifdef DEBUG
+    #ifdef DEBUG
     printf("dummy: 0x%x\n", dummy);
-#endif
+    #endif
   }
 
   return;
@@ -889,7 +893,6 @@ void lstore_1(Frame *f, uint32_t a0, uint32_t a1) {
   lstore(f, 1, 0);
 }
 
-
 void lstore_2(Frame *f, uint32_t a0, uint32_t a1) {
   lstore(f, 2, 0);
 }
@@ -900,7 +903,7 @@ void lstore_3(Frame *f, uint32_t a0, uint32_t a1) {
 
 void lload(Frame *f, uint32_t a0, uint32_t a1) {
   uint64_t long1 = *((uint64_t *) (&f->locals[a0]));
-  uint64_t long2 = *((uint64_t *) (&f->locals[a0]));
+  uint64_t long2 = *((uint64_t *) (&f->locals[a0+1]));
   push_stack(f, long2);
   push_stack(f, long1);
 }

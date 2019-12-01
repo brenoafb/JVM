@@ -4,10 +4,10 @@ void init_frame(Frame *f, void *jvm, uint32_t n_locals, uint32_t n_operands, cp_
 		int32_t class_index, int32_t method_index) {
   f->jvm = jvm;
   f->n_locals = n_locals;
-  f->locals = calloc(sizeof(int32_t), n_locals);
+  f->locals = calloc(sizeof(int64_t), n_locals);
   assert(f->locals);
   f->n_operands = n_operands;
-  f->operands = calloc(sizeof(int32_t), n_operands);
+  f->operands = calloc(sizeof(int64_t), n_operands);
   assert(f->operands);
   f->i = 0;
   f->cp = cp;
