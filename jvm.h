@@ -176,5 +176,15 @@ void fload_1(Frame *f, uint32_t a0, uint32_t a1);
 void fload_2(Frame *f, uint32_t a0, uint32_t a1);
 void fload_3(Frame *f, uint32_t a0, uint32_t a1);
 
+void fsub(Frame *f, uint32_t a0, uint32_t a1);
+void fadd(Frame *f, uint32_t a0, uint32_t a1);
+
+void ifeq(Frame *f, uint32_t a0, uint32_t a1);
+void ifne(Frame *f, uint32_t a0, uint32_t a1);
+void iflt(Frame *f, uint32_t a0, uint32_t a1);
+void ifge(Frame *f, uint32_t a0, uint32_t a1);
+void ifgt(Frame *f, uint32_t a0, uint32_t a1);
+void ifle(Frame *f, uint32_t a0, uint32_t a1);
+
 extern operation optable[N_OPS];
 extern int opargs[N_OPS];

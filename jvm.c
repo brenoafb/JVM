@@ -72,6 +72,14 @@ operation optable[N_OPS] = {
 			    [OP_fload_1] = fload_1,
 			    [OP_fload_2] = fload_2,
 			    [OP_fload_3] = fload_3,
+			    [OP_fsub] = fsub,
+			    [OP_fadd] = fadd,
+			    [OP_ifeq] = ifeq,
+			    [OP_ifne] = ifne,
+			    [OP_iflt] = iflt,
+			    [OP_ifge] = ifge,
+			    [OP_ifgt] = ifgt,
+			    [OP_ifle] = ifle,
 };
 
 int opargs[N_OPS] = {
@@ -1056,4 +1064,82 @@ void fload_2(Frame *f, uint32_t a0, uint32_t a1) {
 
 void fload_3(Frame *f, uint32_t a0, uint32_t a1) {
   fload(f, 3, 0);
+}
+
+void fsub(Frame *f, uint32_t a0, uint32_t a1) {
+  float v1 = pop_stack_float(f);
+  float v2 = pop_stack_float(f);
+  push_stack(f, v2 - v1);
+}
+
+void fadd(Frame *f, uint32_t a0, uint32_t a1) {
+  float v1 = pop_stack_float(f);
+  float v2 = pop_stack_float(f);
+  push_stack(f, v2 + v1);
+}
+
+void ifeq(Frame *f, uint32_t a0, uint32_t a1) {
+  int16_t branchoffset = (a0 << 8) | a1;
+  uint64_t pop = pop_stack(f);
+  int32_t value = (int32_t) ((uint32_t) pop);
+  if (value == 0) {
+    JVM *jvm = f->jvm;
+    jvm->pc += branchoffset;
+    jvm->jmp = true;
+  }
+}
+
+void ifne(Frame *f, uint32_t a0, uint32_t a1) {
+  int16_t branchoffset = (a0 << 8) | a1;
+  uint64_t pop = pop_stack(f);
+  int32_t value = (int32_t) ((uint32_t) pop);
+  if (value != 0) {
+    JVM *jvm = f->jvm;
+    jvm->pc += branchoffset;
+    jvm->jmp = true;
+  }
+}
+
+void iflt(Frame *f, uint32_t a0, uint32_t a1) {
+  int16_t branchoffset = (a0 << 8) | a1;
+  uint64_t pop = pop_stack(f);
+  int32_t value = (int32_t) ((uint32_t) pop);
+  if (value < 0) {
+    JVM *jvm = f->jvm;
+    jvm->pc += branchoffset;
+    jvm->jmp = true;
+  }
+}
+
+void ifge(Frame *f, uint32_t a0, uint32_t a1) {
+  int16_t branchoffset = (a0 << 8) | a1;
+  uint64_t pop = pop_stack(f);
+  int32_t value = (int32_t) ((uint32_t) pop);
+  if (value >= 0) {
+    JVM *jvm = f->jvm;
+    jvm->pc += branchoffset;
+    jvm->jmp = true;
+  }
+}
+
+void ifgt(Frame *f, uint32_t a0, uint32_t a1) {
+  int16_t branchoffset = (a0 << 8) | a1;
+  uint64_t pop = pop_stack(f);
+  int32_t value = (int32_t) ((uint32_t) pop);
+  if (value > 0) {
+    JVM *jvm = f->jvm;
+    jvm->pc += branchoffset;
+    jvm->jmp = true;
+  }
+}
+
+void ifle(Frame *f, uint32_t a0, uint32_t a1) {
+  int16_t branchoffset = (a0 << 8) | a1;
+  uint64_t pop = pop_stack(f);
+  int32_t value = (int32_t) ((uint32_t) pop);
+  if (value <= 0) {
+    JVM *jvm = f->jvm;
+    jvm->pc += branchoffset;
+    jvm->jmp = true;
+  }
 }
