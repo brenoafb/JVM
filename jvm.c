@@ -53,6 +53,7 @@ operation optable[N_OPS] = {
 			    [OP_lload_2] = lload_2,
 			    [OP_lload_3] = lload_3,
 			    [OP_iinc] = iinc,
+			    [OP_goto] = goto_func,
 };
 
 int opargs[N_OPS] = {
@@ -817,4 +818,15 @@ void iinc(Frame *f, uint32_t a0, uint32_t a1) {
   int32_t index = a0;
   int32_t c = ((int8_t) a1);
   f->locals[index] += c;
+}
+
+void goto_func(Frame *f, uint32_t a0, uint32_t a1) {
+  int16_t branchoffset = (a0 << 8) | a1;
+  #ifdef DEBUG
+  printf("goto: %d (0x%x)\n", branchoffset, branchoffset);
+  #endif
+
+  JVM *jvm = f->jvm;
+  jvm->pc += branchoffset;
+  jvm->jmp = true;
 }

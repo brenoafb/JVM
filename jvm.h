@@ -135,5 +135,7 @@ void lload_3(Frame *f, uint32_t a0, uint32_t a1);
 
 void iinc(Frame *f, uint32_t a0, uint32_t a1);
 
+void goto_func(Frame *f, uint32_t a0, uint32_t a1);
+
 extern operation optable[N_OPS];
 extern int opargs[N_OPS];
