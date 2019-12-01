@@ -121,5 +121,7 @@ void if_icmple(Frame *f, uint32_t a0, uint32_t a1);
 void lconst_0(Frame *f, uint32_t a0, uint32_t a1);
 void lconst_1(Frame *f, uint32_t a0, uint32_t a1);
 
+void lstore(Frame *f, uint32_t a0, uint32_t a1);
+
 extern operation optable[N_OPS];
 extern int opargs[N_OPS];

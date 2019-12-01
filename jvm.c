@@ -42,6 +42,7 @@ operation optable[N_OPS] = {
 			    [OP_if_icmple] = if_icmple,
 			    [OP_lconst_0] = lconst_0,
 			    [OP_lconst_1] = lconst_1,
+			    [OP_lstore] = lstore,
 };
 
 int opargs[N_OPS] = {
@@ -752,4 +753,12 @@ void lconst_0(Frame *f, uint32_t a0, uint32_t a1) {
 
 void lconst_1(Frame *f, uint32_t a0, uint32_t a1) {
   push_stack_long(f, 1);
+}
+
+void lstore(Frame *f, uint32_t a0, uint32_t a1) {
+  uint64_t long1 = pop_stack(f);
+  uint64_t long2 = pop_stack(f);
+
+  f->locals[a0] = *((int32_t *) (&long1));
+  f->locals[a0+1] = *((int32_t *) (&long2));
 }
