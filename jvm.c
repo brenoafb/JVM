@@ -43,6 +43,10 @@ operation optable[N_OPS] = {
 			    [OP_lconst_0] = lconst_0,
 			    [OP_lconst_1] = lconst_1,
 			    [OP_lstore] = lstore,
+			    [OP_lstore0] = lstore0,
+			    [OP_lstore1] = lstore1,
+			    [OP_lstore2] = lstore2,
+			    [OP_lstore3] = lstore3,
 };
 
 int opargs[N_OPS] = {
@@ -761,4 +765,21 @@ void lstore(Frame *f, uint32_t a0, uint32_t a1) {
 
   f->locals[a0] = *((int32_t *) (&long1));
   f->locals[a0+1] = *((int32_t *) (&long2));
+}
+
+void lstore_0(Frame *f, uint32_t a0, uint32_t a1) {
+  lstore(f, 0, 0);
+}
+
+void lstore_1(Frame *f, uint32_t a0, uint32_t a1) {
+  lstore(f, 1, 0);
+}
+
+
+void lstore_2(Frame *f, uint32_t a0, uint32_t a1) {
+  lstore(f, 2, 0);
+}
+
+void lstore_3(Frame *f, uint32_t a0, uint32_t a1) {
+  lstore(f, 3, 0);
 }
