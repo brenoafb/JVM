@@ -154,6 +154,8 @@ void lload_1(Frame *f, uint32_t a0, uint32_t a1);
 void lload_2(Frame *f, uint32_t a0, uint32_t a1);
 void lload_3(Frame *f, uint32_t a0, uint32_t a1);
 
+void ladd(Frame *f, uint32_t a0, uint32_t a1);
+
 void iinc(Frame *f, uint32_t a0, uint32_t a1);
 
 void goto_func(Frame *f, uint32_t a0, uint32_t a1);
