@@ -56,6 +56,7 @@ operation optable[N_OPS] = {
 			    [OP_lload_1] = lload_1,
 			    [OP_lload_2] = lload_2,
 			    [OP_lload_3] = lload_3,
+			    [OP_ladd] = ladd,
 			    [OP_iinc] = iinc,
 			    [OP_goto] = goto_func,
 };
@@ -492,13 +493,54 @@ void invokevirtual(Frame *f, uint32_t a0, uint32_t a1) {
     #ifdef DEBUG
     printf("dummy: 0x%x\n", dummy);
     #endif
+  } else if (strcmp(name, "print") == 0) {
+    if (strcmp(type, "(Ljava/lang/String;)V") == 0) {
+      /* print string */
+      char *str = pop_stack(f);
+      #ifdef DEBUG
+      printf("print(String): \'%s\'\n", str);
+      #else
+      printf("%s", str);
+      #endif
+
+    } else if (strcmp(type, "(I)V") == 0) {
+      /* print int */
+      uint64_t value = pop_stack(f);
+      int32_t integer = *((int32_t *) (&value));
+
+      #ifdef DEBUG
+      printf("print(Int): %d\n", integer);
+      #else
+      printf("%d", integer);
+      #endif
+    } else if (strcmp(type, "(D)V") == 0) {
+      /* print double */
+      double db = pop_stack_double(f);
+      #ifdef DEBUG
+      printf("print(double): %f\n", db);
+      #else
+      printf("%f", db);
+      #endif
+    } else if (strcmp(type, "(J)V") == 0) {
+      /* print long */
+      int64_t x = pop_stack_long(f);
+      #ifdef DEBUG
+      printf("print(long): %ld\n", x);
+      #else
+      printf("%ld", x);
+      #endif
+    }
+    /* pop getstatic dummy value (view getstatic definition) */
+    uint32_t dummy = pop_stack(f);
+    #ifdef DEBUG
+    printf("dummy: 0x%x\n", dummy);
+    #endif
   }
 
   return;
 }
 
 void invokestatic(Frame *f, uint32_t a0, uint32_t a1) {
-  /* TODO */
   uint32_t index = (a0 << 8) | a1;
   CONSTANT_Methodref_info methodref_info = f->cp[index].info.methodref_info;
   uint16_t class_index = methodref_info.class_index;
@@ -527,7 +569,7 @@ void invokestatic(Frame *f, uint32_t a0, uint32_t a1) {
     Frame *f1 = jvm_peek_frame(jvm);
     int32_t arg = pop_stack(f);
     #ifdef DEBUG
-    printf("invokevirtual: arg = %d (0x%x)\n", arg, arg);
+    printf("invokestatic: arg = %d (0x%x)\n", arg, arg);
     #endif
     f1->locals[0] = arg;
   }
@@ -902,8 +944,8 @@ void lstore_3(Frame *f, uint32_t a0, uint32_t a1) {
 }
 
 void lload(Frame *f, uint32_t a0, uint32_t a1) {
-  uint64_t long1 = *((uint64_t *) (&f->locals[a0]));
-  uint64_t long2 = *((uint64_t *) (&f->locals[a0+1]));
+  uint64_t long1 = f->locals[a0];
+  uint64_t long2 = f->locals[a0+1];
   push_stack(f, long2);
   push_stack(f, long1);
 }
@@ -922,6 +964,13 @@ void lload_2(Frame *f, uint32_t a0, uint32_t a1) {
 
 void lload_3(Frame *f, uint32_t a0, uint32_t a1) {
   lload(f, 3, 0);
+}
+
+void ladd(Frame *f, uint32_t a0, uint32_t a1) {
+  int64_t long_1 = pop_stack_long(f);
+  int64_t long_2 = pop_stack_long(f);
+  int64_t result = long_1 + long_2;
+  push_stack_long(f, result);
 }
 
 void iinc(Frame *f, uint32_t a0, uint32_t a1) {
