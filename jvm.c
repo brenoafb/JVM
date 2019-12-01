@@ -59,6 +59,29 @@ operation optable[N_OPS] = {
 			    [OP_ladd] = ladd,
 			    [OP_iinc] = iinc,
 			    [OP_goto] = goto_func,
+			    [OP_fconst_0] = fconst_0,
+			    [OP_fconst_1] = fconst_1,
+			    [OP_fconst_2] = fconst_2,
+			    [OP_fstore] = fstore,
+			    [OP_fstore_0] = fstore_0,
+			    [OP_fstore_1] = fstore_1,
+			    [OP_fstore_2] = fstore_2,
+			    [OP_fstore_3] = fstore_3,
+			    [OP_fload] = fload,
+			    [OP_fload_0] = fload_0,
+			    [OP_fload_1] = fload_1,
+			    [OP_fload_2] = fload_2,
+			    [OP_fload_3] = fload_3,
+			    [OP_fsub] = fsub,
+			    [OP_fadd] = fadd,
+			    [OP_fdiv] = fdiv,
+			    [OP_ifeq] = ifeq,
+			    [OP_ifne] = ifne,
+			    [OP_iflt] = iflt,
+			    [OP_ifge] = ifge,
+			    [OP_ifgt] = ifgt,
+			    [OP_ifle] = ifle,
+			    [OP_i2f]  = i2f,
 };
 
 int opargs[N_OPS] = {
@@ -101,6 +124,12 @@ int opargs[N_OPS] = {
 		     [OP_jsr] = 2,
 		     [OP_ifnull] = 2,
 		     [OP_ifnonnull] = 2,
+		     [OP_ifeq] = 2,
+		     [OP_ifne] = 2,
+		     [OP_iflt] = 2,
+		     [OP_ifge] = 2,
+		     [OP_ifgt] = 2,
+		     [OP_ifle] = 2,
 		     [OP_multianewarray] = 3,
 		     /*[OP_wide] = 3,*/
 		     [OP_invokeinterface] = 4,
@@ -487,6 +516,14 @@ void invokevirtual(Frame *f, uint32_t a0, uint32_t a1) {
       #else
       printf("%ld\n", x);
       #endif
+    } else if (strcmp(type, "(F)V") == 0) {
+      /* print float */
+      float x = pop_stack_float(f);
+      #ifdef DEBUG
+      printf("println(float): %f\n", x);
+      #else
+      printf("%f\n", x);
+      #endif
     }
     /* pop getstatic dummy value (view getstatic definition) */
     uint32_t dummy = pop_stack(f);
@@ -528,6 +565,14 @@ void invokevirtual(Frame *f, uint32_t a0, uint32_t a1) {
       printf("print(long): %ld\n", x);
       #else
       printf("%ld", x);
+      #endif
+    } else if (strcmp(type, "(F)V") == 0) {
+      /* print float */
+      float x = pop_stack_float(f);
+      #ifdef DEBUG
+      printf("print(float): %f\n", x);
+      #else
+      printf("%f", x);
       #endif
     }
     /* pop getstatic dummy value (view getstatic definition) */
@@ -988,4 +1033,151 @@ void goto_func(Frame *f, uint32_t a0, uint32_t a1) {
   JVM *jvm = f->jvm;
   jvm->pc += branchoffset;
   jvm->jmp = true;
+}
+
+void fconst_0(Frame *f, uint32_t a0, uint32_t a1) {
+  push_stack_float(f, 0.0f);
+}
+
+void fconst_1(Frame *f, uint32_t a0, uint32_t a1) {
+  push_stack_float(f, 1.0f);
+}
+
+void fconst_2(Frame *f, uint32_t a0, uint32_t a1) {
+  push_stack_float(f, 2.0f);
+}
+
+void fstore(Frame *f, uint32_t a0, uint32_t a1) {
+  float x = pop_stack_float(f);
+  f->locals[a0] = *((int32_t *) (&x));
+}
+
+void fstore_0(Frame *f, uint32_t a0, uint32_t a1) {
+  fstore(f, 0, 0);
+}
+
+void fstore_1(Frame *f, uint32_t a0, uint32_t a1) {
+  fstore(f, 1, 0);
+}
+
+void fstore_2(Frame *f, uint32_t a0, uint32_t a1) {
+  fstore(f, 2, 0);
+}
+
+void fstore_3(Frame *f, uint32_t a0, uint32_t a1) {
+  fstore(f, 3, 0);
+}
+
+void fload(Frame *f, uint32_t a0, uint32_t a1) {
+  int32_t local = f->locals[a0];
+  float x = *((float *) (&local));
+  push_stack_float(f, x);
+}
+
+void fload_0(Frame *f, uint32_t a0, uint32_t a1) {
+  fload(f, 0, 0);
+}
+
+void fload_1(Frame *f, uint32_t a0, uint32_t a1) {
+  fload(f, 1, 0);
+}
+
+void fload_2(Frame *f, uint32_t a0, uint32_t a1) {
+  fload(f, 2, 0);
+}
+
+void fload_3(Frame *f, uint32_t a0, uint32_t a1) {
+  fload(f, 3, 0);
+}
+
+void fsub(Frame *f, uint32_t a0, uint32_t a1) {
+  float v1 = pop_stack_float(f);
+  float v2 = pop_stack_float(f);
+  push_stack_float(f, v2 - v1);
+}
+
+void fadd(Frame *f, uint32_t a0, uint32_t a1) {
+  float v1 = pop_stack_float(f);
+  float v2 = pop_stack_float(f);
+  push_stack_float(f, v2 + v1);
+}
+
+void fdiv(Frame *f, uint32_t a0, uint32_t a1) {
+  float v1 = pop_stack_float(f);
+  float v2 = pop_stack_float(f);
+  float div = v2 / v1;
+  push_stack_float(f, div);
+}
+
+void ifeq(Frame *f, uint32_t a0, uint32_t a1) {
+  int16_t branchoffset = (a0 << 8) | a1;
+  uint64_t pop = pop_stack(f);
+  int32_t value = (int32_t) ((uint32_t) pop);
+  if (value == 0) {
+    JVM *jvm = f->jvm;
+    jvm->pc += branchoffset;
+    jvm->jmp = true;
+  }
+}
+
+void ifne(Frame *f, uint32_t a0, uint32_t a1) {
+  int16_t branchoffset = (a0 << 8) | a1;
+  uint64_t pop = pop_stack(f);
+  int32_t value = (int32_t) ((uint32_t) pop);
+  if (value != 0) {
+    JVM *jvm = f->jvm;
+    jvm->pc += branchoffset;
+    jvm->jmp = true;
+  }
+}
+
+void iflt(Frame *f, uint32_t a0, uint32_t a1) {
+  int16_t branchoffset = (a0 << 8) | a1;
+  uint64_t pop = pop_stack(f);
+  int32_t value = (int32_t) ((uint32_t) pop);
+  if (value < 0) {
+    JVM *jvm = f->jvm;
+    jvm->pc += branchoffset;
+    jvm->jmp = true;
+  }
+}
+
+void ifge(Frame *f, uint32_t a0, uint32_t a1) {
+  int16_t branchoffset = (a0 << 8) | a1;
+  uint64_t pop = pop_stack(f);
+  int32_t value = (int32_t) ((uint32_t) pop);
+  if (value >= 0) {
+    JVM *jvm = f->jvm;
+    jvm->pc += branchoffset;
+    jvm->jmp = true;
+  }
+}
+
+void ifgt(Frame *f, uint32_t a0, uint32_t a1) {
+  int16_t branchoffset = (a0 << 8) | a1;
+  uint64_t pop = pop_stack(f);
+  int32_t value = (int32_t) ((uint32_t) pop);
+  if (value > 0) {
+    JVM *jvm = f->jvm;
+    jvm->pc += branchoffset;
+    jvm->jmp = true;
+  }
+}
+
+void ifle(Frame *f, uint32_t a0, uint32_t a1) {
+  int16_t branchoffset = (a0 << 8) | a1;
+  uint64_t pop = pop_stack(f);
+  int32_t value = (int32_t) ((uint32_t) pop);
+  if (value <= 0) {
+    JVM *jvm = f->jvm;
+    jvm->pc += branchoffset;
+    jvm->jmp = true;
+  }
+}
+
+void i2f(Frame *f, uint32_t a0, uint32_t a1) {
+  uint64_t pop = pop_stack(f);
+  int32_t int_value = (int32_t) ((uint32_t) pop);
+  float float_value = (float) int_value;
+  push_stack_float(f, float_value);
 }
