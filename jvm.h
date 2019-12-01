@@ -128,6 +128,10 @@ void lstore_2(Frame *f, uint32_t a0, uint32_t a1);
 void lstore_3(Frame *f, uint32_t a0, uint32_t a1);
 
 void lload(Frame *f, uint32_t a0, uint32_t a1);
+void lload_0(Frame *f, uint32_t a0, uint32_t a1);
+void lload_1(Frame *f, uint32_t a0, uint32_t a1);
+void lload_2(Frame *f, uint32_t a0, uint32_t a1);
+void lload_3(Frame *f, uint32_t a0, uint32_t a1);
 
 extern operation optable[N_OPS];
 extern int opargs[N_OPS];
