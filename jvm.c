@@ -80,6 +80,7 @@ operation optable[N_OPS] = {
 			    [OP_ifge] = ifge,
 			    [OP_ifgt] = ifgt,
 			    [OP_ifle] = ifle,
+			    [OP_i2f]  = i2f,
 };
 
 int opargs[N_OPS] = {
@@ -1142,4 +1143,11 @@ void ifle(Frame *f, uint32_t a0, uint32_t a1) {
     jvm->pc += branchoffset;
     jvm->jmp = true;
   }
+}
+
+void i2f(Frame *f, uint32_t a0, uint32_t a1) {
+  uint64_t pop = pop_stack(f);
+  int32_t int_value = (int32_t) ((uint32_t) pop);
+  float float_value = (float) int_value;
+  push_stack_float(f, float_value);
 }
