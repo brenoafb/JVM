@@ -52,6 +52,7 @@ operation optable[N_OPS] = {
 			    [OP_lload_1] = lload_1,
 			    [OP_lload_2] = lload_2,
 			    [OP_lload_3] = lload_3,
+			    [OP_iinc] = iinc,
 };
 
 int opargs[N_OPS] = {
@@ -810,4 +811,10 @@ void lload_2(Frame *f, uint32_t a0, uint32_t a1) {
 
 void lload_3(Frame *f, uint32_t a0, uint32_t a1) {
   lload(f, 3, 0);
+}
+
+void iinc(Frame *f, uint32_t a0, uint32_t a1) {
+  int32_t index = a0;
+  int32_t c = ((int8_t) a1);
+  f->locals[index] += c;
 }
