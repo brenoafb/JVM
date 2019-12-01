@@ -944,8 +944,8 @@ void lstore_3(Frame *f, uint32_t a0, uint32_t a1) {
 }
 
 void lload(Frame *f, uint32_t a0, uint32_t a1) {
-  uint64_t long1 = *((uint64_t *) (&f->locals[a0]));
-  uint64_t long2 = *((uint64_t *) (&f->locals[a0+1]));
+  uint64_t long1 = f->locals[a0];
+  uint64_t long2 = f->locals[a0+1];
   push_stack(f, long2);
   push_stack(f, long1);
 }
