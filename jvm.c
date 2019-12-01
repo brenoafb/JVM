@@ -700,14 +700,14 @@ void dadd(Frame *f, uint32_t a0, uint32_t a1) {
 void dsub(Frame *f, uint32_t a0, uint32_t a1) {
   double d1 = pop_stack_double(f);
   double d2 = pop_stack_double(f);
-  double result = d1 - d2;
+  double result = d2 - d1;
   push_stack_double(f, result);
 }
 
 void ddiv(Frame *f, uint32_t a0, uint32_t a1) {
   double d1 = pop_stack_double(f);
   double d2 = pop_stack_double(f);
-  double result = d1 / d2;
+  double result = d2 / d1;
   push_stack_double(f, result);
 }
 
@@ -726,8 +726,8 @@ void dneg(Frame *f, uint32_t a0, uint32_t a1) {
 void drem(Frame *f, uint32_t a0, uint32_t a1) {
   double d1 = pop_stack_double(f);
   double d2 = pop_stack_double(f);
-  int q = d1/d2;
-  double result = d1 - (d2 * q);
+  int q = d2/d1;
+  double result = d2 - (d1 * q);
   push_stack_double(f, result);
 }
 
