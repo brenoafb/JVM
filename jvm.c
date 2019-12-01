@@ -124,6 +124,12 @@ int opargs[N_OPS] = {
 		     [OP_jsr] = 2,
 		     [OP_ifnull] = 2,
 		     [OP_ifnonnull] = 2,
+		     [OP_ifeq] = 2,
+		     [OP_ifne] = 2,
+		     [OP_iflt] = 2,
+		     [OP_ifge] = 2,
+		     [OP_ifgt] = 2,
+		     [OP_ifle] = 2,
 		     [OP_multianewarray] = 3,
 		     /*[OP_wide] = 3,*/
 		     [OP_invokeinterface] = 4,
@@ -510,6 +516,14 @@ void invokevirtual(Frame *f, uint32_t a0, uint32_t a1) {
       #else
       printf("%ld\n", x);
       #endif
+    } else if (strcmp(type, "(F)V") == 0) {
+      /* print float */
+      float x = pop_stack_float(f);
+      #ifdef DEBUG
+      printf("println(float): %f\n", x);
+      #else
+      printf("%f\n", x);
+      #endif
     }
     /* pop getstatic dummy value (view getstatic definition) */
     uint32_t dummy = pop_stack(f);
@@ -551,6 +565,14 @@ void invokevirtual(Frame *f, uint32_t a0, uint32_t a1) {
       printf("print(long): %ld\n", x);
       #else
       printf("%ld", x);
+      #endif
+    } else if (strcmp(type, "(F)V") == 0) {
+      /* print float */
+      float x = pop_stack_float(f);
+      #ifdef DEBUG
+      printf("print(float): %f\n", x);
+      #else
+      printf("%f", x);
       #endif
     }
     /* pop getstatic dummy value (view getstatic definition) */
@@ -1071,19 +1093,20 @@ void fload_3(Frame *f, uint32_t a0, uint32_t a1) {
 void fsub(Frame *f, uint32_t a0, uint32_t a1) {
   float v1 = pop_stack_float(f);
   float v2 = pop_stack_float(f);
-  push_stack(f, v2 - v1);
+  push_stack_float(f, v2 - v1);
 }
 
 void fadd(Frame *f, uint32_t a0, uint32_t a1) {
   float v1 = pop_stack_float(f);
   float v2 = pop_stack_float(f);
-  push_stack(f, v2 + v1);
+  push_stack_float(f, v2 + v1);
 }
 
 void fdiv(Frame *f, uint32_t a0, uint32_t a1) {
   float v1 = pop_stack_float(f);
   float v2 = pop_stack_float(f);
-  push_stack(f, v2 / v1);
+  float div = v2 / v1;
+  push_stack_float(f, div);
 }
 
 void ifeq(Frame *f, uint32_t a0, uint32_t a1) {
