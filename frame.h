@@ -53,3 +53,6 @@ double frame_get_local_double(Frame *f, uint32_t index);
 
 void frame_set_local_float(Frame *f, uint32_t index, float value);
 float frame_get_local_float(Frame *f, uint32_t index);
+
+void frame_set_local_long(Frame *f, uint32_t index, int64_t value);
+int64_t frame_get_local_float(Frame *f, uint32_t index);
