@@ -98,6 +98,11 @@ operation optable[N_OPS] = {
 			    [OP_aload_1] = aload_1,
 			    [OP_aload_2] = aload_2,
 			    [OP_aload_3] = aload_3,
+			    [OP_astore] = astore,
+			    [OP_astore_0] = astore_0,
+			    [OP_astore_1] = astore_1,
+			    [OP_astore_2] = astore_2,
+			    [OP_astore_3] = astore_3,
 };
 
 int opargs[N_OPS] = {
@@ -1262,4 +1267,26 @@ void aload_2(Frame *f, uint32_t a0, uint32_t a1) {
 
 void aload_3(Frame *f, uint32_t a0, uint32_t a1) {
   aload(f, 3, 0);
+}
+
+void astore(Frame *f, uint32_t a0, uint32_t a1) {
+  /* TODO */
+  void *ref = pop_stack_pointer(f);
+  frame_set_local_pointer(f, a0, ref);
+}
+
+void astore_0(Frame *f, uint32_t a0, uint32_t a1) {
+  astore(f, 0, 0);
+}
+
+void astore_1(Frame *f, uint32_t a0, uint32_t a1) {
+  astore(f, 1, 0);
+}
+
+void astore_2(Frame *f, uint32_t a0, uint32_t a1) {
+  astore(f, 2, 0);
+}
+
+void astore_3(Frame *f, uint32_t a0, uint32_t a1) {
+  astore(f, 3, 0);
 }
