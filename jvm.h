@@ -231,6 +231,7 @@ void astore_3(Frame *f, uint32_t a0, uint32_t a1);
 
 void newarray(Frame *f, uint32_t a0, uint32_t a1);
 void iastore(Frame *f, uint32_t a0, uint32_t a1);
+void iaload(Frame *f, uint32_t a0, uint32_t a1);
 
 extern operation optable[N_OPS];
 extern int opargs[N_OPS];
