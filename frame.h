@@ -9,7 +9,7 @@
 typedef struct Frame {
   void *jvm;               /* pointer to respective jvm reference  */
   uint32_t n_locals;       /* computed at compile time             */
-  int64_t *locals;         /* array of local variables             */
+  uint64_t *locals;         /* array of local variables            */
   uint32_t n_operands;     /* computed at compile time             */
   uint64_t *operands;      /* stack of operands                    */
   uint32_t i;              /* top of stack index                   */
@@ -41,3 +41,6 @@ int32_t pop_stack_int(Frame *f);
 
 void push_stack_pointer(Frame *f, void *ptr);
 void *pop_stack_pointer(Frame *f);
+
+void frame_set_local(Frame *f, uint64_t value, uint32_t index);
+uint64_t frame_get_local(Frame *f, uint32_t index);
