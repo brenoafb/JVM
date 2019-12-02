@@ -117,7 +117,7 @@ int32_t frame_get_local_int(Frame *f, uint32_t index) {
 
 void frame_set_local_double(Frame *f, uint32_t index, double value) {
   uint64_t x = *((uint64_t *) (& value));
-  frame_set_local(f, x, index);
+  frame_set_local(f, index, x);
 }
 
 double frame_get_local_double(Frame *f, uint32_t index) {
@@ -127,7 +127,7 @@ double frame_get_local_double(Frame *f, uint32_t index) {
 
 void frame_set_local_float(Frame *f, uint32_t index, float value) {
   uint64_t x = *((uint64_t *) (& value));
-  frame_set_local(f, x, index);
+  frame_set_local(f, index, x);
 }
 
 float frame_get_local_float(Frame *f, uint32_t index) {
@@ -137,7 +137,7 @@ float frame_get_local_float(Frame *f, uint32_t index) {
 
 void frame_set_local_long(Frame *f, uint32_t index, int64_t value) {
   uint64_t x = *((uint64_t *) (& value));
-  frame_set_local(f, x, index);
+  frame_set_local(f, index, x);
 }
 
 int64_t frame_get_local_long(Frame *f, uint32_t index) {
