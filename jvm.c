@@ -43,6 +43,8 @@ operation optable[N_OPS] = {
 			    [OP_iconst_1] = iconst_1,
 			    [OP_iconst_2] = iconst_2,
 			    [OP_iconst_3] = iconst_3,
+			    [OP_iconst_4] = iconst_4,
+			    [OP_iconst_5] = iconst_5,
 			    [OP_if_icmpeq] = if_icmpeq,
 			    [OP_if_icmpne] = if_icmpne,
 			    [OP_if_icmplt] = if_icmplt,
@@ -103,6 +105,8 @@ operation optable[N_OPS] = {
 			    [OP_astore_1] = astore_1,
 			    [OP_astore_2] = astore_2,
 			    [OP_astore_3] = astore_3,
+			    [OP_newarray] = newarray,
+			    [OP_iastore] = iastore,
 };
 
 int opargs[N_OPS] = {
@@ -510,6 +514,7 @@ void ireturn(Frame *f, uint32_t a0, uint32_t a1) {
 void invokevirtual(Frame *f, uint32_t a0, uint32_t a1) {
   uint32_t index = (a0 << 8) | a1;
   CONSTANT_Methodref_info methodref_info = f->cp[index].info.methodref_info;
+  uint16_t class_index = methodref_info.class_index;
   uint16_t name_and_type_index = methodref_info.name_and_type_index;
   char *name = get_name_and_type_string(f->cp, name_and_type_index, 1);
   char *type = get_name_and_type_string(f->cp, name_and_type_index, 0);
@@ -883,6 +888,14 @@ void iconst_2(Frame *f, uint32_t a0, uint32_t a1) {
 
 void iconst_3(Frame *f, uint32_t a0, uint32_t a1) {
   push_stack_int(f, 3);
+}
+
+void iconst_4(Frame *f, uint32_t a0, uint32_t a1) {
+  push_stack_int(f, 4);
+}
+
+void iconst_5(Frame *f, uint32_t a0, uint32_t a1) {
+  push_stack_int(f, 5);
 }
 
 void if_icmpeq(Frame *f, uint32_t a0, uint32_t a1) {
@@ -1302,7 +1315,7 @@ void astore_3(Frame *f, uint32_t a0, uint32_t a1) {
 
 void newarray(Frame *f, uint32_t a0, uint32_t a1) {
   /* TODO */
-  uint64_t count = pop_stack(f);
+  int32_t count = pop_stack_int(f);
   size_t size = 0;
   switch (a0) {
     case T_BOOLEAN:
@@ -1338,4 +1351,12 @@ void newarray(Frame *f, uint32_t a0, uint32_t a1) {
   jvm_add_to_heap(jvm, mem);
 
   push_stack_pointer(f, mem);
+}
+
+void iastore(Frame *f, uint32_t a0, uint32_t a1) {
+  int32_t value = pop_stack_int(f);
+  int32_t index = pop_stack_int(f);
+  void *arrayref = pop_stack_pointer(f);
+
+  memcpy(arrayref + index*sizeof(int32_t), &value, sizeof(int32_t));
 }
