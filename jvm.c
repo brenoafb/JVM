@@ -272,14 +272,10 @@ int jvm_cycle(JVM *jvm) {
   if (jvm->ret) {
     /* free called method's frame */
     jvm_pop_frame(jvm);
-
-    /* restore context */
-    Frame *f = jvm_peek_frame(jvm);
-    jvm->pc = f->pc;
-    jvm->current_class_index = f->class_index;
-    jvm->current_method_index = f->method_index;
+    jvm_restore_context(jvm);
+    /* Push return value to callee's operand stack */
     if (opcode != OP_return) push_stack(f, jvm->retval);
-
+    /* reset flag */
     jvm->ret = false;
   }
 
@@ -347,6 +343,13 @@ void jvm_save_context(JVM *jvm) {
   f->pc = jvm->pc + 2;
   f->class_index = jvm->current_class_index;
   f->method_index = jvm->current_method_index;
+}
+
+void jvm_restore_context(JVM *jvm) {
+  Frame *f = jvm_peek_frame(jvm);
+  jvm->pc = f->pc;
+  jvm->current_class_index = f->class_index;
+  jvm->current_method_index = f->method_index;
 }
 
 void nop(Frame *f, uint32_t a0, uint32_t a1) {

@@ -82,6 +82,9 @@ int jvm_in_main(JVM *jvm);
 /* Save current frame context */
 void jvm_save_context(JVM *jvm);
 
+/* Restore context to previous frame (callee) */
+void jvm_restore_context(JVM *jvm);
+
 typedef void (*operation)(Frame *, uint32_t, uint32_t);
 
 void nop(Frame *f, uint32_t a0, uint32_t a1);
