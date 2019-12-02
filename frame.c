@@ -95,7 +95,7 @@ void *pop_stack_pointer(Frame *f) {
   return (void *) pop;
 }
 
-void frame_set_local(Frame *f, uint32_t index, uint64_t value);
+void frame_set_local(Frame *f, uint32_t index, uint64_t value) {
   assert(index < f->n_locals);
   f->locals[index] = value;
 }
