@@ -170,6 +170,7 @@ void init_jvm(JVM *jvm) {
   jvm->current_method_index = -1;
   jvm->jmp = false;
   jvm->ret = false;
+  jvm->heap_index = -1;
 }
 
 void deinit_jvm(JVM *jvm) {
@@ -177,6 +178,10 @@ void deinit_jvm(JVM *jvm) {
   free(jvm->method_area);
   while (jvm_peek_frame(jvm)) {
     jvm_pop_frame(jvm);
+  }
+
+  while (jvm->heap_index >= 0) {
+    free(jvm->heap[(jvm->heap_index)--]);
   }
 }
 
@@ -373,6 +378,10 @@ void jvm_restore_context(JVM *jvm) {
   jvm->pc = f->pc;
   jvm->current_class_index = f->class_index;
   jvm->current_method_index = f->method_index;
+}
+
+void jvm_add_to_heap(JVM *jvm, void *ptr) {
+  jvm->heap[++(jvm->heap_index)] = ptr;
 }
 
 void nop(Frame *f, uint32_t a0, uint32_t a1) {
@@ -1326,7 +1335,7 @@ void newarray(Frame *f, uint32_t a0, uint32_t a1) {
 
   void *mem = calloc(size, count);
   JVM *jvm = f->jvm;
-  jvm_add_to_heap(jvm, heap);
+  jvm_add_to_heap(jvm, mem);
 
   push_stack_pointer(f, mem);
 }

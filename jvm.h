@@ -26,6 +26,7 @@ typedef struct JVM {
   uint64_t retval;
 
   void *heap[MAXHEAP];
+  int32_t heap_index;
 } JVM;
 
 void init_jvm(JVM *jvm);
@@ -87,6 +88,9 @@ void jvm_save_context(JVM *jvm);
 
 /* Restore context to previous frame (callee) */
 void jvm_restore_context(JVM *jvm);
+
+/* Add new pointer to jvm's heap table */
+void jvm_add_to_heap(JVM *jvm, void *ptr);
 
 typedef void (*operation)(Frame *, uint32_t, uint32_t);
 
