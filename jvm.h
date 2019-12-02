@@ -10,6 +10,7 @@
 #include "opcodes.h"
 
 #define MAX_FRAMES 32
+#define MAXHEAP    256
 
 typedef struct JVM {
   uint32_t pc;
@@ -23,6 +24,8 @@ typedef struct JVM {
   bool jmp;
   bool ret;
   uint64_t retval;
+
+  void *heap[MAXHEAP];
 } JVM;
 
 void init_jvm(JVM *jvm);
