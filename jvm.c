@@ -1244,7 +1244,8 @@ void sipush(Frame *f, uint32_t a0, uint32_t a1) {
 }
 
 void aload(Frame *f, uint32_t a0, uint32_t a1) {
-  return;
+  void *ref = frame_get_local_pointer(f, a0);
+  push_stack_pointer(f, ref);
 }
 
 void aload_0(Frame *f, uint32_t a0, uint32_t a1) {
