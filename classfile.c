@@ -1,5 +1,4 @@
 #include "classfile.h"
-#define DEBUG1
 
 void read_class_file(classfile *cf, FILE *fp) {
   assert(cf);
@@ -414,7 +413,7 @@ void read_innerclasses_attribute(InnerClasses_attribute *ptr, FILE *fp) {
     ptr->classes[i].inner_name_index = read_u2(fp);
     ptr->classes[i].inner_class_access_flags = read_u2(fp);
 
-  #ifdef DEBUG1
+  #ifdef DEBUG
     printf("\t\t\t0x%04x\t0x%04x\t0x%04x\t0x%04x\n", ptr->classes[i].inner_class_info_index,
      ptr->classes[i].outer_class_info_index,
      ptr->classes[i].inner_name_index,
@@ -742,9 +741,48 @@ void print_code_attribute(Code_attribute *ptr, cp_info *cp) {
     printf("\t\t stack=%d, locals=%d\n",
 	   ptr->max_stack,
 	   ptr->max_locals);
-    uint32_t i;
+    uint32_t i, f, param1, param2;
+    int16_t result;
     for (i = 0; i < ptr->code_length; i++) {
-      printf("\t\t %d\t%s\t(0x%x)\n", i, strings_opcodes[ptr->code[i]] ,ptr->code[i]);
+      f = i;
+      printf("\t\t %d\t%s", i, strings_opcodes[ptr->code[i]]);
+      switch (opargs[ptr->code[i]]){
+        case 1:
+          if ((ptr->code[i] >= OP_iload && ptr->code[i] >= OP_aload) || ptr->code[i] == OP_ret)
+            printf (" LocalVariable: #%d", ptr->code[++i]);
+          else if (ptr->code[i] == OP_ldc)
+            printf (" CPcode : #%u", ptr->code[++i]);
+          else 
+            printf (" %d", ptr->code[++i]);
+          break;
+        case 2:
+          param1 = ptr->code[++i];
+          param2 = ptr->code[++i];
+          if ((ptr->code[i] >= OP_ifeq && ptr->code[++i] <= OP_jsr) || 
+            ptr->code[++i] == OP_ifnull || ptr->code[++i] == OP_ifnonnull) {
+            result = (int16_t) (param1 << 8 + param2);
+            printf (" %d, result");
+          }
+          else if (ptr->code[++i] == OP_iinc){
+            printf (" LocalVariable: #%d by %d", ptr->code[++i], (int16_t) ptr->code[++i]);
+          }
+          else {
+            printf (" %d", param1);
+            printf (" %d", param2);
+          }
+          break;
+        case 3:
+          printf (" %d", ptr->code[++i]);
+          printf (" %d", ptr->code[++i]);
+          printf (" %d", ptr->code[++i]);
+          break;
+        case 0:
+          break;
+        default:
+          break;
+      }
+
+      printf("\t(0x%x)\n", ptr->code[f]);
     }
 
     for (i = 0; i < ptr->attributes_count; i++) {

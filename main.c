@@ -22,7 +22,7 @@ int main(int argc, char *argv[]) {
   classfile cf = {0};
   JVM memory = {0};
   read_class_file(&cf, fp);
-  /* print_class_file_detail(&cf); */
+  print_class_file_detail(&cf);
 
   if (argc > 2) {
     init_jvm(&memory);
