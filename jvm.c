@@ -87,6 +87,7 @@ operation optable[N_OPS] = {
 			    [OP_i2c] = i2c,
 			    [OP_i2l] = i2l,
 			    [OP_i2s] = i2s,
+			    [OP_sipush] = sipush,
 };
 
 int opargs[N_OPS] = {
@@ -1233,12 +1234,18 @@ void i2c(Frame *f, uint32_t a0, uint32_t a1) {
 }
 
 void i2l(Frame *f, uint32_t a0, uint32_t a1) {
-  /* TODO */
   int32_t intval = pop_stack_int(f);
   int64_t longval = (int64_t) intval;
   push_stack_long(f, longval);
 }
 
 void i2s(Frame *f, uint32_t a0, uint32_t a1) {
-  /* TODO */
+  int32_t intval = pop_stack_int(f);
+  int16_t truncated = intval;
+  int32_t result = truncated;
+  push_stack_int(f, result);
+}
+
+void sipush(Frame *f, uint32_t a0, uint32_t a1) {
+
 }
