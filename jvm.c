@@ -272,14 +272,13 @@ int jvm_cycle(JVM *jvm) {
   if (jvm->ret) {
     /* free called method's frame */
     jvm_pop_frame(jvm);
-
-    /* restore context */
-    Frame *f = jvm_peek_frame(jvm);
-    jvm->pc = f->pc;
-    jvm->current_class_index = f->class_index;
-    jvm->current_method_index = f->method_index;
-    if (opcode != OP_return) push_stack(f, jvm->retval);
-
+    jvm_restore_context(jvm);
+    /* Push return value to callee's operand stack */
+    if (opcode != OP_return) {
+      Frame *f = jvm_peek_frame(jvm);
+      push_stack(f, jvm->retval);
+    }
+    /* reset flag */
     jvm->ret = false;
   }
 
@@ -340,6 +339,20 @@ void jvm_run_method(JVM *jvm) {
 int jvm_in_main(JVM *jvm) {
   char *str = jvm_get_current_method_name(jvm);
   return strcmp(str, "main") == 0;
+}
+
+void jvm_save_context(JVM *jvm) {
+  Frame *f = jvm_peek_frame(jvm);
+  f->pc = jvm->pc + 2;
+  f->class_index = jvm->current_class_index;
+  f->method_index = jvm->current_method_index;
+}
+
+void jvm_restore_context(JVM *jvm) {
+  Frame *f = jvm_peek_frame(jvm);
+  jvm->pc = f->pc;
+  jvm->current_class_index = f->class_index;
+  jvm->current_method_index = f->method_index;
 }
 
 void nop(Frame *f, uint32_t a0, uint32_t a1) {
@@ -601,11 +614,7 @@ void invokestatic(Frame *f, uint32_t a0, uint32_t a1) {
 #endif
   JVM *jvm = f->jvm;
 
-  /* save context variables */
-  f->pc = jvm->pc + 2;
-  f->class_index = jvm->current_class_index;
-  f->method_index = jvm->current_method_index;
-
+  jvm_save_context(jvm);
   jvm_load_class(jvm, class_name);
   jvm_set_current_class(jvm, class_name);
   jvm_set_current_method(jvm, method_name);
