@@ -95,6 +95,16 @@ void *pop_stack_pointer(Frame *f) {
   return (void *) pop;
 }
 
+void push_stack_byte(Frame *f, int8_t x) {
+  uint64_t push = *((uint64_t *) (&x));
+  push_stack(f, push);
+}
+
+int8_t pop_stack_byte(Frame *f) {
+  uint64_t pop = pop_stack(f);
+  return *((int8_t *) &pop);
+}
+
 void frame_set_local(Frame *f, uint32_t index, uint64_t value) {
   assert(index < f->n_locals);
   f->locals[index] = value;

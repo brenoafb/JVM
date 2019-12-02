@@ -43,6 +43,8 @@ operation optable[N_OPS] = {
 			    [OP_iconst_1] = iconst_1,
 			    [OP_iconst_2] = iconst_2,
 			    [OP_iconst_3] = iconst_3,
+			    [OP_iconst_4] = iconst_4,
+			    [OP_iconst_5] = iconst_5,
 			    [OP_if_icmpeq] = if_icmpeq,
 			    [OP_if_icmpne] = if_icmpne,
 			    [OP_if_icmplt] = if_icmplt,
@@ -103,6 +105,15 @@ operation optable[N_OPS] = {
 			    [OP_astore_1] = astore_1,
 			    [OP_astore_2] = astore_2,
 			    [OP_astore_3] = astore_3,
+			    [OP_newarray] = newarray,
+			    [OP_iastore] = iastore,
+			    [OP_iaload] = iaload,
+			    [OP_fastore] = fastore,
+			    [OP_faload] = faload,
+			    [OP_lastore] = lastore,
+			    [OP_laload] = laload,
+			    [OP_bastore] = bastore,
+			    [OP_baload] = baload,
 };
 
 int opargs[N_OPS] = {
@@ -170,6 +181,7 @@ void init_jvm(JVM *jvm) {
   jvm->current_method_index = -1;
   jvm->jmp = false;
   jvm->ret = false;
+  jvm->heap_index = -1;
 }
 
 void deinit_jvm(JVM *jvm) {
@@ -177,6 +189,10 @@ void deinit_jvm(JVM *jvm) {
   free(jvm->method_area);
   while (jvm_peek_frame(jvm)) {
     jvm_pop_frame(jvm);
+  }
+
+  while (jvm->heap_index >= 0) {
+    free(jvm->heap[(jvm->heap_index)--]);
   }
 }
 
@@ -375,6 +391,10 @@ void jvm_restore_context(JVM *jvm) {
   jvm->current_method_index = f->method_index;
 }
 
+void jvm_add_to_heap(JVM *jvm, void *ptr) {
+  jvm->heap[++(jvm->heap_index)] = ptr;
+}
+
 void nop(Frame *f, uint32_t a0, uint32_t a1) {
   /* do nothing */
   return;
@@ -501,6 +521,7 @@ void ireturn(Frame *f, uint32_t a0, uint32_t a1) {
 void invokevirtual(Frame *f, uint32_t a0, uint32_t a1) {
   uint32_t index = (a0 << 8) | a1;
   CONSTANT_Methodref_info methodref_info = f->cp[index].info.methodref_info;
+  uint16_t class_index = methodref_info.class_index;
   uint16_t name_and_type_index = methodref_info.name_and_type_index;
   char *name = get_name_and_type_string(f->cp, name_and_type_index, 1);
   char *type = get_name_and_type_string(f->cp, name_and_type_index, 0);
@@ -874,6 +895,14 @@ void iconst_2(Frame *f, uint32_t a0, uint32_t a1) {
 
 void iconst_3(Frame *f, uint32_t a0, uint32_t a1) {
   push_stack_int(f, 3);
+}
+
+void iconst_4(Frame *f, uint32_t a0, uint32_t a1) {
+  push_stack_int(f, 4);
+}
+
+void iconst_5(Frame *f, uint32_t a0, uint32_t a1) {
+  push_stack_int(f, 5);
 }
 
 void if_icmpeq(Frame *f, uint32_t a0, uint32_t a1) {
@@ -1289,4 +1318,129 @@ void astore_2(Frame *f, uint32_t a0, uint32_t a1) {
 
 void astore_3(Frame *f, uint32_t a0, uint32_t a1) {
   astore(f, 3, 0);
+}
+
+void newarray(Frame *f, uint32_t a0, uint32_t a1) {
+  /* TODO */
+  int32_t count = pop_stack_int(f);
+  size_t size = 0;
+  switch (a0) {
+    case T_BOOLEAN:
+      size = sizeof(uint8_t);
+      break;
+    case T_CHAR:
+      size = sizeof(uint16_t);
+      break;
+    case T_FLOAT:
+      size = sizeof(float);
+      break;
+    case T_DOUBLE:
+      size = sizeof(double);
+      break;
+    case T_BYTE:
+      size = sizeof(int8_t);
+      break;
+    case T_SHORT:
+      size = sizeof(int16_t);
+      break;
+    case T_INT:
+      size = sizeof(uint32_t);
+      break;
+    case T_LONG:
+      size = sizeof(int64_t);
+      break;
+    default:
+      break;
+  }
+
+  void *mem = calloc(size, count);
+  JVM *jvm = f->jvm;
+  jvm_add_to_heap(jvm, mem);
+
+  push_stack_pointer(f, mem);
+}
+
+void iastore(Frame *f, uint32_t a0, uint32_t a1) {
+  int32_t value = pop_stack_int(f);
+  int32_t index = pop_stack_int(f);
+  void *arrayref = pop_stack_pointer(f);
+
+  memcpy(arrayref + index*sizeof(int32_t), &value, sizeof(int32_t));
+}
+
+void iaload(Frame *f, uint32_t a0, uint32_t a1) {
+  int32_t index = pop_stack_int(f);
+  void *arrayref = pop_stack_pointer(f);
+  int32_t value = 0;
+
+  memcpy(&value, arrayref + index*sizeof(int32_t), sizeof(int32_t));
+  push_stack_int(f, value);
+}
+
+void fastore(Frame *f, uint32_t a0, uint32_t a1) {
+  float value = pop_stack_float(f);
+  int32_t index = pop_stack_int(f);
+  void *arrayref = pop_stack_pointer(f);
+
+  memcpy(arrayref + index*sizeof(float), &value, sizeof(float));
+}
+
+void faload(Frame *f, uint32_t a0, uint32_t a1) {
+  int32_t index = pop_stack_int(f);
+  void *arrayref = pop_stack_pointer(f);
+  float value = 0;
+
+  memcpy(&value, arrayref + index*sizeof(float), sizeof(float));
+  push_stack_float(f, value);
+}
+
+void lastore(Frame *f, uint32_t a0, uint32_t a1) {
+  int64_t value = pop_stack_long(f);
+  int32_t index = pop_stack_int(f);
+  void *arrayref = pop_stack_pointer(f);
+
+  memcpy(arrayref + index*sizeof(int64_t), &value, sizeof(int64_t));
+}
+
+void laload(Frame *f, uint32_t a0, uint32_t a1) {
+  int32_t index = pop_stack_int(f);
+  void *arrayref = pop_stack_pointer(f);
+  int64_t value = 0;
+
+  memcpy(&value, arrayref + index*sizeof(int64_t), sizeof(int64_t));
+  push_stack_long(f, value);
+}
+
+void dastore(Frame *f, uint32_t a0, uint32_t a1) {
+  double value = pop_stack_double(f);
+  int32_t index = pop_stack_int(f);
+  void *arrayref = pop_stack_pointer(f);
+
+  memcpy(arrayref + index*sizeof(double), &value, sizeof(double));
+}
+
+void daload(Frame *f, uint32_t a0, uint32_t a1) {
+  int32_t index = pop_stack_int(f);
+  void *arrayref = pop_stack_pointer(f);
+  double value = 0;
+
+  memcpy(&value, arrayref + index*sizeof(double), sizeof(double));
+  push_stack_double(f, value);
+}
+
+void bastore(Frame *f, uint32_t a0, uint32_t a1) {
+  int8_t value = pop_stack_byte(f);
+  int32_t index = pop_stack_int(f);
+  void *arrayref = pop_stack_pointer(f);
+
+  memcpy(arrayref + index*sizeof(int8_t), &value, sizeof(int8_t));
+}
+
+void baload(Frame *f, uint32_t a0, uint32_t a1) {
+  int32_t index = pop_stack_int(f);
+  void *arrayref = pop_stack_pointer(f);
+  int8_t value = 0;
+
+  memcpy(&value, arrayref + index*sizeof(int8_t), sizeof(int8_t));
+  push_stack_byte(f, value);
 }
