@@ -1290,3 +1290,43 @@ void astore_2(Frame *f, uint32_t a0, uint32_t a1) {
 void astore_3(Frame *f, uint32_t a0, uint32_t a1) {
   astore(f, 3, 0);
 }
+
+void newarray(Frame *f, uint32_t a0, uint32_t a1) {
+  /* TODO */
+  uint64_t count = pop_stack(f);
+  size_t size = 0;
+  switch (a0) {
+    case T_BOOLEAN:
+      size = sizeof(uint8_t);
+      break;
+    case T_CHAR:
+      size = sizeof(uint16_t);
+      break;
+    case T_FLOAT:
+      size = sizeof(float);
+      break;
+    case T_DOUBLE:
+      size = sizeof(double);
+      break;
+    case T_BYTE:
+      size = sizeof(int8_t);
+      break;
+    case T_SHORT:
+      size = sizeof(int16_t);
+      break;
+    case T_INT:
+      size = sizeof(uint32_t);
+      break;
+    case T_LONG:
+      size = sizeof(int64_t);
+      break;
+    default:
+      break;
+  }
+
+  void *mem = calloc(size, count);
+  JVM *jvm = f->jvm;
+  jvm_add_to_heap(jvm, heap);
+
+  push_stack_pointer(f, mem);
+}
