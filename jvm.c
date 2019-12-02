@@ -108,6 +108,8 @@ operation optable[N_OPS] = {
 			    [OP_newarray] = newarray,
 			    [OP_iastore] = iastore,
 			    [OP_iaload] = iaload,
+			    [OP_fastore] = fastore,
+			    [OP_faload] = faload,
 };
 
 int opargs[N_OPS] = {
@@ -1369,4 +1371,22 @@ void iaload(Frame *f, uint32_t a0, uint32_t a1) {
 
   memcpy(&value, arrayref + index*sizeof(int32_t), sizeof(int32_t));
   push_stack_int(f, value);
+}
+
+void fastore(Frame *f, uint32_t a0, uint32_t a1) {
+  /* TODO */
+  float value = pop_stack_float(f);
+  int32_t index = pop_stack_int(f);
+  void *arrayref = pop_stack_pointer(f);
+
+  memcpy(arrayref + index*sizeof(float), &value, sizeof(float));
+}
+
+void faload(Frame *f, uint32_t a0, uint32_t a1) {
+  int32_t index = pop_stack_int(f);
+  void *arrayref = pop_stack_pointer(f);
+  float value = 0;
+
+  memcpy(&value, arrayref + index*sizeof(float), sizeof(float));
+  push_stack_float(f, value);
 }
