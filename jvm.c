@@ -112,8 +112,8 @@ operation optable[N_OPS] = {
 			    [OP_faload] = faload,
 			    [OP_lastore] = lastore,
 			    [OP_laload] = laload,
-			    [OP_dastore] = dastore,
-			    [OP_daload] = daload,
+			    [OP_bastore] = bastore,
+			    [OP_baload] = baload,
 };
 
 int opargs[N_OPS] = {
@@ -1426,4 +1426,21 @@ void daload(Frame *f, uint32_t a0, uint32_t a1) {
 
   memcpy(&value, arrayref + index*sizeof(double), sizeof(double));
   push_stack_double(f, value);
+}
+
+void bastore(Frame *f, uint32_t a0, uint32_t a1) {
+  int8_t value = pop_stack_byte(f);
+  int32_t index = pop_stack_int(f);
+  void *arrayref = pop_stack_pointer(f);
+
+  memcpy(arrayref + index*sizeof(int8_t), &value, sizeof(int8_t));
+}
+
+void baload(Frame *f, uint32_t a0, uint32_t a1) {
+  int32_t index = pop_stack_int(f);
+  void *arrayref = pop_stack_pointer(f);
+  int8_t value = 0;
+
+  memcpy(&value, arrayref + index*sizeof(int8_t), sizeof(int8_t));
+  push_stack_byte(f, value);
 }
