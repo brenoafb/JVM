@@ -93,6 +93,11 @@ operation optable[N_OPS] = {
 			    [OP_i2l] = i2l,
 			    [OP_i2s] = i2s,
 			    [OP_sipush] = sipush,
+			    [OP_aload] = aload,
+			    [OP_aload_0] = aload_0
+			    [OP_aload_1] = aload_1
+			    [OP_aload_2] = aload_2
+			    [OP_aload_3] = aload_3
 };
 
 int opargs[N_OPS] = {
@@ -1302,4 +1307,24 @@ void i2s(Frame *f, uint32_t a0, uint32_t a1) {
 void sipush(Frame *f, uint32_t a0, uint32_t a1) {
   int16_t sh = (a0 << 8) | a1;
   push_stack_int(f, sh);
+}
+
+void aload(Frame *f, uint32_t a0, uint32_t a1) {
+
+}
+
+void aload_0(Frame *f, uint32_t a0, uint32_t a1) {
+  aload(f, 0);
+}
+
+void aload_1(Frame *f, uint32_t a0, uint32_t a1) {
+  aload(f, 1);
+}
+
+void aload_2(Frame *f, uint32_t a0, uint32_t a1) {
+  aload(f, 2);
+}
+
+void aload_3(Frame *f, uint32_t a0, uint32_t a1) {
+  aload(f, 3);
 }
