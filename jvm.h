@@ -10,6 +10,7 @@
 #include "opcodes.h"
 
 #define MAX_FRAMES 32
+#define MAXHEAP    256
 
 typedef struct JVM {
   uint32_t pc;
@@ -23,6 +24,9 @@ typedef struct JVM {
   bool jmp;
   bool ret;
   uint64_t retval;
+
+  void *heap[MAXHEAP];
+  int32_t heap_index;
 } JVM;
 
 void init_jvm(JVM *jvm);
@@ -85,6 +89,9 @@ void jvm_save_context(JVM *jvm);
 /* Restore context to previous frame (callee) */
 void jvm_restore_context(JVM *jvm);
 
+/* Add new pointer to jvm's heap table */
+void jvm_add_to_heap(JVM *jvm, void *ptr);
+
 typedef void (*operation)(Frame *, uint32_t, uint32_t);
 
 void nop(Frame *f, uint32_t a0, uint32_t a1);
@@ -92,6 +99,7 @@ void nop(Frame *f, uint32_t a0, uint32_t a1);
 void ldc(Frame *f, uint32_t a0, uint32_t a1);
 
 void istore(Frame *f, uint32_t a0, uint32_t a1);
+void istore_0(Frame *f, uint32_t a0, uint32_t a1);
 void istore_1(Frame *f, uint32_t a0, uint32_t a1);
 void istore_2(Frame *f, uint32_t a0, uint32_t a1);
 void istore_3(Frame *f, uint32_t a0, uint32_t a1);
@@ -116,10 +124,14 @@ void getstatic(Frame *f, uint32_t a0, uint32_t a1);
 void ldc_w(Frame *f, uint32_t a0, uint32_t a1);
 void ldc2_w(Frame *f, uint32_t a0, uint32_t a1);
 
+void dstore(Frame *f, uint32_t a0, uint32_t a1);
+void dstore_0(Frame *f, uint32_t a0, uint32_t a1);
 void dstore_1(Frame *f, uint32_t a0, uint32_t a1);
 void dstore_2(Frame *f, uint32_t a0, uint32_t a1);
 void dstore_3(Frame *f, uint32_t a0, uint32_t a1);
 
+void dload(Frame *f, uint32_t a0, uint32_t a1);
+void dload_0(Frame *f, uint32_t a0, uint32_t a1);
 void dload_1(Frame *f, uint32_t a0, uint32_t a1);
 void dload_2(Frame *f, uint32_t a0, uint32_t a1);
 void dload_3(Frame *f, uint32_t a0, uint32_t a1);
@@ -137,6 +149,8 @@ void iconst_0(Frame *f, uint32_t a0, uint32_t a1);
 void iconst_1(Frame *f, uint32_t a0, uint32_t a1);
 void iconst_2(Frame *f, uint32_t a0, uint32_t a1);
 void iconst_3(Frame *f, uint32_t a0, uint32_t a1);
+void iconst_4(Frame *f, uint32_t a0, uint32_t a1);
+void iconst_5(Frame *f, uint32_t a0, uint32_t a1);
 void iconst_m1(Frame *f, uint32_t a0, uint32_t a1);
 
 void if_icmpeq(Frame *f, uint32_t a0, uint32_t a1);
@@ -205,6 +219,33 @@ void i2s(Frame *f, uint32_t a0, uint32_t a1);
 void sipush(Frame *f, uint32_t a0, uint32_t a1);
 
 int tableswitch(JVM *jvm);
+void aload(Frame *f, uint32_t a0, uint32_t a1);
+void aload_0(Frame *f, uint32_t a0, uint32_t a1);
+void aload_1(Frame *f, uint32_t a0, uint32_t a1);
+void aload_2(Frame *f, uint32_t a0, uint32_t a1);
+void aload_3(Frame *f, uint32_t a0, uint32_t a1);
+
+void astore(Frame *f, uint32_t a0, uint32_t a1);
+void astore_0(Frame *f, uint32_t a0, uint32_t a1);
+void astore_1(Frame *f, uint32_t a0, uint32_t a1);
+void astore_2(Frame *f, uint32_t a0, uint32_t a1);
+void astore_3(Frame *f, uint32_t a0, uint32_t a1);
+
+void newarray(Frame *f, uint32_t a0, uint32_t a1);
+void iastore(Frame *f, uint32_t a0, uint32_t a1);
+void iaload(Frame *f, uint32_t a0, uint32_t a1);
+
+void fastore(Frame *f, uint32_t a0, uint32_t a1);
+void faload(Frame *f, uint32_t a0, uint32_t a1);
+
+void lastore(Frame *f, uint32_t a0, uint32_t a1);
+void laload(Frame *f, uint32_t a0, uint32_t a1);
+
+void dastore(Frame *f, uint32_t a0, uint32_t a1);
+void daload(Frame *f, uint32_t a0, uint32_t a1);
+
+void bastore(Frame *f, uint32_t a0, uint32_t a1);
+void baload(Frame *f, uint32_t a0, uint32_t a1);
 
 extern operation optable[N_OPS];
 extern int opargs[N_OPS];
