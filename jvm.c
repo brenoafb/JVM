@@ -1203,7 +1203,10 @@ void i2d(Frame *f, uint32_t a0, uint32_t a1) {
 }
 
 void i2b(Frame *f, uint32_t a0, uint32_t a1) {
-  /* TODO */
+  int32_t intval = pop_stack_int(f);
+  int8_t truncated = intval;
+  int32_t result = truncated;
+  push_stack_int(f, result);
 }
 
 void i2c(Frame *f, uint32_t a0, uint32_t a1) {
