@@ -542,6 +542,14 @@ void invokevirtual(Frame *f, uint32_t a0, uint32_t a1) {
       #else
       printf("%f\n", x);
       #endif
+    } else if (strcmp(type, "(C)V") == 0) {
+      /* print char */
+      uint16_t ch = pop_stack(f);
+      #ifdef DEBUG
+      printf("println(char): %c\n", ch);
+      #else
+      printf("%c\n", ch);
+      #endif
     }
     /* pop getstatic dummy value (view getstatic definition) */
     uint32_t dummy = pop_stack(f);
@@ -591,6 +599,14 @@ void invokevirtual(Frame *f, uint32_t a0, uint32_t a1) {
       printf("print(float): %f\n", x);
       #else
       printf("%f", x);
+      #endif
+    } else if (strcmp(type, "(C)V") == 0) {
+      /* print char */
+      uint16_t ch = pop_stack(f);
+      #ifdef DEBUG
+      printf("print(char): %c\n", ch);
+      #else
+      printf("%c", ch);
       #endif
     }
     /* pop getstatic dummy value (view getstatic definition) */
