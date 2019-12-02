@@ -114,3 +114,13 @@ int32_t frame_get_local_int(Frame *f, uint32_t index) {
   uint64_t x = frame_get_local(f, index);
   return *((int32_t *) (&x));
 }
+
+void frame_set_local_double(Frame *f, uint32_t index, double value) {
+  uint64_t x = *((uint64_t *) (& value));
+  frame_set_local(f, x, index);
+}
+
+double frame_get_local_double(Frame *f, uint32_t index) {
+  uint64_t x = frame_get_local(f, index);
+  return *((double *) (&x));
+}

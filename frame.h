@@ -47,3 +47,6 @@ uint64_t frame_get_local(Frame *f, uint32_t index);
 
 void frame_set_local_int(Frame *f, uint32_t index, int32_t value);
 int32_t frame_get_local_int(Frame *f, uint32_t index);
+
+void frame_set_local_double(Frame *f, uint32_t index, double value);
+double frame_get_local_double(Frame *f, uint32_t index);
