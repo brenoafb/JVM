@@ -83,6 +83,11 @@ operation optable[N_OPS] = {
 			    [OP_ifle] = ifle,
 			    [OP_i2f]  = i2f,
 			    [OP_i2d]  = i2d,
+			    [OP_i2b] = i2b,
+			    [OP_i2c] = i2c,
+			    [OP_i2l] = i2l,
+			    [OP_i2s] = i2s,
+			    [OP_sipush] = sipush,
 };
 
 int opargs[N_OPS] = {
@@ -538,6 +543,14 @@ void invokevirtual(Frame *f, uint32_t a0, uint32_t a1) {
       #else
       printf("%f\n", x);
       #endif
+    } else if (strcmp(type, "(C)V") == 0) {
+      /* print char */
+      uint16_t ch = pop_stack(f);
+      #ifdef DEBUG
+      printf("println(char): %c\n", ch);
+      #else
+      printf("%c\n", ch);
+      #endif
     }
     /* pop getstatic dummy value (view getstatic definition) */
     uint32_t dummy = pop_stack(f);
@@ -587,6 +600,14 @@ void invokevirtual(Frame *f, uint32_t a0, uint32_t a1) {
       printf("print(float): %f\n", x);
       #else
       printf("%f", x);
+      #endif
+    } else if (strcmp(type, "(C)V") == 0) {
+      /* print char */
+      uint16_t ch = pop_stack(f);
+      #ifdef DEBUG
+      printf("print(char): %c\n", ch);
+      #else
+      printf("%c", ch);
       #endif
     }
     /* pop getstatic dummy value (view getstatic definition) */
@@ -1196,4 +1217,36 @@ void i2d(Frame *f, uint32_t a0, uint32_t a1) {
   int32_t int_value = pop_stack_int(f);
   double double_value = (double) int_value;
   push_stack_double(f, double_value);
+}
+
+void i2b(Frame *f, uint32_t a0, uint32_t a1) {
+  int32_t intval = pop_stack_int(f);
+  int8_t truncated = intval;
+  int32_t result = truncated;
+  push_stack_int(f, result);
+}
+
+void i2c(Frame *f, uint32_t a0, uint32_t a1) {
+  int32_t intval = pop_stack_int(f);
+  uint16_t truncated = intval;
+  int32_t result = truncated;
+  push_stack_int(f, result);
+}
+
+void i2l(Frame *f, uint32_t a0, uint32_t a1) {
+  int32_t intval = pop_stack_int(f);
+  int64_t longval = (int64_t) intval;
+  push_stack_long(f, longval);
+}
+
+void i2s(Frame *f, uint32_t a0, uint32_t a1) {
+  int32_t intval = pop_stack_int(f);
+  int16_t truncated = intval;
+  int32_t result = truncated;
+  push_stack_int(f, result);
+}
+
+void sipush(Frame *f, uint32_t a0, uint32_t a1) {
+  int16_t sh = (a0 << 8) | a1;
+  push_stack_int(f, sh);
 }

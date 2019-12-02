@@ -194,8 +194,14 @@ void ifgt(Frame *f, uint32_t a0, uint32_t a1);
 void ifle(Frame *f, uint32_t a0, uint32_t a1);
 
 void i2f(Frame *f, uint32_t a0, uint32_t a1);
-
 void i2d(Frame *f, uint32_t a0, uint32_t a1);
+
+void i2b(Frame *f, uint32_t a0, uint32_t a1);
+void i2c(Frame *f, uint32_t a0, uint32_t a1);
+void i2l(Frame *f, uint32_t a0, uint32_t a1);
+void i2s(Frame *f, uint32_t a0, uint32_t a1);
+
+void sipush(Frame *f, uint32_t a0, uint32_t a1);
 
 extern operation optable[N_OPS];
 extern int opargs[N_OPS];
