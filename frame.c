@@ -144,3 +144,12 @@ int64_t frame_get_local_long(Frame *f, uint32_t index) {
   uint64_t x = frame_get_local(f, index);
   return *((int64_t *) (&x));
 }
+
+void frame_set_local_pointer(Frame *f, uint32_t index, void *value) {
+  frame_set_local(f, index, ((uint64_t) value));
+}
+
+void* frame_get_local_pointer(Frame *f, uint32_t index) {
+  uint64_t x = frame_get_local(f, index);
+  return *((void **) (&x));
+}
