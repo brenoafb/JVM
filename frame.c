@@ -95,7 +95,7 @@ void *pop_stack_pointer(Frame *f) {
   return (void *) pop;
 }
 
-void frame_set_local(Frame *f, uint64_t value, uint32_t index) {
+void frame_set_local(Frame *f, uint32_t index, uint64_t value);
   assert(index < f->n_locals);
   f->locals[index] = value;
 }
@@ -103,4 +103,14 @@ void frame_set_local(Frame *f, uint64_t value, uint32_t index) {
 uint64_t frame_get_local(Frame *f, uint32_t index) {
   assert(index < f->n_locals);
   return f->locals[index];
+}
+
+void frame_set_local_int(Frame *f, uint32_t index, int32_t value) {
+  uint64_t x = *((uint64_t *) (& value));
+  frame_set_local(f, x, index);
+}
+
+int32_t frame_get_local_int(Frame *f, uint32_t index) {
+  uint64_t x = frame_get_local(f, index);
+  return *((int32_t *) (&x));
 }
