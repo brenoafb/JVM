@@ -83,6 +83,10 @@ operation optable[N_OPS] = {
 			    [OP_ifle] = ifle,
 			    [OP_i2f]  = i2f,
 			    [OP_i2d]  = i2d,
+			    [OP_i2b] = i2b,
+			    [OP_i2c] = i2c,
+			    [OP_i2l] = i2l,
+			    [OP_i2s] = i2s,
 };
 
 int opargs[N_OPS] = {
@@ -1196,4 +1200,20 @@ void i2d(Frame *f, uint32_t a0, uint32_t a1) {
   int32_t int_value = pop_stack_int(f);
   double double_value = (double) int_value;
   push_stack_double(f, double_value);
+}
+
+void i2b(Frame *f, uint32_t a0, uint32_t a1) {
+  /* TODO */
+}
+
+void i2c(Frame *f, uint32_t a0, uint32_t a1) {
+  /* TODO */
+}
+
+void i2l(Frame *f, uint32_t a0, uint32_t a1) {
+  /* TODO */
+}
+
+void i2s(Frame *f, uint32_t a0, uint32_t a1) {
+  /* TODO */
 }
