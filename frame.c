@@ -74,3 +74,14 @@ float pop_stack_float(Frame *f) {
   uint32_t hex = pop_stack(f);
   return *((float *) (& hex));
 }
+
+void push_stack_int(Frame *f, int32_t x) {
+  uint64_t push = *((uint64_t *) (&x));
+  push_stack(f, push);
+}
+
+int32_t pop_stack_int(Frame *f) {
+  uint64_t pop = pop_stack(f);
+  int32_t int_value = *((int32_t *) (&pop));
+  return int_value;
+}
