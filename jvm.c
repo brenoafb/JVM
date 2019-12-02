@@ -342,6 +342,13 @@ int jvm_in_main(JVM *jvm) {
   return strcmp(str, "main") == 0;
 }
 
+void jvm_save_context(JVM *jvm) {
+  Frame *f = jvm_peek_frame(jvm);
+  f->pc = jvm->pc + 2;
+  f->class_index = jvm->current_class_index;
+  f->method_index = jvm->current_method_index;
+}
+
 void nop(Frame *f, uint32_t a0, uint32_t a1) {
   /* do nothing */
   return;
@@ -601,10 +608,7 @@ void invokestatic(Frame *f, uint32_t a0, uint32_t a1) {
 #endif
   JVM *jvm = f->jvm;
 
-  /* save context variables */
-  f->pc = jvm->pc + 2;
-  f->class_index = jvm->current_class_index;
-  f->method_index = jvm->current_method_index;
+  jvm_save_context(jvm);
 
   jvm_load_class(jvm, class_name);
   jvm_set_current_class(jvm, class_name);
