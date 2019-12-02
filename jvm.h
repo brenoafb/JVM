@@ -137,6 +137,7 @@ void iconst_0(Frame *f, uint32_t a0, uint32_t a1);
 void iconst_1(Frame *f, uint32_t a0, uint32_t a1);
 void iconst_2(Frame *f, uint32_t a0, uint32_t a1);
 void iconst_3(Frame *f, uint32_t a0, uint32_t a1);
+void iconst_m1(Frame *f, uint32_t a0, uint32_t a1);
 
 void if_icmpeq(Frame *f, uint32_t a0, uint32_t a1);
 void if_icmpne(Frame *f, uint32_t a0, uint32_t a1);
