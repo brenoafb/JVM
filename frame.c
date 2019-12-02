@@ -107,7 +107,7 @@ uint64_t frame_get_local(Frame *f, uint32_t index) {
 
 void frame_set_local_int(Frame *f, uint32_t index, int32_t value) {
   uint64_t x = *((uint64_t *) (& value));
-  frame_set_local(f, x, index);
+  frame_set_local(f, index, x);
 }
 
 int32_t frame_get_local_int(Frame *f, uint32_t index) {
