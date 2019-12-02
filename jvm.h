@@ -151,6 +151,7 @@ void iconst_2(Frame *f, uint32_t a0, uint32_t a1);
 void iconst_3(Frame *f, uint32_t a0, uint32_t a1);
 void iconst_4(Frame *f, uint32_t a0, uint32_t a1);
 void iconst_5(Frame *f, uint32_t a0, uint32_t a1);
+void iconst_m1(Frame *f, uint32_t a0, uint32_t a1);
 
 void if_icmpeq(Frame *f, uint32_t a0, uint32_t a1);
 void if_icmpne(Frame *f, uint32_t a0, uint32_t a1);
@@ -217,6 +218,7 @@ void i2s(Frame *f, uint32_t a0, uint32_t a1);
 
 void sipush(Frame *f, uint32_t a0, uint32_t a1);
 
+int tableswitch(JVM *jvm);
 void aload(Frame *f, uint32_t a0, uint32_t a1);
 void aload_0(Frame *f, uint32_t a0, uint32_t a1);
 void aload_1(Frame *f, uint32_t a0, uint32_t a1);
