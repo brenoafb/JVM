@@ -412,61 +412,53 @@ void ldc(Frame *f, uint32_t a0, uint32_t a1) {
 void istore(Frame *f, uint32_t a0, uint32_t a1) {
   /* store int into local variable a0 */
   int32_t op = pop_stack(f);
-  f->locals[a0] = op;
+  frame_set_local_int(f, a0, op);
 }
 
 void istore_0(Frame *f, uint32_t a0, uint32_t a1) {
   /* store int into local variable 0 */
-  int32_t op = pop_stack(f);
-  f->locals[0] = op;
+  istore(f, 0, 0);
 }
 
 void istore_1(Frame *f, uint32_t a0, uint32_t a1) {
   /* store int into local variable 1 */
-  int32_t op = pop_stack(f);
-  f->locals[1] = op;
+  istore(f, 1, 0);
 }
 
 void istore_2(Frame *f, uint32_t a0, uint32_t a1) {
   /* store int into local variable 2 */
-  int32_t op = pop_stack(f);
-  f->locals[2] = op;
+  istore(f, 2, 0);
 }
 
 void istore_3(Frame *f, uint32_t a0, uint32_t a1) {
   /* store int into local variable 3 */
-  int32_t op = pop_stack(f);
-  f->locals[3] = op;
+  istore(f, 3, 0);
 }
 
 void iload(Frame *f, uint32_t a0, uint32_t a1) {
   /* Load int from local variable a0 */
-  int32_t op = f->locals[a0];
+  int32_t op = frame_get_local_int(f, a0);
   push_stack(f, op);
 }
 
 void iload_0(Frame *f, uint32_t a0, uint32_t a1) {
   /* Load int from local variable 0 */
-  int32_t op = f->locals[0];
-  push_stack(f, op);
+  iload(f, 0, 0);
 }
 
 void iload_1(Frame *f, uint32_t a0, uint32_t a1) {
   /* Load int from local variable 1 */
-  int32_t op = f->locals[1];
-  push_stack(f, op);
+  iload(f, 1, 0);
 }
 
 void iload_2(Frame *f, uint32_t a0, uint32_t a1) {
   /* Load int from local variable 2 */
-  int32_t op = f->locals[2];
-  push_stack(f, op);
+  iload(f, 2, 0);
 }
 
 void iload_3(Frame *f, uint32_t a0, uint32_t a1) {
   /* Load int from local variable 3 */
-  int32_t op = f->locals[3];
-  push_stack(f, op);
+  iload(f, 3, 0);
 }
 
 void iadd(Frame *f, uint32_t a0, uint32_t a1) {
