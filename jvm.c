@@ -4,7 +4,7 @@ operation optable[N_OPS] = {
 			    [OP_nop] = nop,
 			    [OP_ldc] = ldc,
 			    [OP_istore] = istore,
-          [OP_istore_0] = istore_0,
+	  [OP_istore_0] = istore_0,
 			    [OP_istore_1] = istore_1,
 			    [OP_istore_2] = istore_2,
 			    [OP_istore_3] = istore_3,
@@ -22,13 +22,13 @@ operation optable[N_OPS] = {
 			    [OP_getstatic] = getstatic,
 			    [OP_ldc_w] = ldc_w,
 			    [OP_ldc2_w] = ldc2_w,
-          [OP_dstore] = dstore,
-          [OP_dstore_0] = dstore_0,
+	  [OP_dstore] = dstore,
+	  [OP_dstore_0] = dstore_0,
 			    [OP_dstore_1] = dstore_1,
 			    [OP_dstore_2] = dstore_2,
 			    [OP_dstore_3] = dstore_3,
-          [OP_dload] = dload,
-          [OP_dload_0] = dload_0,
+	  [OP_dload] = dload,
+	  [OP_dload_0] = dload_0,
 			    [OP_dload_1] = dload_1,
 			    [OP_dload_2] = dload_2,
 			    [OP_dload_3] = dload_3,
@@ -398,7 +398,7 @@ void ldc(Frame *f, uint32_t a0, uint32_t a1) {
     printf("Push \'%s\' from cp\n", str);
 #endif
 
-    push_stack(f, str);
+    push_stack_pointer(f, str);
   default:
     break;
   }
@@ -499,7 +499,6 @@ void ireturn(Frame *f, uint32_t a0, uint32_t a1) {
 void invokevirtual(Frame *f, uint32_t a0, uint32_t a1) {
   uint32_t index = (a0 << 8) | a1;
   CONSTANT_Methodref_info methodref_info = f->cp[index].info.methodref_info;
-  uint16_t class_index = methodref_info.class_index;
   uint16_t name_and_type_index = methodref_info.name_and_type_index;
   char *name = get_name_and_type_string(f->cp, name_and_type_index, 1);
   char *type = get_name_and_type_string(f->cp, name_and_type_index, 0);
@@ -513,7 +512,7 @@ void invokevirtual(Frame *f, uint32_t a0, uint32_t a1) {
   if (strcmp(name, "println") == 0) {
     if (strcmp(type, "(Ljava/lang/String;)V") == 0) {
       /* print string */
-      char *str = pop_stack(f);
+      char *str = pop_stack_pointer(f);
       #ifdef DEBUG
       printf("println(String): \'%s\'\n", str);
       #else
@@ -572,7 +571,7 @@ void invokevirtual(Frame *f, uint32_t a0, uint32_t a1) {
   } else if (strcmp(name, "print") == 0) {
     if (strcmp(type, "(Ljava/lang/String;)V") == 0) {
       /* print string */
-      char *str = pop_stack(f);
+      char *str = pop_stack_pointer(f);
       #ifdef DEBUG
       printf("print(String): \'%s\'\n", str);
       #else
@@ -713,7 +712,7 @@ void ldc_w(Frame *f, uint32_t a0, uint32_t a1) {
     printf("ldc_w: Push \'%s\' from cp\n", str);
 #endif
 
-    push_stack(f, str);
+    push_stack_pointer(f, str);
   default:
     break;
   }
