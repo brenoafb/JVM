@@ -1186,5 +1186,5 @@ void i2f(Frame *f, uint32_t a0, uint32_t a1) {
 void i2d(Frame *f, uint32_t a0, uint32_t a1) {
   int32_t int_value = pop_stack_int(f);
   double double_value = (double) int_value;
-  push_stack_double(double_value);
+  push_stack_double(f, double_value);
 }
