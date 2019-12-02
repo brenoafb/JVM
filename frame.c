@@ -85,3 +85,12 @@ int32_t pop_stack_int(Frame *f) {
   int32_t int_value = *((int32_t *) (&pop));
   return int_value;
 }
+
+void push_stack_pointer(Frame *f, void *ptr) {
+  push_stack(f, (uint64_t) ptr);
+}
+
+void *pop_stack_pointer(Frame *f) {
+  uint64_t pop = pop_stack(f);
+  return (void *) pop;
+}
