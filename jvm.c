@@ -258,57 +258,7 @@ int jvm_cycle(JVM *jvm) {
   #endif
 
   if (opcode == OP_tableswitch) {
-    uint32_t start = jvm->pc-1;
-    /* skip padding */
-    while ((jvm->pc - start) % 4 != 0) jvm->pc++;
-    uint32_t default_bytes = 0;
-    int i;
-    for (i = 0; i < 4; i++) {
-      default_bytes = (default_bytes << 4) | code->code[jvm->pc];
-      jvm->pc++;
-    }
-
-    uint32_t low_bytes = 0;
-    for (i = 0; i < 4; i++) {
-      low_bytes = (low_bytes << 4) | code->code[jvm->pc];
-      jvm->pc++;
-    }
-
-    uint32_t high_bytes = 0;
-    for (i = 0; i < 4; i++) {
-      high_bytes = (high_bytes << 4) | code->code[jvm->pc];
-      jvm->pc++;
-    }
-
-    int32_t def = *((int32_t *) (&default_bytes));
-    int32_t lo = *((int32_t *) (&low_bytes));
-    int32_t hi = *((int32_t *) (&high_bytes));
-
-    printf("tableswitch: def=%d(0x%x), lo=%d(0x%x), hi=%d(0x%x)\n",
-	   def, def,
-	   lo, lo,
-	   hi, hi);
-
-    int32_t offsets[hi-lo+1];
-    for (i = 0; i < hi-lo+1; i++) {
-      uint32_t bytes = 0;
-      int j;
-      for (j = 0; j < 4; j++) {
-	bytes = (bytes << 4) | code->code[jvm->pc];
-	jvm->pc++;
-      }
-      offsets[i] = *((int32_t *) (&bytes));
-      printf("\t%d (0x%x)\n", offsets[i], offsets[i]);
-    }
-
-    int32_t value = pop_stack_int(f);
-    if (value < lo || value > hi) {
-      jvm->pc = start + def + 1;
-    } else {
-      jvm->pc = start + offsets[value - lo] + 1;
-    }
-    printf("\tpc=%d (0x%x)\n", jvm->pc, jvm->pc);
-    return 1;
+    return tableswitch(jvm);
   }
 
   uint32_t a[2];
@@ -1308,4 +1258,69 @@ void i2s(Frame *f, uint32_t a0, uint32_t a1) {
 void sipush(Frame *f, uint32_t a0, uint32_t a1) {
   int16_t sh = (a0 << 8) | a1;
   push_stack_int(f, sh);
+}
+
+int tableswitch(JVM *jvm) {
+  Frame *f = jvm_peek_frame(jvm);
+  method_info *method = jvm_get_current_method(jvm);
+  Code_attribute *code = &method->attributes[0].info.code;
+
+  uint32_t opcode = code->code[jvm->pc];
+    uint32_t start = jvm->pc-1;
+    /* skip padding */
+    while ((jvm->pc - start) % 4 != 0) jvm->pc++;
+    uint32_t default_bytes = 0;
+    int i;
+    for (i = 0; i < 4; i++) {
+      default_bytes = (default_bytes << 4) | code->code[jvm->pc];
+      jvm->pc++;
+    }
+
+    uint32_t low_bytes = 0;
+    for (i = 0; i < 4; i++) {
+      low_bytes = (low_bytes << 4) | code->code[jvm->pc];
+      jvm->pc++;
+    }
+
+    uint32_t high_bytes = 0;
+    for (i = 0; i < 4; i++) {
+      high_bytes = (high_bytes << 4) | code->code[jvm->pc];
+      jvm->pc++;
+    }
+
+    int32_t def = *((int32_t *) (&default_bytes));
+    int32_t lo = *((int32_t *) (&low_bytes));
+    int32_t hi = *((int32_t *) (&high_bytes));
+
+    #ifdef DEBUG
+    printf("tableswitch: def=%d(0x%x), lo=%d(0x%x), hi=%d(0x%x)\n",
+	   def, def,
+	   lo, lo,
+	   hi, hi);
+    #endif
+
+    int32_t offsets[hi-lo+1];
+    for (i = 0; i < hi-lo+1; i++) {
+      uint32_t bytes = 0;
+      int j;
+      for (j = 0; j < 4; j++) {
+	bytes = (bytes << 4) | code->code[jvm->pc];
+	jvm->pc++;
+      }
+      offsets[i] = *((int32_t *) (&bytes));
+      #ifdef DEBUG
+      printf("\t%d (0x%x)\n", offsets[i], offsets[i]);
+      #endif
+    }
+
+    int32_t value = pop_stack_int(f);
+    if (value < lo || value > hi) {
+      jvm->pc = start + def + 1;
+    } else {
+      jvm->pc = start + offsets[value - lo] + 1;
+    }
+    #ifdef DEBUG
+    printf("\tpc=%d (0x%x)\n", jvm->pc, jvm->pc);
+    #endif
+    return 1;
 }
