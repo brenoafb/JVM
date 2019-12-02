@@ -85,3 +85,71 @@ int32_t pop_stack_int(Frame *f) {
   int32_t int_value = *((int32_t *) (&pop));
   return int_value;
 }
+
+void push_stack_pointer(Frame *f, void *ptr) {
+  push_stack(f, (uint64_t) ptr);
+}
+
+void *pop_stack_pointer(Frame *f) {
+  uint64_t pop = pop_stack(f);
+  return (void *) pop;
+}
+
+void frame_set_local(Frame *f, uint32_t index, uint64_t value) {
+  assert(index < f->n_locals);
+  f->locals[index] = value;
+}
+
+uint64_t frame_get_local(Frame *f, uint32_t index) {
+  assert(index < f->n_locals);
+  return f->locals[index];
+}
+
+void frame_set_local_int(Frame *f, uint32_t index, int32_t value) {
+  uint64_t x = *((uint64_t *) (& value));
+  frame_set_local(f, index, x);
+}
+
+int32_t frame_get_local_int(Frame *f, uint32_t index) {
+  uint64_t x = frame_get_local(f, index);
+  return *((int32_t *) (&x));
+}
+
+void frame_set_local_double(Frame *f, uint32_t index, double value) {
+  uint64_t x = *((uint64_t *) (& value));
+  frame_set_local(f, index, x);
+}
+
+double frame_get_local_double(Frame *f, uint32_t index) {
+  uint64_t x = frame_get_local(f, index);
+  return *((double *) (&x));
+}
+
+void frame_set_local_float(Frame *f, uint32_t index, float value) {
+  uint64_t x = *((uint64_t *) (& value));
+  frame_set_local(f, index, x);
+}
+
+float frame_get_local_float(Frame *f, uint32_t index) {
+  uint64_t x = frame_get_local(f, index);
+  return *((float *) (&x));
+}
+
+void frame_set_local_long(Frame *f, uint32_t index, int64_t value) {
+  uint64_t x = *((uint64_t *) (& value));
+  frame_set_local(f, index, x);
+}
+
+int64_t frame_get_local_long(Frame *f, uint32_t index) {
+  uint64_t x = frame_get_local(f, index);
+  return *((int64_t *) (&x));
+}
+
+void frame_set_local_pointer(Frame *f, uint32_t index, void *value) {
+  frame_set_local(f, index, ((uint64_t) value));
+}
+
+void* frame_get_local_pointer(Frame *f, uint32_t index) {
+  uint64_t x = frame_get_local(f, index);
+  return *((void **) (&x));
+}

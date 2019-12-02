@@ -208,5 +208,17 @@ void i2s(Frame *f, uint32_t a0, uint32_t a1);
 
 void sipush(Frame *f, uint32_t a0, uint32_t a1);
 
+void aload(Frame *f, uint32_t a0, uint32_t a1);
+void aload_0(Frame *f, uint32_t a0, uint32_t a1);
+void aload_1(Frame *f, uint32_t a0, uint32_t a1);
+void aload_2(Frame *f, uint32_t a0, uint32_t a1);
+void aload_3(Frame *f, uint32_t a0, uint32_t a1);
+
+void astore(Frame *f, uint32_t a0, uint32_t a1);
+void astore_0(Frame *f, uint32_t a0, uint32_t a1);
+void astore_1(Frame *f, uint32_t a0, uint32_t a1);
+void astore_2(Frame *f, uint32_t a0, uint32_t a1);
+void astore_3(Frame *f, uint32_t a0, uint32_t a1);
+
 extern operation optable[N_OPS];
 extern int opargs[N_OPS];

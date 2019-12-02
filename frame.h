@@ -9,7 +9,7 @@
 typedef struct Frame {
   void *jvm;               /* pointer to respective jvm reference  */
   uint32_t n_locals;       /* computed at compile time             */
-  int32_t *locals;         /* array of local variables             */
+  uint64_t *locals;         /* array of local variables            */
   uint32_t n_operands;     /* computed at compile time             */
   uint64_t *operands;      /* stack of operands                    */
   uint32_t i;              /* top of stack index                   */
@@ -38,3 +38,24 @@ float pop_stack_float(Frame *f);
 
 void push_stack_int(Frame *f, int32_t x);
 int32_t pop_stack_int(Frame *f);
+
+void push_stack_pointer(Frame *f, void *ptr);
+void *pop_stack_pointer(Frame *f);
+
+void frame_set_local(Frame *f, uint32_t index, uint64_t value);
+uint64_t frame_get_local(Frame *f, uint32_t index);
+
+void frame_set_local_int(Frame *f, uint32_t index, int32_t value);
+int32_t frame_get_local_int(Frame *f, uint32_t index);
+
+void frame_set_local_double(Frame *f, uint32_t index, double value);
+double frame_get_local_double(Frame *f, uint32_t index);
+
+void frame_set_local_float(Frame *f, uint32_t index, float value);
+float frame_get_local_float(Frame *f, uint32_t index);
+
+void frame_set_local_long(Frame *f, uint32_t index, int64_t value);
+int64_t frame_get_local_long(Frame *f, uint32_t index);
+
+void frame_set_local_pointer(Frame *f, uint32_t index, void *value);
+void* frame_get_local_pointer(Frame *f, uint32_t index);

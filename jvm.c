@@ -4,7 +4,7 @@ operation optable[N_OPS] = {
 			    [OP_nop] = nop,
 			    [OP_ldc] = ldc,
 			    [OP_istore] = istore,
-          [OP_istore_0] = istore_0,
+	  [OP_istore_0] = istore_0,
 			    [OP_istore_1] = istore_1,
 			    [OP_istore_2] = istore_2,
 			    [OP_istore_3] = istore_3,
@@ -22,13 +22,13 @@ operation optable[N_OPS] = {
 			    [OP_getstatic] = getstatic,
 			    [OP_ldc_w] = ldc_w,
 			    [OP_ldc2_w] = ldc2_w,
-          [OP_dstore] = dstore,
-          [OP_dstore_0] = dstore_0,
+	  [OP_dstore] = dstore,
+	  [OP_dstore_0] = dstore_0,
 			    [OP_dstore_1] = dstore_1,
 			    [OP_dstore_2] = dstore_2,
 			    [OP_dstore_3] = dstore_3,
-          [OP_dload] = dload,
-          [OP_dload_0] = dload_0,
+	  [OP_dload] = dload,
+	  [OP_dload_0] = dload_0,
 			    [OP_dload_1] = dload_1,
 			    [OP_dload_2] = dload_2,
 			    [OP_dload_3] = dload_3,
@@ -93,6 +93,16 @@ operation optable[N_OPS] = {
 			    [OP_i2l] = i2l,
 			    [OP_i2s] = i2s,
 			    [OP_sipush] = sipush,
+			    [OP_aload] = aload,
+			    [OP_aload_0] = aload_0,
+			    [OP_aload_1] = aload_1,
+			    [OP_aload_2] = aload_2,
+			    [OP_aload_3] = aload_3,
+			    [OP_astore] = astore,
+			    [OP_astore_0] = astore_0,
+			    [OP_astore_1] = astore_1,
+			    [OP_astore_2] = astore_2,
+			    [OP_astore_3] = astore_3,
 };
 
 int opargs[N_OPS] = {
@@ -398,7 +408,7 @@ void ldc(Frame *f, uint32_t a0, uint32_t a1) {
     printf("Push \'%s\' from cp\n", str);
 #endif
 
-    push_stack(f, str);
+    push_stack_pointer(f, str);
   default:
     break;
   }
@@ -407,61 +417,53 @@ void ldc(Frame *f, uint32_t a0, uint32_t a1) {
 void istore(Frame *f, uint32_t a0, uint32_t a1) {
   /* store int into local variable a0 */
   int32_t op = pop_stack(f);
-  f->locals[a0] = op;
+  frame_set_local_int(f, a0, op);
 }
 
 void istore_0(Frame *f, uint32_t a0, uint32_t a1) {
   /* store int into local variable 0 */
-  int32_t op = pop_stack(f);
-  f->locals[0] = op;
+  istore(f, 0, 0);
 }
 
 void istore_1(Frame *f, uint32_t a0, uint32_t a1) {
   /* store int into local variable 1 */
-  int32_t op = pop_stack(f);
-  f->locals[1] = op;
+  istore(f, 1, 0);
 }
 
 void istore_2(Frame *f, uint32_t a0, uint32_t a1) {
   /* store int into local variable 2 */
-  int32_t op = pop_stack(f);
-  f->locals[2] = op;
+  istore(f, 2, 0);
 }
 
 void istore_3(Frame *f, uint32_t a0, uint32_t a1) {
   /* store int into local variable 3 */
-  int32_t op = pop_stack(f);
-  f->locals[3] = op;
+  istore(f, 3, 0);
 }
 
 void iload(Frame *f, uint32_t a0, uint32_t a1) {
   /* Load int from local variable a0 */
-  int32_t op = f->locals[a0];
+  int32_t op = frame_get_local_int(f, a0);
   push_stack(f, op);
 }
 
 void iload_0(Frame *f, uint32_t a0, uint32_t a1) {
   /* Load int from local variable 0 */
-  int32_t op = f->locals[0];
-  push_stack(f, op);
+  iload(f, 0, 0);
 }
 
 void iload_1(Frame *f, uint32_t a0, uint32_t a1) {
   /* Load int from local variable 1 */
-  int32_t op = f->locals[1];
-  push_stack(f, op);
+  iload(f, 1, 0);
 }
 
 void iload_2(Frame *f, uint32_t a0, uint32_t a1) {
   /* Load int from local variable 2 */
-  int32_t op = f->locals[2];
-  push_stack(f, op);
+  iload(f, 2, 0);
 }
 
 void iload_3(Frame *f, uint32_t a0, uint32_t a1) {
   /* Load int from local variable 3 */
-  int32_t op = f->locals[3];
-  push_stack(f, op);
+  iload(f, 3, 0);
 }
 
 void iadd(Frame *f, uint32_t a0, uint32_t a1) {
@@ -499,7 +501,6 @@ void ireturn(Frame *f, uint32_t a0, uint32_t a1) {
 void invokevirtual(Frame *f, uint32_t a0, uint32_t a1) {
   uint32_t index = (a0 << 8) | a1;
   CONSTANT_Methodref_info methodref_info = f->cp[index].info.methodref_info;
-  uint16_t class_index = methodref_info.class_index;
   uint16_t name_and_type_index = methodref_info.name_and_type_index;
   char *name = get_name_and_type_string(f->cp, name_and_type_index, 1);
   char *type = get_name_and_type_string(f->cp, name_and_type_index, 0);
@@ -513,7 +514,7 @@ void invokevirtual(Frame *f, uint32_t a0, uint32_t a1) {
   if (strcmp(name, "println") == 0) {
     if (strcmp(type, "(Ljava/lang/String;)V") == 0) {
       /* print string */
-      char *str = pop_stack(f);
+      char *str = pop_stack_pointer(f);
       #ifdef DEBUG
       printf("println(String): \'%s\'\n", str);
       #else
@@ -572,7 +573,7 @@ void invokevirtual(Frame *f, uint32_t a0, uint32_t a1) {
   } else if (strcmp(name, "print") == 0) {
     if (strcmp(type, "(Ljava/lang/String;)V") == 0) {
       /* print string */
-      char *str = pop_stack(f);
+      char *str = pop_stack_pointer(f);
       #ifdef DEBUG
       printf("print(String): \'%s\'\n", str);
       #else
@@ -713,7 +714,7 @@ void ldc_w(Frame *f, uint32_t a0, uint32_t a1) {
     printf("ldc_w: Push \'%s\' from cp\n", str);
 #endif
 
-    push_stack(f, str);
+    push_stack_pointer(f, str);
   default:
     break;
   }
@@ -757,108 +758,56 @@ void ldc2_w(Frame *f, uint32_t a0, uint32_t a1) {
 
 void dstore(Frame *f, uint32_t a0, uint32_t a1) {
   /* store a double into local variable a0 and a0 + 1 */
-  uint64_t half_n_1 = pop_stack(f);
-  uint64_t half_n_2 = pop_stack(f);
-
-  memcpy(f->locals + a0, &half_n_1, 4);
-  memcpy(f->locals + a0 + 1, &half_n_2, 4);
-
-  return;
+  double d = pop_stack_double(f);
+  frame_set_local_double(f, a0, d);
+  /* placeholder (doubles don't need 2 slots in this implementation */
+  frame_set_local_double(f, a1, d);
 }
 
 void dstore_0(Frame *f, uint32_t a0, uint32_t a1) {
   /* store a double into local variable 0 and 1 */
-  uint64_t half_n_1 = pop_stack(f);
-  uint64_t half_n_2 = pop_stack(f);
-
-  memcpy(f->locals + 0, &half_n_1, 4);
-  memcpy(f->locals + 1, &half_n_2, 4);
-
-  return;
+  dstore(f, 0, 0);
 }
 
 void dstore_1(Frame *f, uint32_t a0, uint32_t a1) {
   /* store a double into local variable 1 and 2 */
-  uint64_t half_n_1 = pop_stack(f);
-  uint64_t half_n_2 = pop_stack(f);
-
-  memcpy(f->locals + 1, &half_n_1, 4);
-  memcpy(f->locals + 2, &half_n_2, 4);
-
-  return;
+  dstore(f, 1, 0);
 }
 
 void dstore_2(Frame *f, uint32_t a0, uint32_t a1) {
   /* store a double into local variable 2 and 3 */
-  uint64_t half_n_1 = pop_stack(f);
-  uint64_t half_n_2 = pop_stack(f);
-
-  memcpy(f->locals + 2, &half_n_1, 4);
-  memcpy(f->locals + 3, &half_n_2, 4);
-  return;
+  dstore(f, 2, 0);
 }
 
 void dstore_3(Frame *f, uint32_t a0, uint32_t a1) {
   /* store a double into local variable 3 and 4 */
-  uint64_t half_n_1 = pop_stack(f);
-  uint64_t half_n_2 = pop_stack(f);
-
-  memcpy(f->locals + 3, &half_n_1, 4);
-  memcpy(f->locals + 4, &half_n_2, 4);
-  return;
+  dstore(f, 3, 0);
 }
 
 void dload(Frame *f, uint32_t a0, uint32_t a1) {
   /* load double from local variable a0 and a0 + 1*/
-  uint64_t half_n_1 = f->locals[a0];
-  uint64_t half_n_2 = f->locals[a0 + 1];
-
-  push_stack(f, half_n_2);
-  push_stack(f, half_n_1);
-
-  return;
+  double d = frame_get_local_double(f, a0);
+  push_stack_double(f, d);
 }
 
 void dload_0(Frame *f, uint32_t a0, uint32_t a1) {
   /* load double from local variable 0 and 1*/
-  uint64_t half_n_1 = f->locals[0];
-  uint64_t half_n_2 = f->locals[1];
-
-  push_stack(f, half_n_2);
-  push_stack(f, half_n_1);
-
-  return;
+  dload(f, 0, 0);
 }
 
 void dload_1(Frame *f, uint32_t a0, uint32_t a1) {
   /* load double from local variable 1 and 2*/
-  uint64_t half_n_1 = f->locals[1];
-  uint64_t half_n_2 = f->locals[2];
-
-  push_stack(f, half_n_2);
-  push_stack(f, half_n_1);
-
-  return;
+  dload(f, 1, 0);
 }
 
 void dload_2(Frame *f, uint32_t a0, uint32_t a1) {
   /* load double from local variable 2 and 3*/
-  uint64_t half_n_1 = f->locals[2];
-  uint64_t half_n_2 = f->locals[3];
-
-  push_stack(f, half_n_2);
-  push_stack(f, half_n_1);
-  return;
+  dload(f, 2, 0);
 }
 
 void dload_3(Frame *f, uint32_t a0, uint32_t a1) {
   /* load double from local variable 3 and 4*/
-  uint64_t half_n_1 = f->locals[3];
-  uint64_t half_n_2 = f->locals[4];
-
-  push_stack(f, half_n_2);
-  push_stack(f, half_n_1);
-  return;
+  dload(f, 3, 0);
 }
 
 
@@ -912,19 +861,19 @@ void bipush(Frame *f, uint32_t a0, uint32_t a1) {
 }
 
 void iconst_0(Frame *f, uint32_t a0, uint32_t a1) {
-  push_stack(f, 0);
+  push_stack_int(f, 0);
 }
 
 void iconst_1(Frame *f, uint32_t a0, uint32_t a1) {
-  push_stack(f, 1);
+  push_stack_int(f, 1);
 }
 
 void iconst_2(Frame *f, uint32_t a0, uint32_t a1) {
-  push_stack(f, 2);
+  push_stack_int(f, 2);
 }
 
 void iconst_3(Frame *f, uint32_t a0, uint32_t a1) {
-  push_stack(f, 3);
+  push_stack_int(f, 3);
 }
 
 void if_icmpeq(Frame *f, uint32_t a0, uint32_t a1) {
@@ -1050,11 +999,8 @@ void lconst_1(Frame *f, uint32_t a0, uint32_t a1) {
 }
 
 void lstore(Frame *f, uint32_t a0, uint32_t a1) {
-  uint64_t long1 = pop_stack(f);
-  uint64_t long2 = pop_stack(f);
-
-  f->locals[a0] = *((int32_t *) (&long1));
-  f->locals[a0+1] = *((int32_t *) (&long2));
+  int64_t x = pop_stack_long(f);
+  frame_set_local_long(f, a0, x);
 }
 
 void lstore_0(Frame *f, uint32_t a0, uint32_t a1) {
@@ -1074,10 +1020,8 @@ void lstore_3(Frame *f, uint32_t a0, uint32_t a1) {
 }
 
 void lload(Frame *f, uint32_t a0, uint32_t a1) {
-  uint64_t long1 = f->locals[a0];
-  uint64_t long2 = f->locals[a0+1];
-  push_stack(f, long2);
-  push_stack(f, long1);
+  int64_t x = frame_get_local_long(f, a0);
+  push_stack_long(f, x);
 }
 
 void lload_0(Frame *f, uint32_t a0, uint32_t a1) {
@@ -1134,7 +1078,7 @@ void fconst_2(Frame *f, uint32_t a0, uint32_t a1) {
 
 void fstore(Frame *f, uint32_t a0, uint32_t a1) {
   float x = pop_stack_float(f);
-  f->locals[a0] = *((int32_t *) (&x));
+  frame_set_local_float(f, a0, x);
 }
 
 void fstore_0(Frame *f, uint32_t a0, uint32_t a1) {
@@ -1154,8 +1098,7 @@ void fstore_3(Frame *f, uint32_t a0, uint32_t a1) {
 }
 
 void fload(Frame *f, uint32_t a0, uint32_t a1) {
-  int32_t local = f->locals[a0];
-  float x = *((float *) (&local));
+  float x = frame_get_local_float(f, a0);
   push_stack_float(f, x);
 }
 
@@ -1303,4 +1246,47 @@ void i2s(Frame *f, uint32_t a0, uint32_t a1) {
 void sipush(Frame *f, uint32_t a0, uint32_t a1) {
   int16_t sh = (a0 << 8) | a1;
   push_stack_int(f, sh);
+}
+
+void aload(Frame *f, uint32_t a0, uint32_t a1) {
+  void *ref = frame_get_local_pointer(f, a0);
+  push_stack_pointer(f, ref);
+}
+
+void aload_0(Frame *f, uint32_t a0, uint32_t a1) {
+  aload(f, 0, 0);
+}
+
+void aload_1(Frame *f, uint32_t a0, uint32_t a1) {
+  aload(f, 1, 0);
+}
+
+void aload_2(Frame *f, uint32_t a0, uint32_t a1) {
+  aload(f, 2, 0);
+}
+
+void aload_3(Frame *f, uint32_t a0, uint32_t a1) {
+  aload(f, 3, 0);
+}
+
+void astore(Frame *f, uint32_t a0, uint32_t a1) {
+  /* TODO */
+  void *ref = pop_stack_pointer(f);
+  frame_set_local_pointer(f, a0, ref);
+}
+
+void astore_0(Frame *f, uint32_t a0, uint32_t a1) {
+  astore(f, 0, 0);
+}
+
+void astore_1(Frame *f, uint32_t a0, uint32_t a1) {
+  astore(f, 1, 0);
+}
+
+void astore_2(Frame *f, uint32_t a0, uint32_t a1) {
+  astore(f, 2, 0);
+}
+
+void astore_3(Frame *f, uint32_t a0, uint32_t a1) {
+  astore(f, 3, 0);
 }
