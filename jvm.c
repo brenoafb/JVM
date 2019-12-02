@@ -753,108 +753,56 @@ void ldc2_w(Frame *f, uint32_t a0, uint32_t a1) {
 
 void dstore(Frame *f, uint32_t a0, uint32_t a1) {
   /* store a double into local variable a0 and a0 + 1 */
-  uint64_t half_n_1 = pop_stack(f);
-  uint64_t half_n_2 = pop_stack(f);
-
-  memcpy(f->locals + a0, &half_n_1, 4);
-  memcpy(f->locals + a0 + 1, &half_n_2, 4);
-
-  return;
+  double d = pop_stack_double(f);
+  frame_set_local_double(f, a0, d);
+  /* placeholder (doubles don't need 2 slots in this implementation */
+  frame_set_local_double(f, a1, d);
 }
 
 void dstore_0(Frame *f, uint32_t a0, uint32_t a1) {
   /* store a double into local variable 0 and 1 */
-  uint64_t half_n_1 = pop_stack(f);
-  uint64_t half_n_2 = pop_stack(f);
-
-  memcpy(f->locals + 0, &half_n_1, 4);
-  memcpy(f->locals + 1, &half_n_2, 4);
-
-  return;
+  dstore(f, 0, 0);
 }
 
 void dstore_1(Frame *f, uint32_t a0, uint32_t a1) {
   /* store a double into local variable 1 and 2 */
-  uint64_t half_n_1 = pop_stack(f);
-  uint64_t half_n_2 = pop_stack(f);
-
-  memcpy(f->locals + 1, &half_n_1, 4);
-  memcpy(f->locals + 2, &half_n_2, 4);
-
-  return;
+  dstore(f, 1, 0);
 }
 
 void dstore_2(Frame *f, uint32_t a0, uint32_t a1) {
   /* store a double into local variable 2 and 3 */
-  uint64_t half_n_1 = pop_stack(f);
-  uint64_t half_n_2 = pop_stack(f);
-
-  memcpy(f->locals + 2, &half_n_1, 4);
-  memcpy(f->locals + 3, &half_n_2, 4);
-  return;
+  dstore(f, 2, 0);
 }
 
 void dstore_3(Frame *f, uint32_t a0, uint32_t a1) {
   /* store a double into local variable 3 and 4 */
-  uint64_t half_n_1 = pop_stack(f);
-  uint64_t half_n_2 = pop_stack(f);
-
-  memcpy(f->locals + 3, &half_n_1, 4);
-  memcpy(f->locals + 4, &half_n_2, 4);
-  return;
+  dstore(f, 3, 0);
 }
 
 void dload(Frame *f, uint32_t a0, uint32_t a1) {
   /* load double from local variable a0 and a0 + 1*/
-  uint64_t half_n_1 = f->locals[a0];
-  uint64_t half_n_2 = f->locals[a0 + 1];
-
-  push_stack(f, half_n_2);
-  push_stack(f, half_n_1);
-
-  return;
+  double d = frame_get_local_double(f, a0);
+  push_stack_double(f, d);
 }
 
 void dload_0(Frame *f, uint32_t a0, uint32_t a1) {
   /* load double from local variable 0 and 1*/
-  uint64_t half_n_1 = f->locals[0];
-  uint64_t half_n_2 = f->locals[1];
-
-  push_stack(f, half_n_2);
-  push_stack(f, half_n_1);
-
-  return;
+  dload(f, 0, 0);
 }
 
 void dload_1(Frame *f, uint32_t a0, uint32_t a1) {
   /* load double from local variable 1 and 2*/
-  uint64_t half_n_1 = f->locals[1];
-  uint64_t half_n_2 = f->locals[2];
-
-  push_stack(f, half_n_2);
-  push_stack(f, half_n_1);
-
-  return;
+  dload(f, 1, 0);
 }
 
 void dload_2(Frame *f, uint32_t a0, uint32_t a1) {
   /* load double from local variable 2 and 3*/
-  uint64_t half_n_1 = f->locals[2];
-  uint64_t half_n_2 = f->locals[3];
-
-  push_stack(f, half_n_2);
-  push_stack(f, half_n_1);
-  return;
+  dload(f, 2, 0);
 }
 
 void dload_3(Frame *f, uint32_t a0, uint32_t a1) {
   /* load double from local variable 3 and 4*/
-  uint64_t half_n_1 = f->locals[3];
-  uint64_t half_n_2 = f->locals[4];
-
-  push_stack(f, half_n_2);
-  push_stack(f, half_n_1);
-  return;
+  dload(f, 3, 0);
 }
 
 
