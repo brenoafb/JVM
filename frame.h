@@ -35,3 +35,6 @@ int64_t pop_stack_long(Frame *f);
 
 void push_stack_float(Frame *f, float x);
 float pop_stack_float(Frame *f);
+
+void push_stack_int(Frame *f, int32_t x);
+int32_t pop_stack_int(Frame *f);
