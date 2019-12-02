@@ -9,7 +9,7 @@
 typedef struct Frame {
   void *jvm;               /* pointer to respective jvm reference  */
   uint32_t n_locals;       /* computed at compile time             */
-  int32_t *locals;         /* array of local variables             */
+  int64_t *locals;         /* array of local variables             */
   uint32_t n_operands;     /* computed at compile time             */
   uint64_t *operands;      /* stack of operands                    */
   uint32_t i;              /* top of stack index                   */
