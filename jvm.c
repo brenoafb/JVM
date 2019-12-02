@@ -112,8 +112,6 @@ int opargs[N_OPS] = {
 		     [OP_newarray] = 1,
 		     [OP_ldc_w] = 2,
 		     [OP_ldc2_w] = 2,
-		     [OP_getstatic] = 2,
-		     [OP_putstatic] = 2,
 		     [OP_getfield] = 2,
 		     [OP_putfield] = 2,
 		     [OP_invokevirtual] = 2,
@@ -143,6 +141,8 @@ int opargs[N_OPS] = {
 		     [OP_jsr_w] = 4,
 		     /*[OP_lookupswitch] = 8,
 		       [OP_tableswitch] = 16,*/
+		     [OP_getstatic] = 2,
+		     [OP_putstatic] = 2,
 };
 
 void init_jvm(JVM *jvm) {
