@@ -253,24 +253,78 @@ int jvm_cycle(JVM *jvm) {
   uint32_t opcode = code->code[jvm->pc];
   jvm->jmp = false;
 
-#ifdef DEBUG
-  printf("%d: 0x%x (%d)\n", jvm->pc, opcode, opargs[opcode]);
-#endif
+  #ifdef DEBUG
+    printf("%d: 0x%x (%d)\n", jvm->pc, opcode, opargs[opcode]);
+  #endif
+
+  if (opcode == OP_tableswitch) {
+    uint32_t start = jvm->pc-1;
+    /* skip padding */
+    while ((jvm->pc - start) % 4 != 0) jvm->pc++;
+    uint32_t default_bytes = 0;
+    int i;
+    for (i = 0; i < 4; i++) {
+      default_bytes = (default_bytes << 4) | code->code[jvm->pc];
+      jvm->pc++;
+    }
+
+    uint32_t low_bytes = 0;
+    for (i = 0; i < 4; i++) {
+      low_bytes = (low_bytes << 4) | code->code[jvm->pc];
+      jvm->pc++;
+    }
+
+    uint32_t high_bytes = 0;
+    for (i = 0; i < 4; i++) {
+      high_bytes = (high_bytes << 4) | code->code[jvm->pc];
+      jvm->pc++;
+    }
+
+    int32_t def = *((int32_t *) (&default_bytes));
+    int32_t lo = *((int32_t *) (&low_bytes));
+    int32_t hi = *((int32_t *) (&high_bytes));
+
+    printf("tableswitch: def=%d(0x%x), lo=%d(0x%x), hi=%d(0x%x)\n",
+	   def, def,
+	   lo, lo,
+	   hi, hi);
+
+    int32_t offsets[hi-lo+1];
+    for (i = 0; i < hi-lo+1; i++) {
+      uint32_t bytes = 0;
+      int j;
+      for (j = 0; j < 4; j++) {
+	bytes = (bytes << 4) | code->code[jvm->pc];
+	jvm->pc++;
+      }
+      offsets[i] = *((int32_t *) (&bytes));
+      printf("\t%d (0x%x)\n", offsets[i], offsets[i]);
+    }
+
+    int32_t value = pop_stack_int(f);
+    if (value < lo || value > hi) {
+      jvm->pc = start + def + 1;
+    } else {
+      jvm->pc = start + offsets[value - lo] + 1;
+    }
+    printf("\tpc=%d (0x%x)\n", jvm->pc, jvm->pc);
+    return 1;
+  }
 
   uint32_t a[2];
   int i;
   for (i = 0; i < opargs[opcode]; i++) {
     a[i] = code->code[jvm->pc+i+1];
-#ifdef DEBUG
-    printf("load a%d: %d\n", i, a[i]);
-#endif
+  #ifdef DEBUG
+      printf("load a%d: %d\n", i, a[i]);
+  #endif
   }
   optable[opcode](f, a[0], a[1]);
   if (opcode == OP_return && jvm_in_main(jvm)) {
-#ifdef DEBUG
-    printf("frame->i: %d\n", f->i);
-    if (f->i > 0) printf("Final value in stack: %d (0x%x)\n", peek_stack(f), peek_stack(f));
-#endif
+  #ifdef DEBUG
+      printf("frame->i: %d\n", f->i);
+      if (f->i > 0) printf("Final value in stack: %d (0x%x)\n", peek_stack(f), peek_stack(f));
+  #endif
 
     flag = 0;
   }
