@@ -236,5 +236,8 @@ void iaload(Frame *f, uint32_t a0, uint32_t a1);
 void fastore(Frame *f, uint32_t a0, uint32_t a1);
 void faload(Frame *f, uint32_t a0, uint32_t a1);
 
+void lastore(Frame *f, uint32_t a0, uint32_t a1);
+void laload(Frame *f, uint32_t a0, uint32_t a1);
+
 extern operation optable[N_OPS];
 extern int opargs[N_OPS];
