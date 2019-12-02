@@ -1247,7 +1247,6 @@ void i2s(Frame *f, uint32_t a0, uint32_t a1) {
 }
 
 void sipush(Frame *f, uint32_t a0, uint32_t a1) {
-  uint16_t sh = (a0 << 8) | a1;
-  int32_t intval = sh;
-  push_stack_int(f, intval);
+  int16_t sh = (a0 << 8) | a1;
+  push_stack_int(f, sh);
 }
