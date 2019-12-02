@@ -1212,6 +1212,9 @@ void i2c(Frame *f, uint32_t a0, uint32_t a1) {
 
 void i2l(Frame *f, uint32_t a0, uint32_t a1) {
   /* TODO */
+  int32_t intval = pop_stack_int(f);
+  int64_t longval = (int64_t) intval;
+  push_stack_long(f, longval);
 }
 
 void i2s(Frame *f, uint32_t a0, uint32_t a1) {
