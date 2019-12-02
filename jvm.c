@@ -856,19 +856,19 @@ void bipush(Frame *f, uint32_t a0, uint32_t a1) {
 }
 
 void iconst_0(Frame *f, uint32_t a0, uint32_t a1) {
-  push_stack(f, 0);
+  push_stack_int(f, 0);
 }
 
 void iconst_1(Frame *f, uint32_t a0, uint32_t a1) {
-  push_stack(f, 1);
+  push_stack_int(f, 1);
 }
 
 void iconst_2(Frame *f, uint32_t a0, uint32_t a1) {
-  push_stack(f, 2);
+  push_stack_int(f, 2);
 }
 
 void iconst_3(Frame *f, uint32_t a0, uint32_t a1) {
-  push_stack(f, 3);
+  push_stack_int(f, 3);
 }
 
 void if_icmpeq(Frame *f, uint32_t a0, uint32_t a1) {
@@ -994,11 +994,8 @@ void lconst_1(Frame *f, uint32_t a0, uint32_t a1) {
 }
 
 void lstore(Frame *f, uint32_t a0, uint32_t a1) {
-  uint64_t long1 = pop_stack(f);
-  uint64_t long2 = pop_stack(f);
-
-  f->locals[a0] = *((int32_t *) (&long1));
-  f->locals[a0+1] = *((int32_t *) (&long2));
+  int64_t x = pop_stack_long(f);
+  frame_set_local_long(f, a0, x);
 }
 
 void lstore_0(Frame *f, uint32_t a0, uint32_t a1) {
@@ -1018,10 +1015,8 @@ void lstore_3(Frame *f, uint32_t a0, uint32_t a1) {
 }
 
 void lload(Frame *f, uint32_t a0, uint32_t a1) {
-  uint64_t long1 = f->locals[a0];
-  uint64_t long2 = f->locals[a0+1];
-  push_stack(f, long2);
-  push_stack(f, long1);
+  int64_t x = frame_get_local_long(f, a0);
+  push_stack_long(f, x);
 }
 
 void lload_0(Frame *f, uint32_t a0, uint32_t a1) {
@@ -1078,7 +1073,7 @@ void fconst_2(Frame *f, uint32_t a0, uint32_t a1) {
 
 void fstore(Frame *f, uint32_t a0, uint32_t a1) {
   float x = pop_stack_float(f);
-  f->locals[a0] = *((int32_t *) (&x));
+  frame_set_local_float(f, a0, x);
 }
 
 void fstore_0(Frame *f, uint32_t a0, uint32_t a1) {
@@ -1098,8 +1093,7 @@ void fstore_3(Frame *f, uint32_t a0, uint32_t a1) {
 }
 
 void fload(Frame *f, uint32_t a0, uint32_t a1) {
-  int32_t local = f->locals[a0];
-  float x = *((float *) (&local));
+  float x = frame_get_local_float(f, a0);
   push_stack_float(f, x);
 }
 
