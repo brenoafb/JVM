@@ -42,6 +42,9 @@ int32_t pop_stack_int(Frame *f);
 void push_stack_pointer(Frame *f, void *ptr);
 void *pop_stack_pointer(Frame *f);
 
+void push_stack_byte(Frame *f, int8_t x);
+int8_t pop_stack_byte(Frame *f);
+
 void frame_set_local(Frame *f, uint32_t index, uint64_t value);
 uint64_t frame_get_local(Frame *f, uint32_t index);
 
