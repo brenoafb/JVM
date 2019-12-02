@@ -274,7 +274,10 @@ int jvm_cycle(JVM *jvm) {
     jvm_pop_frame(jvm);
     jvm_restore_context(jvm);
     /* Push return value to callee's operand stack */
-    if (opcode != OP_return) push_stack(f, jvm->retval);
+    if (opcode != OP_return) {
+      Frame *f = jvm_peek_frame(jvm);
+      push_stack(f, jvm->retval);
+    }
     /* reset flag */
     jvm->ret = false;
   }
@@ -612,7 +615,6 @@ void invokestatic(Frame *f, uint32_t a0, uint32_t a1) {
   JVM *jvm = f->jvm;
 
   jvm_save_context(jvm);
-
   jvm_load_class(jvm, class_name);
   jvm_set_current_class(jvm, class_name);
   jvm_set_current_method(jvm, method_name);
