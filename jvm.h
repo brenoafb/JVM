@@ -117,6 +117,8 @@ void iadd(Frame *f, uint32_t a0, uint32_t a1);
 void return_func(Frame *f, uint32_t a0, uint32_t a1);
 void ireturn(Frame *f, uint32_t a0, uint32_t a1);
 void dreturn(Frame *f, uint32_t a0, uint32_t a1);
+void lreturn(Frame *f, uint32_t a0, uint32_t a1);
+void freturn(Frame *f, uint32_t a0, uint32_t a1);
 
 void invokevirtual(Frame *f, uint32_t a0, uint32_t a1);
 void invokestatic(Frame *f, uint32_t a0, uint32_t a1);

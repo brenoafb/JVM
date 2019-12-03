@@ -18,6 +18,8 @@ operation optable[N_OPS] = {
 			    [OP_return] = return_func,
 			    [OP_ireturn] = ireturn,
 			    [OP_dreturn] = dreturn,
+			    [OP_lreturn] = lreturn,
+			    [OP_freturn] = freturn,
 			    [OP_invokevirtual] = invokevirtual,
 			    [OP_invokestatic] = invokestatic,
 			    [OP_invokespecial] = invokespecial,
@@ -511,6 +513,28 @@ void dreturn(Frame *f, uint32_t a0, uint32_t a1) {
   jvm->retval = *((uint64_t *) (&retval));
   #ifdef DEBUG
   printf("dreturn (%f 0x%x)\n", retval, retval);
+  #endif
+}
+
+void lreturn(Frame *f, uint32_t a0, uint32_t a1) {
+  /* get value to be returned */
+  int64_t retval = pop_stack_long(f);
+  JVM *jvm = f->jvm;
+  jvm->ret = true;
+  jvm->retval = *((uint64_t *) (&retval));
+  #ifdef DEBUG
+  printf("lreturn (%ld 0x%x)\n", retval, retval);
+  #endif
+}
+
+void freturn(Frame *f, uint32_t a0, uint32_t a1) {
+  /* get value to be returned */
+  float retval = pop_stack_float(f);
+  JVM *jvm = f->jvm;
+  jvm->ret = true;
+  jvm->retval = *((uint64_t *) (&retval));
+  #ifdef DEBUG
+  printf("freturn (%f 0x%x)\n", retval, retval);
   #endif
 }
 
