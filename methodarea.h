@@ -21,3 +21,4 @@ void method_area_load_class(MethodArea *ma, char *class_name);
 void method_area_load_classfile(MethodArea *ma, classfile *cf);
 
 int method_area_class_lookup(MethodArea *ma, char *class_name);
+int method_area_method_lookup(MethodArea *ma, int class_index, char *method_name, char *type);
