@@ -115,6 +115,9 @@ operation optable[N_OPS] = {
 			    [OP_laload] = laload,
 			    [OP_bastore] = bastore,
 			    [OP_baload] = baload,
+			    [OP_d2f] = d2f,
+			    [OP_d2i] = d2i,
+			    [OP_d2l] = d2l,
 };
 
 int opargs[N_OPS] = {
@@ -1517,4 +1520,23 @@ void baload(Frame *f, uint32_t a0, uint32_t a1) {
 
   memcpy(&value, arrayref + index*sizeof(int8_t), sizeof(int8_t));
   push_stack_byte(f, value);
+}
+
+void d2f(Frame *f, uint32_t a0, uint32_t a1) {
+  double dval = pop_stack_double(f);
+  float fval = dval;
+  push_stack_float(f, fval);
+}
+
+void d2i(Frame *f, uint32_t a0, uint32_t a1) {
+  double dval = pop_stack_double(f);
+  int32_t ival = dval;
+  push_stack_int(f, ival);
+}
+
+
+void d2l(Frame *f, uint32_t a0, uint32_t a1) {
+  double dval = pop_stack_double(f);
+  int64_t lval = dval;
+  push_stack_long(f, lval);
 }
