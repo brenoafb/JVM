@@ -736,14 +736,17 @@ void invokespecial(Frame *f, uint32_t a0, uint32_t a1) {
   if (strcmp(class_name, "java/lang/Object") == 0) {
     /* ignore base object init */
     JVM *jvm = f->jvm;
+    pop_stack_pointer(f);
     jvm->pc += opargs[OP_invokespecial] + 1;
-  } else {
+  } else if (strcmp(method_name, "<init>") == 0) {
     JVM *jvm = f->jvm;
     jvm_save_context(jvm);
     jvm_load_class(jvm, class_name);
     jvm_set_current_class(jvm, class_name);
     jvm_set_current_method(jvm, method_name);
     jvm_push_frame(jvm);
+    void *ref = pop_stack_pointer(f);
+    frame_set_local_pointer(jvm_peek_frame(jvm), 0, ref);
   }
 }
 
