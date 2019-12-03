@@ -2019,8 +2019,21 @@ void getfield(Frame *f, uint32_t a0, uint32_t a1) {
   } else if (strcmp(field_desc, "F") == 0) {
     float value = objectref->fields[field_index].floatfield;
     push_stack_float(f, value);
+  } else if (strcmp(field_desc, "Z") == 0) {
+    uint8_t value = objectref->fields[field_index].boolfield;
+    push_stack(f, value);
+  } else if (strcmp(field_desc, "S") == 0) {
+    int16_t value = objectref->fields[field_index].shortfield;
+    push_stack(f, *((uint64_t *) (&value)));
+  } else if (strcmp(field_desc, "B") == 0) {
+    int8_t value = objectref->fields[field_index].bytefield;
+    push_stack(f, *((uint64_t *) (&value)));
+  } else if (strcmp(field_desc, "C") == 0) {
+    uint16_t value = objectref->fields[field_index].charfield;
+    push_stack(f, value);
   } else {
-    printf("Unknown field type %s\n", field_desc);
+    void *value = objectref->fields[field_index].ptrfield;
+    push_stack_pointer(f, value);
   }
 
 }
@@ -2059,8 +2072,26 @@ void putfield(Frame *f, uint32_t a0, uint32_t a1) {
     float value = pop_stack_float(f);
     Object *obj = pop_stack_pointer(f);
     obj->fields[field_index].floatfield = value;
+  } else if (strcmp(field_desc, "Z") == 0) {
+    uint8_t value = pop_stack(f);
+    Object *obj = pop_stack_pointer(f);
+    obj->fields[field_index].boolfield = value;
+  } else if (strcmp(field_desc, "S") == 0) {
+    uint64_t value = pop_stack(f);
+    Object *obj = pop_stack_pointer(f);
+    obj->fields[field_index].shortfield = *((int16_t *) (&value));
+  } else if (strcmp(field_desc, "C") == 0) {
+    uint16_t value = pop_stack(f);
+    Object *obj = pop_stack_pointer(f);
+    obj->fields[field_index].shortfield = value;
+  } else if (strcmp(field_desc, "B") == 0) {
+    uint64_t value = pop_stack(f);
+    Object *obj = pop_stack_pointer(f);
+    obj->fields[field_index].bytefield = *((int8_t *) (&value));
   } else {
-    printf("Unknown field type %s\n", field_desc);
+    void *value = pop_stack_pointer(f);
+    Object *obj = pop_stack_pointer(f);
+    obj->fields[field_index].ptrfield = value;
   }
 }
 
