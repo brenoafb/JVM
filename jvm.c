@@ -192,6 +192,22 @@ void jvm_set_current_method(JVM *jvm, char *method_name) {
   }
 }
 
+void jvm_exec_clinit(JVM *jvm) {
+  classfile *class = jvm_get_current_class(jvm);
+  int i;
+  for (i = 0; i < class->methods_count; i++) {
+    method_info *method = &class->methods[i];
+    char *curr_method_name = get_cp_string(class->constant_pool, method->name_index);
+    if (strcmp(curr_method_name, "<clinit>") == 0) {
+      jvm->current_method_index = i;
+    }
+  }
+
+  jvm_push_frame(jvm);
+  jvm_run(jvm);
+}
+
+
 void jvm_load_method(JVM *jvm, uint32_t class_index, uint32_t method_index) {
   jvm->current_class_index = class_index;
   jvm->current_method_index = method_index;
@@ -276,15 +292,19 @@ int jvm_cycle(JVM *jvm) {
     optable[opcode](f, a[0], a[1]);
   }
   if (opcode == OP_return && jvm_in_main(jvm)) {
-  #ifdef DEBUG
+      #ifdef DEBUG
       printf("frame->i: %d\n", f->i);
       if (f->i > 0) printf("Final value in stack: %d (0x%x)\n", peek_stack(f), peek_stack(f));
-  #endif
-
+      #endif
+    flag = 0;
+  } else if (opcode == OP_return && jvm_in_clinit(jvm)) {
+    #ifdef DEBUG
+    printf("Return from '%s' <clinit>\n", jvm_get_current_class(jvm));
+    #endif
     flag = 0;
   }
 
-  if (jvm->ret) {
+  if (jvm->ret && !jvm_in_main(jvm) && !jvm_in_clinit(jvm)) {
     /* free called method's frame */
     jvm_pop_frame(jvm);
     jvm_restore_context(jvm);
@@ -300,7 +320,7 @@ int jvm_cycle(JVM *jvm) {
       push_stack(f, jvm->retval);
     }
 
-    /* reset flag */
+    /* reset return flag */
     jvm->ret = false;
   }
 
@@ -364,6 +384,11 @@ void jvm_run_method(JVM *jvm) {
 int jvm_in_main(JVM *jvm) {
   char *str = jvm_get_current_method_name(jvm);
   return strcmp(str, "main") == 0;
+}
+
+bool jvm_in_clinit(JVM *jvm) {
+  char *str = jvm_get_current_method_name(jvm);
+  return strcmp(str, "<clinit>") == 0;
 }
 
 void jvm_save_context(JVM *jvm) {

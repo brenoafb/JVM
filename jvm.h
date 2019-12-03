@@ -95,6 +95,9 @@ void jvm_run_method(JVM *jvm);
 /* Returns whether jvm is currently running main method */
 int jvm_in_main(JVM *jvm);
 
+/* Returns whether jvm is currently running <clinit> method */
+bool jvm_in_clinit(JVM *jvm);
+
 /* Save current frame context */
 void jvm_save_context(JVM *jvm);
 
