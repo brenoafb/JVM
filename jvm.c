@@ -107,6 +107,8 @@ operation optable[N_OPS] = {
 			    [OP_astore_2] = astore_2,
 			    [OP_astore_3] = astore_3,
 			    [OP_newarray] = newarray,
+			    [OP_aastore] = aastore,
+			    [OP_aaload] = aaload,
 			    [OP_iastore] = iastore,
 			    [OP_iaload] = iaload,
 			    [OP_fastore] = fastore,
@@ -1449,6 +1451,23 @@ void newarray(Frame *f, uint32_t a0, uint32_t a1) {
   push_stack_pointer(f, mem);
 }
 
+void aastore(Frame *f, uint32_t a0, uint32_t a1) {
+  void *value = pop_stack_pointer(f);
+  int32_t index = pop_stack_int(f);
+  void *arrayref = pop_stack_pointer(f);
+
+  memcpy(arrayref + index*sizeof(void *), &value, sizeof(void *));
+}
+
+void aaload(Frame *f, uint32_t a0, uint32_t a1) {
+  int32_t index = pop_stack_int(f);
+  void *arrayref = pop_stack_pointer(f);
+  void *value = 0;
+
+  memcpy(&value, arrayref + index*sizeof(void *), sizeof(void *));
+  push_stack_pointer(f, value);
+}
+
 void iastore(Frame *f, uint32_t a0, uint32_t a1) {
   int32_t value = pop_stack_int(f);
   int32_t index = pop_stack_int(f);
@@ -1607,12 +1626,11 @@ void multianewarray(Frame *f, uint32_t a0, uint32_t a1) {
     char *name = get_cp_string(f->cp, name_index);
     if (strcmp(name, "[[I") == 0) {
       /* int array */
-      uint32_t size = 1;
-      for (i = 0; i < dims; i++) {
-	size *= counts[i];
+      /* assume 2d array */
+      int32_t **ptr = calloc(sizeof(void *), counts[0]);
+      for (i = 0; i < counts[0]; i++) {
+	ptr[i] = calloc(sizeof(int32_t), counts[1]);
       }
-      printf("multianewarray: int array size: %d\n", size);
-      void *ptr = calloc(sizeof(int32_t), size);
       push_stack_pointer(f, ptr);
     }
   }
