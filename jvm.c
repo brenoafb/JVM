@@ -1736,14 +1736,35 @@ void new(Frame *f, uint32_t a0, uint32_t a1) {
   uint32_t index = (a0 << 8) | a1;
   CONSTANT_Class_info *ci = &f->cp[index].info.class_info;
   char *name = get_cp_string(f->cp, ci->name_index);
-  printf("new: %s\n", name);
   jvm_load_class(f->jvm, name);
-  printf("new: %s loaded\n", name);
   jvm_alloc_object(f->jvm, name);
 }
 
 void getfield(Frame *f, uint32_t a0, uint32_t a1) {
+  uint32_t index = (a0 << 8) | a1;
 
+  Object *objectref = pop_stack_pointer(f);
+  JVM *jvm = f->jvm;
+
+  CONSTANT_Fieldref_info fieldref_info = f->cp[index].info.fieldref_info;
+  uint32_t class_index = fieldref_info.class_index;
+  uint32_t nameandtype_index = fieldref_info.name_and_type_index;
+
+  CONSTANT_Class_info *class_info = &f->cp[class_index].info.class_info;
+  CONSTANT_NameAndType_info *nameandtype_info = &f->cp[nameandtype_index].info.nameandtype_info;
+
+  char *classname = get_cp_string(f->cp, class_info->name_index);
+  char *fieldname = get_cp_string(f->cp, nameandtype_info->name_index);
+  char *class_desc = get_cp_string(f->cp, nameandtype_info->descriptor_index);
+
+  uint32_t field_index = jvm_get_field_index(jvm, classname, fieldname);
+  char *field_desc = jvm_get_field_descriptor(jvm, classname, fieldname);
+
+  if (strcmp(field_desc, "I") == 0) {
+    /* field is int */
+    int32_t value = objectref->fields[field_index].intfield;
+    push_stack_int(f, value);
+  } /* TODO other field types */
 }
 
 void putfield(Frame *f, uint32_t a0, uint32_t a1) {
@@ -1761,17 +1782,14 @@ void putfield(Frame *f, uint32_t a0, uint32_t a1) {
   char *fieldname = get_cp_string(f->cp, nameandtype_info->name_index);
   char *class_desc = get_cp_string(f->cp, nameandtype_info->descriptor_index);
 
-  printf("putfield: class: %s, field: %s, desc: %s\n", classname, fieldname, class_desc);
   uint32_t field_index = jvm_get_field_index(jvm, classname, fieldname);
   char *field_desc = jvm_get_field_descriptor(jvm, classname, fieldname);
-  printf("putfield: field %d: %s, desc: %s\n", field_index, fieldname, field_desc);
 
   if (strcmp(field_desc, "I") == 0) {
     /* field is int */
     int32_t value = pop_stack_int(f);
     Object *obj = pop_stack_pointer(f);
     obj->fields[field_index].intfield = value;
-    printf("putfield: value=%d\n", value);
   } /* TODO other field types */
 }
 
