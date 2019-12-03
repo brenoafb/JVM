@@ -121,6 +121,9 @@ operation optable[N_OPS] = {
 			    [OP_f2d] = f2d,
 			    [OP_f2i] = f2i,
 			    [OP_f2l] = f2l,
+			    [OP_l2d] = l2d,
+			    [OP_l2f] = l2f,
+			    [OP_l2i] = l2i,
 };
 
 int opargs[N_OPS] = {
@@ -1560,4 +1563,22 @@ void f2l(Frame *f, uint32_t a0, uint32_t a1) {
   float fval = pop_stack_float(f);
   int64_t lval = fval;
   push_stack_long(f, lval);
+}
+
+void l2d(Frame *f, uint32_t a0, uint32_t a1) {
+  int64_t lval = pop_stack_long(f);
+  double dval = lval;
+  push_stack_double(f, dval);
+}
+
+void l2f(Frame *f, uint32_t a0, uint32_t a1) {
+  int64_t lval = pop_stack_long(f);
+  float fval = lval;
+  push_stack_float(f, fval);
+}
+
+void l2i(Frame *f, uint32_t a0, uint32_t a1) {
+  int64_t lval = pop_stack_long(f);
+  int32_t ival = lval;
+  push_stack_int(f, ival);
 }
