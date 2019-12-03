@@ -8,6 +8,17 @@ public class LongFunctions {
 	return x;
     }
 
+    public static void twoLongs(long x, long y) {
+	System.out.print("x = ");
+	System.out.println(x);
+	System.out.print("y = ");
+	System.out.println(y);
+    }
+
+    public static long returnLong(long x, long y) {
+	return x;
+    }
+
     public static void main(String[] args) {
 	long smallLong = getSmallLong();
 	System.out.println(smallLong);
@@ -17,5 +28,10 @@ public class LongFunctions {
 	bigLong = longIdentity(bigLong);
 	System.out.println(bigLong);
 
+	twoLongs(smallLong, bigLong);
+
+	long anotherLong = returnLong(smallLong, bigLong);
+	System.out.print("anotherLong = ");
+	System.out.println(anotherLong);
     }
 }
