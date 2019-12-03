@@ -8,6 +8,7 @@
 #include "frame.h"
 #include "methodarea.h"
 #include "opcodes.h"
+#include "object.h"
 
 #define MAX_FRAMES 32
 #define MAXHEAP    256
@@ -118,6 +119,7 @@ void ireturn(Frame *f, uint32_t a0, uint32_t a1);
 
 void invokevirtual(Frame *f, uint32_t a0, uint32_t a1);
 void invokestatic(Frame *f, uint32_t a0, uint32_t a1);
+void invokespecial(Frame *f, uint32_t a0, uint32_t a1);
 
 void getstatic(Frame *f, uint32_t a0, uint32_t a1);
 
@@ -274,3 +276,9 @@ void jvm_alloc_array_3d(JVM *jvm, int32_t counts[], uint32_t size);
 void anewarray(Frame *f, uint32_t a0, uint32_t a1);
 
 void dup(Frame *f, uint32_t a0, uint32_t a1);
+
+void new(Frame *f, uint32_t a0, uint32_t a1);
+void getfield(Frame *f, uint32_t a0, uint32_t a1);
+void putfield(Frame *f, uint32_t a0, uint32_t a1);
+
+void jvm_alloc_object(JVM *jvm, char *classname);

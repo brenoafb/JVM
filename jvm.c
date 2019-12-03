@@ -19,6 +19,7 @@ operation optable[N_OPS] = {
 			    [OP_ireturn] = ireturn,
 			    [OP_invokevirtual] = invokevirtual,
 			    [OP_invokestatic] = invokestatic,
+			    [OP_invokespecial] = invokespecial,
 			    [OP_getstatic] = getstatic,
 			    [OP_ldc_w] = ldc_w,
 			    [OP_ldc2_w] = ldc2_w,
@@ -131,6 +132,9 @@ operation optable[N_OPS] = {
 			    [OP_multianewarray] = multianewarray,
 			    [OP_anewarray] = anewarray,
 			    [OP_dup] = dup,
+			    [OP_new] = new,
+			    [OP_getfield] = getfield,
+			    [OP_putfield] = putfield,
 };
 
 int opargs[N_OPS] = {
@@ -344,7 +348,10 @@ int jvm_cycle(JVM *jvm) {
     jvm->ret = false;
   }
 
-  if (!jvm->jmp && opcode != OP_invokestatic) jvm->pc += opargs[opcode] + 1;
+  if (!jvm->jmp && opcode != OP_invokestatic
+		&& opcode != OP_invokespecial) {
+    jvm->pc += opargs[opcode] + 1;
+  }
   return flag;
 }
 
@@ -710,6 +717,34 @@ void invokestatic(Frame *f, uint32_t a0, uint32_t a1) {
     f1->locals[0] = arg;
   }
   return;
+}
+
+void invokespecial(Frame *f, uint32_t a0, uint32_t a1) {
+  uint32_t index = (a0 << 8) | a1;
+  CONSTANT_Methodref_info methodref_info = f->cp[index].info.methodref_info;
+  uint16_t class_index = methodref_info.class_index;
+  char *class_name = get_class_name_string(f->cp, class_index);
+  uint16_t name_and_type_index = methodref_info.name_and_type_index;
+  char *method_name = get_name_and_type_string(f->cp, name_and_type_index, 1);
+  char *type = get_name_and_type_string(f->cp, name_and_type_index, 0);
+#ifdef DEBUG
+  printf("invokespecial: Methodref\t");
+  printf("class: %s, name: %s, type: %s\n", class_name,
+	 method_name, type);
+#endif
+
+  if (strcmp(class_name, "java/lang/Object") == 0) {
+    /* ignore base object init */
+    JVM *jvm = f->jvm;
+    jvm->pc += opargs[OP_invokespecial] + 1;
+  } else {
+    JVM *jvm = f->jvm;
+    jvm_save_context(jvm);
+    jvm_load_class(jvm, class_name);
+    jvm_set_current_class(jvm, class_name);
+    jvm_set_current_method(jvm, method_name);
+    jvm_push_frame(jvm);
+  }
 }
 
 void getstatic(Frame *f, uint32_t a0, uint32_t a1) {
@@ -1692,4 +1727,46 @@ void dup(Frame *f, uint32_t a0, uint32_t a1) {
   uint64_t pop = pop_stack(f);
   push_stack(f, pop);
   push_stack(f, pop);
+}
+
+void new(Frame *f, uint32_t a0, uint32_t a1) {
+  uint32_t index = (a0 << 8) | a1;
+  CONSTANT_Class_info *ci = &f->cp[index].info.class_info;
+  char *name = get_cp_string(f->cp, ci->name_index);
+  printf("new: %s\n", name);
+  jvm_load_class(f->jvm, name);
+  printf("new: %s loaded\n", name);
+  jvm_alloc_object(f->jvm, name);
+}
+
+void getfield(Frame *f, uint32_t a0, uint32_t a1) {
+
+}
+
+void putfield(Frame *f, uint32_t a0, uint32_t a1) {
+
+}
+
+void jvm_alloc_object(JVM *jvm, char *classname) {
+  classfile *cf = jvm->method_area->classes[method_area_class_lookup(jvm->method_area, classname)];
+  field_info *fields = cf->fields;
+
+  Object *obj = calloc(sizeof(obj), 1);
+  obj->size = cf->fields_count;
+  obj->fields = calloc(sizeof(ObjectField), obj->size);
+  jvm_add_to_heap(jvm, obj);
+  push_stack_pointer(jvm_peek_frame(jvm), obj);
+
+  /*
+  int i;
+  for (i = 0; i < cf->fields_count; i++) {
+    char *desc = get_cp_string(cf->constant_pool, fields[i].descriptor_index);
+    printf("%s\n", desc);
+    if (strcmp(desc, "I") == 0) {
+      obj->fields[i].intfield = 0;
+    } else if (strcmp(desc, "J") == 0) {
+      obj->fields[i].longfield = 0;
+    }
+  }
+  */
 }
