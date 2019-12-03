@@ -196,6 +196,8 @@
 #define OP_if_icmpge         (0xa2)
 #define OP_if_icmpgt         (0xa3)
 #define OP_if_icmple         (0xa4)
+#define OP_if_acmpeq         (0xa5)
+#define OP_if_acmpne         (0xa6)
 #define OP_goto              (0xa7)
 #define OP_jsr                (0xa8)
 #define OP_ret                (0xa9)
@@ -235,6 +237,7 @@
 #define OP_impdep2            (0xff)
 
 extern char *strings_opcodes[];
+extern int opargs[N_OPS];
 
 /* array type codes */
 

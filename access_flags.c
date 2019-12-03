@@ -77,6 +77,20 @@ void populate_ac_flags_method() {
     add_flag(&AC_FLAGS_METHOD, 0x4000, "ACC_ENUM");
 }
 
+void populate_ac_flags_inner_classes() {
+    add_flag(&AC_FLAGS_INNER_CLASSES, 0x0000, "[]");
+    add_flag(&AC_FLAGS_INNER_CLASSES, 0x0001, "ACC_PUBLIC");
+    add_flag(&AC_FLAGS_INNER_CLASSES, 0x0002, "ACC_PRIVATE");
+    add_flag(&AC_FLAGS_INNER_CLASSES, 0x0004, "ACC_PROTECTED");
+    add_flag(&AC_FLAGS_INNER_CLASSES, 0x0008, "ACC_STATIC");
+    add_flag(&AC_FLAGS_INNER_CLASSES, 0x0010, "ACC_FINAL");
+    add_flag(&AC_FLAGS_INNER_CLASSES, 0x0200, "ACC_INTERFACE");
+    add_flag(&AC_FLAGS_INNER_CLASSES, 0x0400, "ACC_ABSTRACT");
+    add_flag(&AC_FLAGS_INNER_CLASSES, 0x1000, "ACC_SYNTHETIC");
+    add_flag(&AC_FLAGS_INNER_CLASSES, 0x2000, "ACC_ANNOTATION");
+    add_flag(&AC_FLAGS_INNER_CLASSES, 0x4000, "ACC_ENUM");
+}
+
 void deinit_ac_flags() {
     ac_node* ptr_list[3] = {AC_FLAGS_CLASS, AC_FLAGS_FIELD, AC_FLAGS_METHOD};
     ac_node* ptr_crawler, *ptr_crawler_next;

@@ -281,3 +281,8 @@ void deinit_innerclasses_attribute(InnerClasses_attribute *ptr);
 * Montagem da versão da classe
 */
 void print_java_version (uint16_t major,  uint16_t minor);
+
+/**
+* Printa um elemento referenciado da constant pool
+*/
+void print_cp_element (cp_info *cp, uint16_t i);
