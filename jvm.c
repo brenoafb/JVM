@@ -652,15 +652,18 @@ void invokestatic(Frame *f, uint32_t a0, uint32_t a1) {
   jvm_set_current_method(jvm, method_name);
   jvm_push_frame(jvm);
 
+  jvm_set_args(jvm, f, type);
+}
+
+void jvm_set_args(JVM *jvm, Frame *caller, char *type) {
   if (strcmp(type, "(I)I") == 0) {
     Frame *f1 = jvm_peek_frame(jvm);
-    int32_t arg = pop_stack(f);
+    int32_t arg = pop_stack(caller);
     #ifdef DEBUG
-    printf("invokestatic: arg = %d (0x%x)\n", arg, arg);
+    printf("jvm_set_args: arg = %d (0x%x)\n", arg, arg);
     #endif
     f1->locals[0] = arg;
   }
-  return;
 }
 
 void invokespecial(Frame *f, uint32_t a0, uint32_t a1) {

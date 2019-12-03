@@ -119,6 +119,7 @@ void ireturn(Frame *f, uint32_t a0, uint32_t a1);
 
 void invokevirtual(Frame *f, uint32_t a0, uint32_t a1);
 void invokestatic(Frame *f, uint32_t a0, uint32_t a1);
+void jvm_set_args(JVM *jvm, Frame *caller, char *type);
 void invokespecial(Frame *f, uint32_t a0, uint32_t a1);
 
 void getstatic(Frame *f, uint32_t a0, uint32_t a1);
