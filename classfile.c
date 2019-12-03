@@ -741,7 +741,7 @@ void print_code_attribute(Code_attribute *ptr, cp_info *cp) {
     printf("\t\t stack=%d, locals=%d\n",
 	   ptr->max_stack,
 	   ptr->max_locals);
-    uint32_t i, f, param1, param2;
+    uint32_t i, f, param1, param2, param3, param4;
     uint32_t result;
     for (i = 0; i < ptr->code_length; i++) {
       f = i;
@@ -785,9 +785,43 @@ void print_code_attribute(Code_attribute *ptr, cp_info *cp) {
           }
           break;
         case 3:
-          printf (" %d", ptr->code[++i]);
-          printf (" %d", ptr->code[++i]);
-          printf (" %d", ptr->code[++i]);
+          param1 = ptr->code[++i];
+          param2 = ptr->code[++i];
+          param3 = ptr->code[++i];
+          if (ptr->code[f] == OP_multianewarray) {
+            result = (param1 << 8) + param2;
+            printf (" #%u", result);
+            print_cp_element (cp, (uint16_t) result);
+            printf (" Dimensão: %u", param3);
+          }
+          else {
+            printf (" %d", param1);
+            printf (" %d", param2);
+            printf (" %d", param3);
+          }
+          break;
+        case 4:
+          param1 = ptr->code[++i];
+          param2 = ptr->code[++i];
+          param3 = ptr->code[++i];
+          param4 = ptr->code[++i];
+          if (ptr->code[f] == OP_goto_w || ptr->code[f] == OP_jsr_w) {
+            result = (param1 << 24) + (param2 << 16) + (param3 << 8) + param4;
+            printf (" %d", (int32_t) result);
+          }
+          else if (ptr->code[f] == OP_invokedynamic || ptr->code[f] == OP_invokeinterface){
+            result = (param1 << 8) + param2;
+            printf (" #%u", result);
+            print_cp_element (cp, (uint16_t) result);
+            printf (" %d", param3);
+            printf (" %d", param4);
+          }
+          else {
+            printf (" %d", param1);
+            printf (" %d", param2);
+            printf (" %d", param3);
+            printf (" %d", param4);
+          }
           break;
         case 0:
           break;
