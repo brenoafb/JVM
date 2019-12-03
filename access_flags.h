@@ -19,11 +19,13 @@ struct ac_node {
 ac_node* AC_FLAGS_CLASS;
 ac_node* AC_FLAGS_FIELD;
 ac_node* AC_FLAGS_METHOD;
+ac_node* AC_FLAGS_INNER_CLASSES;
 
 char** get_flags_name(ac_node* ac_list, uint32_t code);
 void add_flag(ac_node** ac_list, uint32_t code, char* name);
 void populate_ac_flags_class();
 void populate_ac_flags_method();
+void populate_ac_flags_inner_classes();
 void print_flags(ac_node* ac_list, uint32_t code);
 void deinit_ac_flags();
 

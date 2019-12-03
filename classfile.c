@@ -749,10 +749,10 @@ void print_code_attribute(Code_attribute *ptr, cp_info *cp) {
       switch (opargs[ptr->code[i]]){
         case 1:
           if ((ptr->code[i] >= OP_iload && ptr->code[i] >= OP_aload) || ptr->code[i] == OP_ret)
-            printf (" LocalVariable: #%d", ptr->code[++i]);
+            printf (" %d", ptr->code[++i]);
           else if (ptr->code[i] == OP_ldc){
             printf (" #%u ", ptr->code[++i]);
-            print_cp_element (cp, i);
+            print_cp_element (cp, ptr->code[i]);
           }
           else 
             printf (" %d", ptr->code[++i]);
@@ -768,7 +768,7 @@ void print_code_attribute(Code_attribute *ptr, cp_info *cp) {
             printf (" %d", (int16_t) result);
           }
           else if (ptr->code[f] == OP_iinc){
-            printf (" LocalVariable: #%u by %d", param1, (int8_t) param2);
+            printf (" %u by %d", param1, (int8_t) param2);
           }
           else if (ptr->code[f] == OP_ldc_w || ptr->code[f] == OP_ldc2_w ||
             (ptr->code[f] >= OP_getstatic && ptr->code[f] <= OP_invokestatic) ||
@@ -847,6 +847,8 @@ void print_innerclasses_attribute(InnerClasses_attribute *ptr,cp_info *cp) {
 
   char *s_innername, *s_outerclass_name;
 
+  populate_ac_flags_inner_classes();
+
   printf("\t\t Number of classes: %d\n",
      ptr->number_of_classes);
     uint32_t i;
@@ -862,11 +864,11 @@ void print_innerclasses_attribute(InnerClasses_attribute *ptr,cp_info *cp) {
       s_outerclass_name = (outerclass_name ? get_cp_string(cp, outerclass_name) : "Invalid constant pool reference.");
       s_innername = (innername ? get_cp_string(cp, innername) : "Invalid constant pool reference.");
 
-      printf("\n\t\t  %d) InnerClass- %s (#%d);\n\t\t     OuterClass- %s (#%d);\n\t\t     InnerName- %s (#%d);\n\t\t     AccessFlags- 0x%04x\n",
-	i, get_cp_string(cp, innerclass_name), innerclass,
-	s_outerclass_name, outerclass,
-	s_innername, innername,
-	access_flags);
+      printf("\n\t\t  %d) InnerClass- %s (#%d);\n\t\t     OuterClass- %s (#%d);\n\t\t     InnerName- %s (#%d);\n\t\t     AccessFlags- (0x%04x) ",
+	     i, get_cp_string(cp, innerclass_name), innerclass,
+	     s_outerclass_name, outerclass,
+	     s_innername, innername, access_flags);
+       print_flags(AC_FLAGS_CLASS, access_flags);
     }
 }
 
@@ -1060,45 +1062,43 @@ void print_cp_element (cp_info *cp, uint16_t i){
     case CONSTANT_Class                :
       printf(" ");
       uint16_t name_index = cp[i].info.class_info.name_index;
-      printf("%s (#%d)", get_cp_string(cp, name_index), name_index);
+      printf("%s", get_cp_string(cp, name_index));
       break;
     case CONSTANT_String               :
       printf(" ");
       uint16_t string_index = cp[i].info.string_info.string_index;
-      printf("%s (#%d)", get_cp_string(cp, string_index), string_index);
+      printf("%s", get_cp_string(cp, string_index));
       break;
     case CONSTANT_Fieldref             :
       printf(" ");
       uint16_t class_index = cp[i].info.fieldref_info.class_index;
       uint16_t name_and_type_index = cp[i].info.fieldref_info.name_and_type_index;
-      printf("%s.%s:%s (#%d.#%d)", get_class_name_string(cp, class_index),
+      printf("%s.%s:%s", get_class_name_string(cp, class_index),
         get_name_and_type_string(cp, name_and_type_index, 1),
-        get_name_and_type_string(cp, name_and_type_index, 0),
-        class_index, name_and_type_index);
+        get_name_and_type_string(cp, name_and_type_index, 0));
       break;
     case CONSTANT_Methodref            :
       printf(" ");
       class_index = cp[i].info.methodref_info.class_index;
       name_and_type_index = cp[i].info.methodref_info.name_and_type_index;
-      printf("%s.%s:%s (#%d.#%d)", get_class_name_string(cp, class_index),
+      printf("%s.%s:%s", get_class_name_string(cp, class_index),
         get_name_and_type_string(cp, name_and_type_index, 1),
-        get_name_and_type_string(cp, name_and_type_index, 0), class_index, name_and_type_index);
+        get_name_and_type_string(cp, name_and_type_index, 0));
       break;
     case CONSTANT_InterfaceMethodref   :
       printf(" ");
       class_index = cp[i].info.methodref_info.class_index;
       name_and_type_index = cp[i].info.methodref_info.name_and_type_index;
-      printf("%s.%s:%s (#%d.#%d)", get_class_name_string(cp, class_index),
+      printf("%s.%s:%s", get_class_name_string(cp, class_index),
         get_name_and_type_string(cp, name_and_type_index, 1),
-        get_name_and_type_string(cp, name_and_type_index, 0),
-        class_index, name_and_type_index);
+        get_name_and_type_string(cp, name_and_type_index, 0));
       break;
     case CONSTANT_NameAndType          :
       printf(" ");
       name_index = cp[i].info.nameandtype_info.name_index;
       uint16_t descriptor_index = cp[i].info.nameandtype_info.descriptor_index;
-      printf("%s:%s (#%d:#%d)", get_cp_string(cp, name_index),
-        get_cp_string(cp, descriptor_index), name_index, descriptor_index);
+      printf("%s:%s", get_cp_string(cp, name_index),
+        get_cp_string(cp, descriptor_index));
       break;
     }
 }
