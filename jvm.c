@@ -1629,7 +1629,7 @@ void multianewarray(Frame *f, uint32_t a0, uint32_t a1) {
     if (strcmp(name, "[[I") == 0) {
       /* int array */
       size = sizeof(int32_t);
-    } else if (strcmp(name, "[[I") == 0) {
+    } else if (strcmp(name, "[[F") == 0) {
       /* float array */
       size = sizeof(float);
     }
@@ -1640,6 +1640,6 @@ void multianewarray(Frame *f, uint32_t a0, uint32_t a1) {
       jvm_add_to_heap(jvm, ptr[i]);
     }
     push_stack_pointer(f, ptr);
-    jvm_add_to_heap(jvm, ptr[i]);
+    jvm_add_to_heap(jvm, ptr);
   }
 }
