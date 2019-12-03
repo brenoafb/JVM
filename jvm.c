@@ -129,6 +129,8 @@ operation optable[N_OPS] = {
 			    [OP_l2f] = l2f,
 			    [OP_l2i] = l2i,
 			    [OP_multianewarray] = multianewarray,
+			    [OP_anewarray] = anewarray,
+			    [OP_dup] = dup,
 };
 
 int opargs[N_OPS] = {
@@ -1673,4 +1675,21 @@ void jvm_alloc_array_3d(JVM *jvm, int32_t counts[], uint32_t size) {
   }
   push_stack_pointer(f, ptr);
   jvm_add_to_heap(jvm, ptr);
+}
+
+void anewarray(Frame *f, uint32_t a0, uint32_t a1) {
+  int32_t index = (a0 << 8) | a1;
+  int32_t count = pop_stack_int(f);
+
+  /* TODO Resolve cp entry */
+  void *ptr = calloc(sizeof(void *), count);
+  JVM *jvm = f->jvm;
+  jvm_add_to_heap(jvm, ptr);
+  push_stack_pointer(f, ptr);
+}
+
+void dup(Frame *f, uint32_t a0, uint32_t a1) {
+  uint64_t pop = pop_stack(f);
+  push_stack(f, pop);
+  push_stack(f, pop);
 }
