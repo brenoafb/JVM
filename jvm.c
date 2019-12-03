@@ -712,7 +712,7 @@ void jvm_parse_types(char *type, char parsed[], int *count) {
       parsed[j] = 'J';
       break;
     case 'F':
-      parsed[j] = 'J';
+      parsed[j] = 'F';
       break;
     case 'D':
       parsed[j] = 'D';
