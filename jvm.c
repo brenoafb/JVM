@@ -130,6 +130,7 @@ operation optable[N_OPS] = {
 			    [OP_l2i] = l2i,
 			    [OP_multianewarray] = multianewarray,
 			    [OP_anewarray] = anewarray,
+			    [OP_dup] = dup,
 };
 
 int opargs[N_OPS] = {
@@ -1685,4 +1686,10 @@ void anewarray(Frame *f, uint32_t a0, uint32_t a1) {
   JVM *jvm = f->jvm;
   jvm_add_to_heap(jvm, ptr);
   push_stack_pointer(f, ptr);
+}
+
+void dup(Frame *f, uint32_t a0, uint32_t a1) {
+  uint64_t pop = pop_stack(f);
+  push_stack(f, pop);
+  push_stack(f, pop);
 }

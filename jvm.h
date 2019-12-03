@@ -272,3 +272,5 @@ void jvm_alloc_array_2d(JVM *jvm, int32_t counts[], uint32_t size);
 void jvm_alloc_array_3d(JVM *jvm, int32_t counts[], uint32_t size);
 
 void anewarray(Frame *f, uint32_t a0, uint32_t a1);
+
+void dup(Frame *f, uint32_t a0, uint32_t a1);
