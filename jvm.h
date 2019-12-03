@@ -281,4 +281,6 @@ void new(Frame *f, uint32_t a0, uint32_t a1);
 void getfield(Frame *f, uint32_t a0, uint32_t a1);
 void putfield(Frame *f, uint32_t a0, uint32_t a1);
 
+int32_t jvm_get_field_index(JVM *jvm, char *classname, char *fieldname);
+char *jvm_get_field_descriptor(JVM *jvm, char *classname, char *fieldname);
 void jvm_alloc_object(JVM *jvm, char *classname);

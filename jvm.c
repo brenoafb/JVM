@@ -1747,7 +1747,64 @@ void getfield(Frame *f, uint32_t a0, uint32_t a1) {
 }
 
 void putfield(Frame *f, uint32_t a0, uint32_t a1) {
+  JVM *jvm = f->jvm;
+  uint32_t index = (a0 << 8) | a1;
 
+  CONSTANT_Fieldref_info fieldref_info = f->cp[index].info.fieldref_info;
+  uint32_t class_index = fieldref_info.class_index;
+  uint32_t nameandtype_index = fieldref_info.name_and_type_index;
+
+  CONSTANT_Class_info *class_info = &f->cp[class_index].info.class_info;
+  CONSTANT_NameAndType_info *nameandtype_info = &f->cp[nameandtype_index].info.nameandtype_info;
+
+  char *classname = get_cp_string(f->cp, class_info->name_index);
+  char *fieldname = get_cp_string(f->cp, nameandtype_info->name_index);
+  char *class_desc = get_cp_string(f->cp, nameandtype_info->descriptor_index);
+
+  printf("putfield: class: %s, field: %s, desc: %s\n", classname, fieldname, class_desc);
+  uint32_t field_index = jvm_get_field_index(jvm, classname, fieldname);
+  char *field_desc = jvm_get_field_descriptor(jvm, classname, fieldname);
+  printf("putfield: field %d: %s, desc: %s\n", field_index, fieldname, field_desc);
+
+  if (strcmp(field_desc, "I") == 0) {
+    /* field is int */
+    int32_t value = pop_stack_int(f);
+    Object *obj = pop_stack_pointer(f);
+    obj->fields[field_index].intfield = value;
+    printf("putfield: value=%d\n", value);
+  } /* TODO other field types */
+}
+
+int32_t jvm_get_field_index(JVM *jvm, char *classname, char *fieldname) {
+  int32_t class_index = method_area_class_lookup(jvm->method_area, classname);
+  classfile *cf = jvm->method_area->classes[class_index];
+  field_info *fields = cf->fields;
+  int i;
+  for (i = 0; i < cf->fields_count; i++) {
+    char *curr_field = get_cp_string(cf->constant_pool, fields[i].name_index);
+    char *desc = get_cp_string(cf->constant_pool, fields[i].descriptor_index);
+    if (strcmp(curr_field, fieldname) == 0) {
+      /* found desired field */
+      return i;
+    }
+  }
+  return -1;
+}
+
+char *jvm_get_field_descriptor(JVM *jvm, char *classname, char *fieldname) {
+  int32_t class_index = method_area_class_lookup(jvm->method_area, classname);
+  classfile *cf = jvm->method_area->classes[class_index];
+  field_info *fields = cf->fields;
+  int i;
+  for (i = 0; i < cf->fields_count; i++) {
+    char *curr_field = get_cp_string(cf->constant_pool, fields[i].name_index);
+    char *desc = get_cp_string(cf->constant_pool, fields[i].descriptor_index);
+    if (strcmp(curr_field, fieldname) == 0) {
+      /* found desired field */
+      return desc;
+    }
+  }
+  return NULL;
 }
 
 void jvm_alloc_object(JVM *jvm, char *classname) {
