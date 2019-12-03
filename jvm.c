@@ -1798,7 +1798,7 @@ void jvm_alloc_object(JVM *jvm, char *classname) {
   classfile *cf = jvm->method_area->classes[method_area_class_lookup(jvm->method_area, classname)];
   field_info *fields = cf->fields;
 
-  Object *obj = calloc(sizeof(obj), 1);
+  Object *obj = calloc(sizeof(Object), 1);
   obj->size = cf->fields_count;
   obj->fields = calloc(sizeof(ObjectField), obj->size);
   jvm_add_to_heap(jvm, obj);
