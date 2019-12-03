@@ -1802,6 +1802,7 @@ void jvm_alloc_object(JVM *jvm, char *classname) {
   obj->size = cf->fields_count;
   obj->fields = calloc(sizeof(ObjectField), obj->size);
   jvm_add_to_heap(jvm, obj);
+  jvm_add_to_heap(jvm, obj->fields);
   push_stack_pointer(jvm_peek_frame(jvm), obj);
 
   /*
