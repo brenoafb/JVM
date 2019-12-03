@@ -28,6 +28,13 @@ public class Functions {
 	return x+y;
     }
 
+    public static void printParams(int a, int b) {
+	System.out.print("First param: ");
+	System.out.println(a);
+	System.out.print("Second param: ");
+	System.out.println(b);
+    }
+
     public static void main(String[] args) {
 	int n = 10;
 	voidVoidFunc();
@@ -36,7 +43,10 @@ public class Functions {
 	ret = intVoidFunc();
 	System.out.println(ret);
 
-	ret = twoparams(n, ret);
+	int x1 = 1;
+	int x2 = 2;
+	printParams(x1, x2);
+	ret = twoparams(x1, x2);
 	System.out.println(ret);
     }
 }
