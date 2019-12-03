@@ -656,13 +656,41 @@ void invokestatic(Frame *f, uint32_t a0, uint32_t a1) {
 }
 
 void jvm_set_args(JVM *jvm, Frame *caller, char *type) {
-  if (strcmp(type, "(I)I") == 0) {
-    Frame *f1 = jvm_peek_frame(jvm);
-    int32_t arg = pop_stack(caller);
-    #ifdef DEBUG
-    printf("jvm_set_args: arg = %d (0x%x)\n", arg, arg);
-    #endif
-    f1->locals[0] = arg;
+  Frame *f1 = jvm_peek_frame(jvm);
+
+  int32_t intarg;
+  int64_t longarg;
+  float floatarg;
+  double doublearg;
+
+  int i = 1;
+  int local_index = 0;
+  while (type[i] != ')') {
+    switch (type[i]) {
+    case 'I':
+    intarg = pop_stack_int(caller);
+    frame_set_local_int(f1, local_index, intarg);
+    break;
+    case 'J':
+    longarg = pop_stack_long(caller);
+    frame_set_local_long(f1, local_index, longarg);
+    local_index++;
+    break;
+    case 'F':
+    floatarg = pop_stack_float(caller);
+    frame_set_local_float(f1, local_index, floatarg);
+    break;
+    case 'D':
+    doublearg = pop_stack_double(caller);
+    frame_set_local_double(f1, local_index, doublearg);
+    local_index++;
+    break;
+    default:
+      printf("jvm_set_args: Unknown arg type '%c'\n", type[i]);
+      break;
+    }
+    local_index++;
+    i++;
   }
 }
 
