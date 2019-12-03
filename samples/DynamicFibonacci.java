@@ -1,57 +1,48 @@
 public class DynamicFibonacci {
-    public static int memoFib(int n, int[] table) {
-	if (table[n] != -1) {
-	    return table[n];
-	}
+    public static int dynamicFib(int n) {
+	if (n <= 1) return n;
 
-	int f = memoFib(n-1, table) + memoFib(n-2, table);
-	table[n] = f;
-	return f;
-    }
-
-    public static void initTable(int n, int[] table) {
-	int i;
-	for (i = 0; i < n; i++) {
-	    table[i] = -1;
-	}
-
+	int[] table = new int[n+1];
 	table[0] = 0;
 	table[1] = 1;
+
+	int i;
+	for (i = 2; i <= n; i++) {
+	    table[i] = table[i-1] + table[i-2];
+	}
+
+	return table[n];
     }
 
     public static void main(String []args) {
-	int n = 100;
-	int[] table = new int[n];
-	initTable(n, table);
-
-	System.out.println("memoFib(0)");
-	n = 0;
-	int x = memoFib(n, table);
+	System.out.println("dynamicFib(0)");
+	int n = 0;
+	int x = dynamicFib(n);
 	System.out.println(x);
 
-	System.out.println("memoFib(1)");
+	System.out.println("dynamicFib(1)");
 	n = 1;
-	x = memoFib(n, table);
+	x = dynamicFib(n);
 	System.out.println(x);
 
-	System.out.println("memoFib(2)");
+	System.out.println("dynamicFib(2)");
 	n = 2;
-	x = memoFib(n, table);
+	x = dynamicFib(n);
 	System.out.println(x);
 
-	System.out.println("memoFib(3)");
+	System.out.println("dynamicFib(3)");
 	n = 3;
-	x = memoFib(n, table);
+	x = dynamicFib(n);
 	System.out.println(x);
 
-	System.out.println("memoFib(10)");
+	System.out.println("dynamicFib(10)");
 	n = 10;
-	x = memoFib(n, table);
+	x = dynamicFib(n);
 	System.out.println(x);
 
-	System.out.println("memoFib(25)");
+	System.out.println("dynamicFib(25)");
 	n = 25;
-	x = memoFib(n, table);
+	x = dynamicFib(n);
 	System.out.println(x);
     }
 }
