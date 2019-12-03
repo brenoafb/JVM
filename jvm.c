@@ -17,6 +17,9 @@ operation optable[N_OPS] = {
 			    [OP_isub] = isub,
 			    [OP_return] = return_func,
 			    [OP_ireturn] = ireturn,
+			    [OP_dreturn] = dreturn,
+			    [OP_lreturn] = lreturn,
+			    [OP_freturn] = freturn,
 			    [OP_invokevirtual] = invokevirtual,
 			    [OP_invokestatic] = invokestatic,
 			    [OP_invokespecial] = invokespecial,
@@ -283,11 +286,18 @@ int jvm_cycle(JVM *jvm) {
     /* free called method's frame */
     jvm_pop_frame(jvm);
     jvm_restore_context(jvm);
+    Frame *f = jvm_peek_frame(jvm);
     /* Push return value to callee's operand stack */
-    if (opcode != OP_return) {
-      Frame *f = jvm_peek_frame(jvm);
+    if (opcode == OP_dreturn) {
+      double d = *((double *) (&jvm->retval));
+      push_stack_double(f, d);
+    } else if (opcode == OP_lreturn) {
+      int64_t l = *((int64_t *) (&jvm->retval));
+      push_stack_long(f, l);
+    } else if (opcode != OP_return) {
       push_stack(f, jvm->retval);
     }
+
     /* reset flag */
     jvm->ret = false;
   }
@@ -486,12 +496,45 @@ void return_func(Frame *f, uint32_t a0, uint32_t a1) {
 
 void ireturn(Frame *f, uint32_t a0, uint32_t a1) {
   /* get value to be returned */
-  int retval = pop_stack(f);
+  int32_t retval = pop_stack_int(f);
   JVM *jvm = f->jvm;
   jvm->ret = true;
-  jvm->retval = retval;
+  jvm->retval = *((uint64_t *) (&retval));
   #ifdef DEBUG
   printf("ireturn (%d 0x%x)\n", retval, retval);
+  #endif
+}
+
+void dreturn(Frame *f, uint32_t a0, uint32_t a1) {
+  /* get value to be returned */
+  double retval = pop_stack_double(f);
+  JVM *jvm = f->jvm;
+  jvm->ret = true;
+  jvm->retval = *((uint64_t *) (&retval));
+  #ifdef DEBUG
+  printf("dreturn (%f 0x%x)\n", retval, retval);
+  #endif
+}
+
+void lreturn(Frame *f, uint32_t a0, uint32_t a1) {
+  /* get value to be returned */
+  int64_t retval = pop_stack_long(f);
+  JVM *jvm = f->jvm;
+  jvm->ret = true;
+  jvm->retval = *((uint64_t *) (&retval));
+  #ifdef DEBUG
+  printf("lreturn (%ld 0x%x)\n", retval, retval);
+  #endif
+}
+
+void freturn(Frame *f, uint32_t a0, uint32_t a1) {
+  /* get value to be returned */
+  float retval = pop_stack_float(f);
+  JVM *jvm = f->jvm;
+  jvm->ret = true;
+  jvm->retval = *((uint64_t *) (&retval));
+  #ifdef DEBUG
+  printf("freturn (%f 0x%x)\n", retval, retval);
   #endif
 }
 
@@ -652,15 +695,109 @@ void invokestatic(Frame *f, uint32_t a0, uint32_t a1) {
   jvm_set_current_method(jvm, method_name);
   jvm_push_frame(jvm);
 
-  if (strcmp(type, "(I)I") == 0) {
-    Frame *f1 = jvm_peek_frame(jvm);
-    int32_t arg = pop_stack(f);
-    #ifdef DEBUG
-    printf("invokestatic: arg = %d (0x%x)\n", arg, arg);
-    #endif
-    f1->locals[0] = arg;
+  jvm_set_args(jvm, f, type);
+}
+
+void jvm_parse_types(char *type, char parsed[], int *count) {
+  char buf[BUFSIZE];
+  int i = 1;
+  int j = 0;
+  int k = 0;
+  while (type[i] != ')') {
+    switch (type[i]) {
+    case 'I':
+      parsed[j] = 'I';
+      break;
+    case 'J':
+      parsed[j] = 'J';
+      break;
+    case 'F':
+      parsed[j] = 'F';
+      break;
+    case 'D':
+      parsed[j] = 'D';
+      break;
+    default:
+      while (type[i] != ';') buf[k++] = type[i++];
+      buf[k] = 0;
+      if (strcmp(buf, "Ljava/lang/String;")) {
+	parsed[j] = 'A';
+      } else {
+	#ifdef DEBUG
+	printf("jvm_set_args: Unknown arg type %s\n", buf);
+	#endif
+      }
+      break;
+    }
+    j++;
+    i++;
   }
-  return;
+  *count = j;
+}
+
+void jvm_set_args(JVM *jvm, Frame *caller, char *type) {
+  Frame *f1 = jvm_peek_frame(jvm);
+
+  int32_t intarg;
+  int64_t longarg;
+  float floatarg;
+  double doublearg;
+  void *ptrarg;
+
+  char parsed[BUFSIZE] = {0};
+  int count = 0;
+  jvm_parse_types(type, parsed, &count);
+  #ifdef DEBUG
+  printf("jvm_set_args: parsed types: %s\n", parsed);
+  #endif
+
+
+  int i, j;
+
+  /* compute last arg's position in locals array (j) */
+  for (i = j = 0; i < count; i++) {
+    switch (parsed[i]) {
+    case 'D':
+    case 'J':
+      j++;
+    default:
+      j++;
+      break;
+    }
+  }
+  j-=1;
+
+  /* loop backwards over args to pop in correct order */
+  for (i = count-1; i >= 0; i--, j--) {
+    switch (parsed[i]) {
+    case 'I':
+      intarg = pop_stack_int(caller);
+      frame_set_local_int(f1, j, intarg);
+      break;
+    case 'J':
+      longarg = pop_stack_long(caller);
+      frame_set_local_long(f1, --j, longarg);
+      break;
+    case 'F':
+      floatarg = pop_stack_float(caller);
+      frame_set_local_float(f1, j, floatarg);
+      break;
+    case 'D':
+      doublearg = pop_stack_double(caller);
+      printf("Placing arg %f in local %d\n", doublearg, j-1);
+      frame_set_local_double(f1, --j, doublearg);
+      break;
+    case 'A':
+	ptrarg = pop_stack_pointer(caller);
+	frame_set_local_pointer(f1, j, ptrarg);
+	break;
+    default:
+      #ifdef DEBUG
+      printf("jvm_set_args: Unknown type %c\n", parsed[i]);
+      #endif
+      break;
+    }
+  }
 }
 
 void invokespecial(Frame *f, uint32_t a0, uint32_t a1) {
@@ -755,7 +892,7 @@ void ldc2_w(Frame *f, uint32_t a0, uint32_t a1) {
   char *str;
   uint32_t high_bytes;
   uint32_t low_bytes;
-  int64_t value = (((int64_t) high_bytes) << 32) + ((int64_t)low_bytes);
+  uint64_t cat;
 
   index = (a0 << 8) + a1;
   /* push item from runtime constant pool */
@@ -763,20 +900,23 @@ void ldc2_w(Frame *f, uint32_t a0, uint32_t a1) {
   switch (tag) {
   case CONSTANT_Long:
     low_bytes = f->cp[index].info.long_info.low_bytes;
-    push_stack(f, low_bytes);
     high_bytes = f->cp[index].info.long_info.high_bytes;
-    push_stack(f, high_bytes);
+    cat = (((uint64_t) high_bytes) << 32) | low_bytes;
+    int64_t l = *((uint64_t *) (&cat));
+    push_stack_long(f, l);
 #ifdef DEBUG
-    printf("ldc2_w: Push %ld from cp\n", value);
+    printf("ldc2_w: Push %ld from cp\n", l);
 #endif
     break;
   case CONSTANT_Double:
     low_bytes = f->cp[index].info.double_info.low_bytes;
-    push_stack(f, low_bytes);
     high_bytes = f->cp[index].info.double_info.high_bytes;
-    push_stack(f, high_bytes);
+
+    cat = (((uint64_t) high_bytes) << 32) | low_bytes;
+    double d = *((double *) (&cat));
+    push_stack_double(f, d);
 #ifdef DEBUG
-    printf("ldc2_w: Push %lf from cp\n", value);
+    printf("ldc2_w: Push %lf from cp\n", d);
 #endif
     break;
   default:
@@ -790,7 +930,7 @@ void dstore(Frame *f, uint32_t a0, uint32_t a1) {
   double d = pop_stack_double(f);
   frame_set_local_double(f, a0, d);
   /* placeholder (doubles don't need 2 slots in this implementation */
-  frame_set_local_double(f, a1, d);
+  frame_set_local_double(f, a0+1, d);
 }
 
 void dstore_0(Frame *f, uint32_t a0, uint32_t a1) {
@@ -1042,6 +1182,8 @@ void lconst_1(Frame *f, uint32_t a0, uint32_t a1) {
 void lstore(Frame *f, uint32_t a0, uint32_t a1) {
   int64_t x = pop_stack_long(f);
   frame_set_local_long(f, a0, x);
+  /* placeholder (longs don't need 2 slots in this implementation */
+  frame_set_local_long(f, a0+1, x);
 }
 
 void lstore_0(Frame *f, uint32_t a0, uint32_t a1) {
