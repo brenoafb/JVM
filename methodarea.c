@@ -48,3 +48,22 @@ int method_area_class_lookup(MethodArea *ma, char *class_name) {
   /* class not found */
   return -1;
 }
+
+int method_area_method_lookup(MethodArea *ma, int class_index, char *method_name, char *desc) {
+  classfile *cf = ma->classes[class_index];
+  method_info *methods = cf->methods;
+
+  int i;
+  for (i = 0; i < cf->methods_count; i++) {
+    method_info *method = &methods[i];
+    char *curr_name = get_cp_string(cf->constant_pool, method->name_index);
+    char *curr_desc = get_cp_string(cf->constant_pool, method->descriptor_index);
+
+    if (strcmp(curr_name, method_name) == 0
+	&& strcmp(curr_desc, desc) == 0) {
+      return i;
+    }
+  }
+
+  return -1;
+}

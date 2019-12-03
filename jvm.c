@@ -24,6 +24,7 @@ operation optable[N_OPS] = {
 			    [OP_invokestatic] = invokestatic,
 			    [OP_invokespecial] = invokespecial,
 			    [OP_getstatic] = getstatic,
+			    [OP_putstatic] = putstatic,
 			    [OP_ldc_w] = ldc_w,
 			    [OP_ldc2_w] = ldc2_w,
 	  [OP_dstore] = dstore,
@@ -150,6 +151,7 @@ void init_jvm(JVM *jvm) {
   jvm->jmp = false;
   jvm->ret = false;
   jvm->heap_index = -1;
+  jvm->static_index = -1;
 }
 
 void deinit_jvm(JVM *jvm) {
@@ -161,6 +163,10 @@ void deinit_jvm(JVM *jvm) {
 
   while (jvm->heap_index >= 0) {
     free(jvm->heap[(jvm->heap_index)--]);
+  }
+
+  while (jvm->static_index >= 0) {
+    free(jvm->statics[(jvm->static_index)--]);
   }
 }
 
@@ -189,6 +195,26 @@ void jvm_set_current_method(JVM *jvm, char *method_name) {
     }
   }
 }
+
+void jvm_exec_clinit(JVM *jvm) {
+  classfile *class = jvm_get_current_class(jvm);
+  int flag = 0;
+  int i;
+  for (i = 0; i < class->methods_count; i++) {
+    method_info *method = &class->methods[i];
+    char *curr_method_name = get_cp_string(class->constant_pool, method->name_index);
+    if (strcmp(curr_method_name, "<clinit>") == 0) {
+      flag = 1;
+      jvm->current_method_index = i;
+    }
+  }
+
+  if (flag) {
+    jvm_push_frame(jvm);
+    jvm_run(jvm);
+  }
+}
+
 
 void jvm_load_method(JVM *jvm, uint32_t class_index, uint32_t method_index) {
   jvm->current_class_index = class_index;
@@ -274,15 +300,19 @@ int jvm_cycle(JVM *jvm) {
     optable[opcode](f, a[0], a[1]);
   }
   if (opcode == OP_return && jvm_in_main(jvm)) {
-  #ifdef DEBUG
+      #ifdef DEBUG
       printf("frame->i: %d\n", f->i);
       if (f->i > 0) printf("Final value in stack: %d (0x%x)\n", peek_stack(f), peek_stack(f));
-  #endif
-
+      #endif
+    flag = 0;
+  } else if (opcode == OP_return && jvm_in_clinit(jvm)) {
+    #ifdef DEBUG
+    printf("Return from '%s' <clinit>\n", jvm_get_current_class(jvm));
+    #endif
     flag = 0;
   }
 
-  if (jvm->ret) {
+  if (jvm->ret && !jvm_in_main(jvm) && !jvm_in_clinit(jvm)) {
     /* free called method's frame */
     jvm_pop_frame(jvm);
     jvm_restore_context(jvm);
@@ -298,7 +328,7 @@ int jvm_cycle(JVM *jvm) {
       push_stack(f, jvm->retval);
     }
 
-    /* reset flag */
+    /* reset return flag */
     jvm->ret = false;
   }
 
@@ -362,6 +392,11 @@ void jvm_run_method(JVM *jvm) {
 int jvm_in_main(JVM *jvm) {
   char *str = jvm_get_current_method_name(jvm);
   return strcmp(str, "main") == 0;
+}
+
+bool jvm_in_clinit(JVM *jvm) {
+  char *str = jvm_get_current_method_name(jvm);
+  return strcmp(str, "<clinit>") == 0;
 }
 
 void jvm_save_context(JVM *jvm) {
@@ -604,6 +639,18 @@ void invokevirtual(Frame *f, uint32_t a0, uint32_t a1) {
       #else
       printf("%c\n", ch);
       #endif
+    } else if (strcmp(type, "(Z)V") == 0) {
+      /* print bool */
+      int32_t boolean = pop_stack_int(f);
+      #ifdef DEBUG
+      printf("println(bool): %d\n", boolean);
+      #else
+      if (boolean) {
+	printf("true\n");
+      } else {
+	printf("false\n");
+      }
+      #endif
     }
 
     /* pop getstatic dummy value (view getstatic definition) */
@@ -662,6 +709,18 @@ void invokevirtual(Frame *f, uint32_t a0, uint32_t a1) {
       printf("print(char): %c\n", ch);
       #else
       printf("%c", ch);
+      #endif
+    } else if (strcmp(type, "(Z)V") == 0) {
+      /* print bool */
+      int32_t boolean = pop_stack_int(f);
+      #ifdef DEBUG
+      printf("print(bool): %d\n", boolean);
+      #else
+      if (boolean) {
+	printf("true");
+      } else {
+	printf("false");
+      }
       #endif
     }
     /* pop getstatic dummy value (view getstatic definition) */
@@ -832,25 +891,126 @@ void invokespecial(Frame *f, uint32_t a0, uint32_t a1) {
 }
 
 void getstatic(Frame *f, uint32_t a0, uint32_t a1) {
-  /* TODO */
   uint32_t index = (a0 << 8) | a1;
+  JVM *jvm = f->jvm;
   CONSTANT_Fieldref_info fieldref_info = f->cp[index].info.fieldref_info;
   uint16_t class_index = fieldref_info.class_index;
   uint16_t name_and_type_index = fieldref_info.name_and_type_index;
 
-  char *class_name = get_class_name_string(f->cp, class_index);
+  char *classname = get_class_name_string(f->cp, class_index);
   char *name = get_name_and_type_string(f->cp, name_and_type_index, 1);
-  if ((strcmp(class_name, "java/lang/System") == 0)
+  char *type = get_name_and_type_string(f->cp, name_and_type_index, 0);
+
+  #ifdef DEBUG
+  printf("getstatic: classname=%s, name=%s, type=%s\n", classname, name, type);
+  #endif
+
+  if ((strcmp(classname, "java/lang/System") == 0)
       && (strcmp(name, "out") == 0)) {
     /* io operations will be handled by c code */
     /* push a dummy value onto the stack */
     push_stack(f, 0xcc0de);
   } else {
-    /* TODO */
+    Static *st = jvm_get_static(jvm, classname, name);
+
+    assert(st);
+
+    /* TODO: Add remaining types */
+    if (strcmp(type, "I") == 0) {
+      push_stack_int(f, st->value.intfield);
+    } else if (strcmp(type, "J") == 0) {
+      push_stack_long(f, st->value.longfield);
+    } else if (strcmp(type, "F") == 0) {
+      push_stack_float(f, st->value.floatfield);
+    } else if (strcmp(type, "D") == 0) {
+      push_stack_double(f, st->value.doublefield);
+    } else if (strcmp(type, "Z") == 0) {
+      push_stack(f, st->value.boolfield);
+    } else if (strcmp(type, "S") == 0) {
+      push_stack(f, st->value.shortfield);
+    } else if (strcmp(type, "C") == 0) {
+      push_stack(f, st->value.charfield);
+    } else if (strcmp(type, "B") == 0) {
+      push_stack(f, st->value.bytefield);
+    } else {
+      push_stack_pointer(f, st->value.ptrfield);
+    }
   }
   return;
 }
 
+void putstatic(Frame *f, uint32_t a0, uint32_t a1) {
+  uint32_t index = (a0 << 8) | a1;
+  JVM *jvm = f->jvm;
+  CONSTANT_Fieldref_info fieldref_info = f->cp[index].info.fieldref_info;
+  uint16_t class_index = fieldref_info.class_index;
+  uint16_t name_and_type_index = fieldref_info.name_and_type_index;
+
+  char *classname = get_class_name_string(f->cp, class_index);
+  char *name = get_name_and_type_string(f->cp, name_and_type_index, 1);
+  char *type = get_name_and_type_string(f->cp, name_and_type_index, 0);
+
+  #ifdef DEBUG
+  printf("putstatic: classname=%s, name=%s, type=%s\n", classname, name, type);
+  #endif
+
+  Static *st = jvm_get_static(jvm, classname, name);
+
+  if (!st) {
+    st = jvm_push_static(jvm);
+    st->class = classname;
+    st->name = name;
+    st->type = type;
+  }
+
+  if (strcmp(type, "I") == 0) {
+    int32_t value = pop_stack_int(f);
+    st->value.intfield = value;
+  } else if (strcmp(type, "J") == 0) {
+    int64_t value = pop_stack_long(f);
+    st->value.longfield = value;
+  } else if (strcmp(type, "F") == 0) {
+    float value = pop_stack_float(f);
+    st->value.floatfield = value;
+  } else if (strcmp(type, "D") == 0) {
+    double value = pop_stack_double(f);
+    st->value.doublefield = value;
+  } else if (strcmp(type, "S") == 0) {
+    uint64_t pop = pop_stack(f);
+    int16_t value = *((int16_t *) (&pop));
+    st->value.shortfield = value;
+  } else if (strcmp(type, "Z") == 0) {
+    uint64_t pop = pop_stack(f);
+    uint8_t value = *((uint8_t *) (&pop));
+    st->value.boolfield = value;
+  } else if (strcmp(type, "C") == 0) {
+    uint64_t pop = pop_stack(f);
+    uint16_t value = *((uint16_t *) (&pop));
+    st->value.charfield = value;
+  } else {
+    void *value = pop_stack_pointer(f);
+    st->value.ptrfield = value;
+  }
+
+}
+
+Static *jvm_get_static(JVM *jvm, char *classname, char *name) {
+  int i;
+  for (i = 0; i <= jvm->static_index; i++) {
+    if (strcmp(classname, jvm->statics[i]->class) == 0
+	&& strcmp(name, jvm->statics[i]->name) == 0) {
+      return jvm->statics[i];
+    }
+  }
+  return NULL;
+}
+
+Static *jvm_push_static(JVM *jvm) {
+  Static *s = calloc(sizeof(Static), 1);
+  assert(s);
+  jvm->statics[++(jvm->static_index)] = s;
+  return s;
+}
 
 void ldc_w(Frame *f, uint32_t a0, uint32_t a1) {
   uint16_t index, cp_index;

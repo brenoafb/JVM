@@ -3,6 +3,7 @@
 #include <stdint.h>
 
 typedef union {
+  uint8_t boolfield;
   int8_t bytefield;
   uint16_t charfield;
   int16_t shortfield;

@@ -10,8 +10,16 @@
 #include "opcodes.h"
 #include "object.h"
 
-#define MAX_FRAMES 32
-#define MAXHEAP    256
+#define MAX_FRAMES  32
+#define MAXHEAP     256
+#define MAXSTATICS  256
+
+typedef struct Static {
+  char *class;
+  char *name;
+  char *type;
+  ObjectField value;
+} Static;
 
 typedef struct JVM {
   uint32_t pc;
@@ -28,6 +36,9 @@ typedef struct JVM {
 
   void *heap[MAXHEAP];
   int32_t heap_index;
+
+  Static *statics[MAXSTATICS];
+  int32_t static_index;
 } JVM;
 
 void init_jvm(JVM *jvm);
@@ -84,6 +95,9 @@ void jvm_run_method(JVM *jvm);
 /* Returns whether jvm is currently running main method */
 int jvm_in_main(JVM *jvm);
 
+/* Returns whether jvm is currently running <clinit> method */
+bool jvm_in_clinit(JVM *jvm);
+
 /* Save current frame context */
 void jvm_save_context(JVM *jvm);
 
@@ -126,6 +140,9 @@ void jvm_set_args(JVM *jvm, Frame *caller, char *type);
 void invokespecial(Frame *f, uint32_t a0, uint32_t a1);
 
 void getstatic(Frame *f, uint32_t a0, uint32_t a1);
+void putstatic(Frame *f, uint32_t a0, uint32_t a1);
+Static *jvm_get_static(JVM *jvm, char *classname, char *name);
+Static *jvm_push_static(JVM *jvm);
 
 void ldc_w(Frame *f, uint32_t a0, uint32_t a1);
 void ldc2_w(Frame *f, uint32_t a0, uint32_t a1);

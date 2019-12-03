@@ -37,6 +37,7 @@ int main(int argc, char *argv[]) {
 
     jvm_load_class(&memory, argv[1]);
     jvm_set_current_class(&memory, class_name);
+    jvm_exec_clinit(&memory);
     jvm_set_current_method(&memory, "main");
 
     jvm_push_frame(&memory);
