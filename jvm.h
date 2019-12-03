@@ -251,5 +251,9 @@ void d2f(Frame *f, uint32_t a0, uint32_t a1);
 void d2i(Frame *f, uint32_t a0, uint32_t a1);
 void d2l(Frame *f, uint32_t a0, uint32_t a1);
 
+void f2d(Frame *f, uint32_t a0, uint32_t a1);
+void f2i(Frame *f, uint32_t a0, uint32_t a1);
+void f2l(Frame *f, uint32_t a0, uint32_t a1);
+
 extern operation optable[N_OPS];
 extern int opargs[N_OPS];
