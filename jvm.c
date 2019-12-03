@@ -124,6 +124,7 @@ operation optable[N_OPS] = {
 			    [OP_l2d] = l2d,
 			    [OP_l2f] = l2f,
 			    [OP_l2i] = l2i,
+			    [OP_multianewarray] = multianewarray,
 };
 
 int opargs[N_OPS] = {
@@ -301,7 +302,7 @@ int jvm_cycle(JVM *jvm) {
     return tableswitch(jvm);
   }
 
-  uint32_t a[2];
+  uint32_t a[3];
   int i;
   for (i = 0; i < opargs[opcode]; i++) {
     a[i] = code->code[jvm->pc+i+1];
@@ -309,7 +310,12 @@ int jvm_cycle(JVM *jvm) {
       printf("load a%d: %d\n", i, a[i]);
   #endif
   }
-  optable[opcode](f, a[0], a[1]);
+  if (opcode == OP_multianewarray) {
+    uint32_t index = (a[0] << 8) | a[1];
+    multianewarray(f, index, a[2]);
+  } else {
+    optable[opcode](f, a[0], a[1]);
+  }
   if (opcode == OP_return && jvm_in_main(jvm)) {
   #ifdef DEBUG
       printf("frame->i: %d\n", f->i);
@@ -1581,4 +1587,33 @@ void l2i(Frame *f, uint32_t a0, uint32_t a1) {
   int64_t lval = pop_stack_long(f);
   int32_t ival = lval;
   push_stack_int(f, ival);
+}
+
+void multianewarray(Frame *f, uint32_t a0, uint32_t a1) {
+  uint32_t index = a0;
+  uint32_t dims = a1;
+  int32_t counts[dims];
+
+  uint32_t i;
+  for (i = 0; i < dims; i++) {
+    counts[i] = pop_stack_int(f);
+  }
+
+  cp_info *entry = &f->cp[index];
+
+  if (entry->tag == CONSTANT_Class) {
+    CONSTANT_Class_info ci = entry->info.class_info;
+    uint16_t name_index = ci.name_index;
+    char *name = get_cp_string(f->cp, name_index);
+    if (strcmp(name, "[[I") == 0) {
+      /* int array */
+      uint32_t size = 1;
+      for (i = 0; i < dims; i++) {
+	size *= counts[i];
+      }
+      printf("multianewarray: int array size: %d\n", size);
+      void *ptr = calloc(sizeof(int32_t), size);
+      push_stack_pointer(f, ptr);
+    }
+  }
 }

@@ -259,5 +259,7 @@ void l2d(Frame *f, uint32_t a0, uint32_t a1);
 void l2f(Frame *f, uint32_t a0, uint32_t a1);
 void l2i(Frame *f, uint32_t a0, uint32_t a1);
 
+void multianewarray(Frame *f, uint32_t a0, uint32_t a1);
+
 extern operation optable[N_OPS];
 extern int opargs[N_OPS];
