@@ -1612,26 +1612,34 @@ void multianewarray(Frame *f, uint32_t a0, uint32_t a1) {
   uint32_t index = a0;
   uint32_t dims = a1;
   int32_t counts[dims];
-
   uint32_t i;
+  JVM *jvm = f->jvm;
+  cp_info *entry = &f->cp[index];
+
   for (i = 0; i < dims; i++) {
     counts[i] = pop_stack_int(f);
   }
 
-  cp_info *entry = &f->cp[index];
-
+  /* assume 2d array */
   if (entry->tag == CONSTANT_Class) {
     CONSTANT_Class_info ci = entry->info.class_info;
     uint16_t name_index = ci.name_index;
     char *name = get_cp_string(f->cp, name_index);
+    uint32_t size = 0;
     if (strcmp(name, "[[I") == 0) {
       /* int array */
-      /* assume 2d array */
-      int32_t **ptr = calloc(sizeof(void *), counts[0]);
-      for (i = 0; i < counts[0]; i++) {
-	ptr[i] = calloc(sizeof(int32_t), counts[1]);
-      }
-      push_stack_pointer(f, ptr);
+      size = sizeof(int32_t);
+    } else if (strcmp(name, "[[I") == 0) {
+      /* float array */
+      size = sizeof(float);
     }
+
+    int32_t **ptr = calloc(sizeof(void *), counts[0]);
+    for (i = 0; i < counts[0]; i++) {
+      ptr[i] = calloc(size, counts[1]);
+      jvm_add_to_heap(jvm, ptr[i]);
+    }
+    push_stack_pointer(f, ptr);
+    jvm_add_to_heap(jvm, ptr[i]);
   }
 }

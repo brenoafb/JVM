@@ -1,20 +1,37 @@
 public class Array2D {
 	public static void main(String args[]) {
-		int[][] arr = new int[3][3];
+		int[][] arr_int = new int[3][3];
+		float[][] arr_float = new float[3][3];
 		int i, j;
 
 		for (i = 0; i < 3; i++) {
 			for (j = 0; j < 3; j++) {
-				arr[i][j] = i+j;
+				arr_int[i][j] = i+j;
 			}
 		}
 
 		for (i = 0; i < 3; i++) {
 			for (j = 0; j < 3; j++) {
-				System.out.print(arr[i][j]);
+				System.out.print(arr_int[i][j]);
 				System.out.print(" ");
 			}
 			System.out.println("");
 		}
+		System.out.println("");
+
+		for (i = 0; i < 3; i++) {
+			for (j = 0; j < 3; j++) {
+				arr_float[i][j] = (float) i+j;
+			}
+		}
+
+		for (i = 0; i < 3; i++) {
+			for (j = 0; j < 3; j++) {
+				System.out.print(arr_float[i][j]);
+				System.out.print(" ");
+			}
+			System.out.println("");
+		}
+		System.out.println("");
 	}
 }
