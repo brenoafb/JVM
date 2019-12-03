@@ -232,6 +232,10 @@ void astore_2(Frame *f, uint32_t a0, uint32_t a1);
 void astore_3(Frame *f, uint32_t a0, uint32_t a1);
 
 void newarray(Frame *f, uint32_t a0, uint32_t a1);
+
+void aastore(Frame *f, uint32_t a0, uint32_t a1);
+void aaload(Frame *f, uint32_t a0, uint32_t a1);
+
 void iastore(Frame *f, uint32_t a0, uint32_t a1);
 void iaload(Frame *f, uint32_t a0, uint32_t a1);
 
@@ -259,5 +263,11 @@ void l2d(Frame *f, uint32_t a0, uint32_t a1);
 void l2f(Frame *f, uint32_t a0, uint32_t a1);
 void l2i(Frame *f, uint32_t a0, uint32_t a1);
 
+void multianewarray(Frame *f, uint32_t a0, uint32_t a1);
+
+
 extern operation optable[N_OPS];
 extern int opargs[N_OPS];
+
+void jvm_alloc_array_2d(JVM *jvm, int32_t counts[], uint32_t size);
+void jvm_alloc_array_3d(JVM *jvm, int32_t counts[], uint32_t size);

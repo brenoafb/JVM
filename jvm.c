@@ -107,12 +107,16 @@ operation optable[N_OPS] = {
 			    [OP_astore_2] = astore_2,
 			    [OP_astore_3] = astore_3,
 			    [OP_newarray] = newarray,
+			    [OP_aastore] = aastore,
+			    [OP_aaload] = aaload,
 			    [OP_iastore] = iastore,
 			    [OP_iaload] = iaload,
 			    [OP_fastore] = fastore,
 			    [OP_faload] = faload,
 			    [OP_lastore] = lastore,
 			    [OP_laload] = laload,
+			    [OP_dastore] = dastore,
+			    [OP_daload] = daload,
 			    [OP_bastore] = bastore,
 			    [OP_baload] = baload,
 			    [OP_d2f] = d2f,
@@ -124,6 +128,7 @@ operation optable[N_OPS] = {
 			    [OP_l2d] = l2d,
 			    [OP_l2f] = l2f,
 			    [OP_l2i] = l2i,
+			    [OP_multianewarray] = multianewarray,
 };
 
 int opargs[N_OPS] = {
@@ -301,7 +306,7 @@ int jvm_cycle(JVM *jvm) {
     return tableswitch(jvm);
   }
 
-  uint32_t a[2];
+  uint32_t a[3];
   int i;
   for (i = 0; i < opargs[opcode]; i++) {
     a[i] = code->code[jvm->pc+i+1];
@@ -309,7 +314,12 @@ int jvm_cycle(JVM *jvm) {
       printf("load a%d: %d\n", i, a[i]);
   #endif
   }
-  optable[opcode](f, a[0], a[1]);
+  if (opcode == OP_multianewarray) {
+    uint32_t index = (a[0] << 8) | a[1];
+    multianewarray(f, index, a[2]);
+  } else {
+    optable[opcode](f, a[0], a[1]);
+  }
   if (opcode == OP_return && jvm_in_main(jvm)) {
   #ifdef DEBUG
       printf("frame->i: %d\n", f->i);
@@ -1443,6 +1453,23 @@ void newarray(Frame *f, uint32_t a0, uint32_t a1) {
   push_stack_pointer(f, mem);
 }
 
+void aastore(Frame *f, uint32_t a0, uint32_t a1) {
+  void *value = pop_stack_pointer(f);
+  int32_t index = pop_stack_int(f);
+  void *arrayref = pop_stack_pointer(f);
+
+  memcpy(arrayref + index*sizeof(void *), &value, sizeof(void *));
+}
+
+void aaload(Frame *f, uint32_t a0, uint32_t a1) {
+  int32_t index = pop_stack_int(f);
+  void *arrayref = pop_stack_pointer(f);
+  void *value = 0;
+
+  memcpy(&value, arrayref + index*sizeof(void *), sizeof(void *));
+  push_stack_pointer(f, value);
+}
+
 void iastore(Frame *f, uint32_t a0, uint32_t a1) {
   int32_t value = pop_stack_int(f);
   int32_t index = pop_stack_int(f);
@@ -1581,4 +1608,69 @@ void l2i(Frame *f, uint32_t a0, uint32_t a1) {
   int64_t lval = pop_stack_long(f);
   int32_t ival = lval;
   push_stack_int(f, ival);
+}
+
+void multianewarray(Frame *f, uint32_t a0, uint32_t a1) {
+  uint32_t index = a0;
+  uint32_t dims = a1;
+  int32_t counts[dims];
+  uint32_t i;
+  JVM *jvm = f->jvm;
+  cp_info *entry = &f->cp[index];
+
+  for (i = 0; i < dims; i++) {
+    counts[i] = pop_stack_int(f);
+  }
+
+  /* assume 2d array */
+  uint32_t size = 0;
+  if (entry->tag == CONSTANT_Class) {
+    CONSTANT_Class_info ci = entry->info.class_info;
+    uint16_t name_index = ci.name_index;
+    char *name = get_cp_string(f->cp, name_index);
+    if (strcmp(name, "[[[I") == 0 || strcmp(name, "[[I") == 0) {
+      /* int array */
+      size = sizeof(int32_t);
+    } else if (strcmp(name, "[[[J") == 0 || strcmp(name, "[[J") == 0) {
+      /* long array */
+      size = sizeof(int64_t);
+    } else if (strcmp(name, "[[[F") == 0 || strcmp(name, "[[F") == 0) {
+      /* float array */
+      size = sizeof(float);
+    } else if (strcmp(name, "[[[D") == 0 || strcmp(name, "[[D") == 0) {
+      /* double array */
+      size = sizeof(double);
+    }
+  }
+
+  if (dims == 2) jvm_alloc_array_2d(jvm, counts, size);
+  else if (dims == 3) jvm_alloc_array_3d(jvm, counts, size);
+}
+
+void jvm_alloc_array_2d(JVM *jvm, int32_t counts[], uint32_t size) {
+  Frame *f = jvm_peek_frame(jvm);
+  int32_t **ptr = calloc(sizeof(void *), counts[0]);
+  int32_t i;
+  for (i = 0; i < counts[0]; i++) {
+    ptr[i] = calloc(size, counts[1]);
+    jvm_add_to_heap(jvm, ptr[i]);
+  }
+  push_stack_pointer(f, ptr);
+  jvm_add_to_heap(jvm, ptr);
+}
+
+void jvm_alloc_array_3d(JVM *jvm, int32_t counts[], uint32_t size) {
+  Frame *f = jvm_peek_frame(jvm);
+  int32_t ***ptr = calloc(sizeof(void *), counts[0]);
+  int32_t i, j;
+  for (i = 0; i < counts[0]; i++) {
+    ptr[i] = calloc(sizeof(void *), counts[1]);
+    for (j = 0; j < counts[1]; j++) {
+      ptr[i][j] = calloc(size, counts[2]);
+      jvm_add_to_heap(jvm, ptr[i][j]);
+    }
+    jvm_add_to_heap(jvm, ptr[i]);
+  }
+  push_stack_pointer(f, ptr);
+  jvm_add_to_heap(jvm, ptr);
 }
