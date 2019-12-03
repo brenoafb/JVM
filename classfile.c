@@ -742,7 +742,7 @@ void print_code_attribute(Code_attribute *ptr, cp_info *cp) {
 	   ptr->max_stack,
 	   ptr->max_locals);
     uint32_t i, f, param1, param2;
-    int32_t result;
+    uint32_t result;
     for (i = 0; i < ptr->code_length; i++) {
       f = i;
       printf("\t\t %d\t%s", i, strings_opcodes[ptr->code[i]]);
@@ -750,21 +750,34 @@ void print_code_attribute(Code_attribute *ptr, cp_info *cp) {
         case 1:
           if ((ptr->code[i] >= OP_iload && ptr->code[i] >= OP_aload) || ptr->code[i] == OP_ret)
             printf (" LocalVariable: #%d", ptr->code[++i]);
-          else if (ptr->code[i] == OP_ldc)
-            printf (" CPcode : #%u", ptr->code[++i]);
+          else if (ptr->code[i] == OP_ldc){
+            printf (" #%u ", ptr->code[++i]);
+            print_cp_element (cp, i);
+          }
           else 
             printf (" %d", ptr->code[++i]);
           break;
         case 2:
           param1 = ptr->code[++i];
           param2 = ptr->code[++i];
-          if ((ptr->code[i] >= OP_ifeq && ptr->code[++i] <= OP_jsr) || 
-            ptr->code[++i] == OP_ifnull || ptr->code[++i] == OP_ifnonnull) {
-            result = (int32_t) (param1 << 8 + param2);
-            printf (" %d, result");
+          if ((ptr->code[f] >= OP_ifeq && ptr->code[f] <= OP_jsr) || 
+            ptr->code[f] == OP_ifnull || ptr->code[f] == OP_ifnonnull ||
+            ptr->code[f] == OP_sipush) {
+
+            result = (param1 << 8) + param2;
+            printf (" %d", (int16_t) result);
           }
-          else if (ptr->code[++i] == OP_iinc){
-            printf (" LocalVariable: #%d by %d", ptr->code[++i], (int16_t) ptr->code[++i]);
+          else if (ptr->code[f] == OP_iinc){
+            printf (" LocalVariable: #%u by %d", param1, (int8_t) param2);
+          }
+          else if (ptr->code[f] == OP_ldc_w || ptr->code[f] == OP_ldc2_w ||
+            (ptr->code[f] >= OP_getstatic && ptr->code[f] <= OP_invokestatic) ||
+            ptr->code[f] == OP_new || ptr->code[f] == OP_anewarray ||
+            ptr->code[f] == OP_checkcast || ptr->code[f] == OP_instanceof) {
+
+            result = (param1 << 8) + param2;
+            printf (" #%u ", result);
+            print_cp_element (cp, (uint16_t) result);
           }
           else {
             printf (" %d", param1);
@@ -969,36 +982,36 @@ void print_java_version (uint16_t major,  uint16_t minor) {
 void print_cp_element (cp_info *cp, uint16_t i){
   switch(cp[i].tag) {
     case CONSTANT_Utf8                 :
-      printf("Utf8:\t");
+      printf(" ");
       char *str = get_cp_string(cp, i);
-      printf("%s\n", str);
+      printf("%s", str);
       break;
     case CONSTANT_Integer              :
-      printf("Integer\t");
+      printf(" ");
       uint32_t x = cp[i].info.integer_info.bytes;
-      printf("%d\n", x);
+      printf("%d", x);
       break;
     case CONSTANT_Float                :
-      printf("Float\t");
+      printf(" ");
       uint32_t hi = cp[i].info.float_info.bytes;
       float f;
 
       memcpy(&f, &hi, sizeof(float));
 
-      printf("%f\n", f);
+      printf("%f", f);
       break;
     case CONSTANT_Long                 :
-      printf("Long\t");
+      printf(" ");
       hi = cp[i].info.long_info.high_bytes;
       uint64_t lo = cp[i].info.long_info.low_bytes;
 
       uint64_t lg = ((uint64_t) hi << 32) | lo;
 
-      printf("%ld\n", lg);
+      printf("%ld", lg);
       i++;
       break;
     case CONSTANT_Double               :
-      printf("Double\t");
+      printf(" ");
       hi = cp[i].info.double_info.high_bytes;
       lo = cp[i].info.double_info.low_bytes;
 
@@ -1007,50 +1020,50 @@ void print_cp_element (cp_info *cp, uint16_t i){
 
       memcpy(&db, &conc, sizeof(double));
 
-      printf("%lf\n", db);
+      printf("%lf", db);
       i++;
       break;
     case CONSTANT_Class                :
-      printf("Class\t");
+      printf(" ");
       uint16_t name_index = cp[i].info.class_info.name_index;
-      printf("%s (#%d)\n", get_cp_string(cp, name_index), name_index);
+      printf("%s (#%d)", get_cp_string(cp, name_index), name_index);
       break;
     case CONSTANT_String               :
-      printf("String\t");
+      printf(" ");
       uint16_t string_index = cp[i].info.string_info.string_index;
-      printf("%s (#%d)\n", get_cp_string(cp, string_index), string_index);
+      printf("%s (#%d)", get_cp_string(cp, string_index), string_index);
       break;
     case CONSTANT_Fieldref             :
-      printf("Fieldref\t");
+      printf(" ");
       uint16_t class_index = cp[i].info.fieldref_info.class_index;
       uint16_t name_and_type_index = cp[i].info.fieldref_info.name_and_type_index;
-      printf("%s.%s:%s (#%d.#%d)\n", get_class_name_string(cp, class_index),
+      printf("%s.%s:%s (#%d.#%d)", get_class_name_string(cp, class_index),
         get_name_and_type_string(cp, name_and_type_index, 1),
         get_name_and_type_string(cp, name_and_type_index, 0),
         class_index, name_and_type_index);
       break;
     case CONSTANT_Methodref            :
-      printf("Methodref\t");
+      printf(" ");
       class_index = cp[i].info.methodref_info.class_index;
       name_and_type_index = cp[i].info.methodref_info.name_and_type_index;
-      printf("%s.%s:%s (#%d.#%d)\n", get_class_name_string(cp, class_index),
+      printf("%s.%s:%s (#%d.#%d)", get_class_name_string(cp, class_index),
         get_name_and_type_string(cp, name_and_type_index, 1),
         get_name_and_type_string(cp, name_and_type_index, 0), class_index, name_and_type_index);
       break;
     case CONSTANT_InterfaceMethodref   :
-      printf("InterfaceMethodref\t");
+      printf(" ");
       class_index = cp[i].info.methodref_info.class_index;
       name_and_type_index = cp[i].info.methodref_info.name_and_type_index;
-      printf("%s.%s:%s (#%d.#%d)\n", get_class_name_string(cp, class_index),
+      printf("%s.%s:%s (#%d.#%d)", get_class_name_string(cp, class_index),
         get_name_and_type_string(cp, name_and_type_index, 1),
         get_name_and_type_string(cp, name_and_type_index, 0),
         class_index, name_and_type_index);
       break;
     case CONSTANT_NameAndType          :
-      printf("NameAndType\t");
+      printf(" ");
       name_index = cp[i].info.nameandtype_info.name_index;
       uint16_t descriptor_index = cp[i].info.nameandtype_info.descriptor_index;
-      printf("%s:%s (#%d:#%d)\n", get_cp_string(cp, name_index),
+      printf("%s:%s (#%d:#%d)", get_cp_string(cp, name_index),
         get_cp_string(cp, descriptor_index), name_index, descriptor_index);
       break;
     }
