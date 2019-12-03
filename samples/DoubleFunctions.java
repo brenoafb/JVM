@@ -12,6 +12,10 @@ public class DoubleFunctions {
 	return x + y;
     }
 
+    public static double addDoubleInt(double x, int y) {
+	return x + (double) y;
+    }
+
     public static void main(String[] args) {
 	double pi = getPi();
 	System.out.print("pi=");
@@ -24,6 +28,10 @@ public class DoubleFunctions {
 	double e = 2.71828182845904523;
 	double sum = addDoubles(e, pi);
 	System.out.print("e + pi = ");
+	System.out.println(sum);
+
+	sum = addDoubleInt(e, 1);
+	System.out.print("e + 1 = ");
 	System.out.println(sum);
     }
 }
