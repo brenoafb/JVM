@@ -655,6 +655,43 @@ void invokestatic(Frame *f, uint32_t a0, uint32_t a1) {
   jvm_set_args(jvm, f, type);
 }
 
+void jvm_parse_types(char *type, char parsed[], int *count) {
+  char buf[BUFSIZE];
+  int i = 1;
+  int j = 0;
+  int k = 0;
+  while (type[i] != ')') {
+    switch (type[i]) {
+    case 'I':
+      parsed[j] = 'I';
+      break;
+    case 'J':
+      parsed[j] = 'J';
+      break;
+    case 'F':
+      parsed[j] = 'J';
+      break;
+    case 'D':
+      parsed[j] = 'D';
+      break;
+    default:
+      while (type[i] != ';') buf[k++] = type[i++];
+      buf[k] = 0;
+      if (strcmp(buf, "Ljava/lang/String;")) {
+	parsed[j] = 'A';
+      } else {
+	#ifdef DEBUG
+	printf("jvm_set_args: Unknown arg type %s\n", buf);
+	#endif
+      }
+      break;
+    }
+    j++;
+    i++;
+  }
+  *count = j;
+}
+
 void jvm_set_args(JVM *jvm, Frame *caller, char *type) {
   Frame *f1 = jvm_peek_frame(jvm);
 
@@ -662,35 +699,44 @@ void jvm_set_args(JVM *jvm, Frame *caller, char *type) {
   int64_t longarg;
   float floatarg;
   double doublearg;
+  void *ptrarg;
 
-  int i = 1;
-  int local_index = 0;
-  while (type[i] != ')') {
-    switch (type[i]) {
+  char parsed[BUFSIZE] = {0};
+  int count = 0;
+  jvm_parse_types(type, parsed, &count);
+  #ifdef DEBUG
+  printf("jvm_set_args: parsed types: %s\n", parsed);
+  #endif
+
+  int i, j;
+  for (i = count-1, j = count-1; i >= 0; i--, j--) {
+    switch (parsed[i]) {
     case 'I':
-    intarg = pop_stack_int(caller);
-    frame_set_local_int(f1, local_index, intarg);
-    break;
+      intarg = pop_stack_int(caller);
+      frame_set_local_int(f1, j, intarg);
+      break;
     case 'J':
-    longarg = pop_stack_long(caller);
-    frame_set_local_long(f1, local_index, longarg);
-    local_index++;
-    break;
+      longarg = pop_stack_long(caller);
+      frame_set_local_long(f1, --j, longarg);
+      break;
     case 'F':
-    floatarg = pop_stack_float(caller);
-    frame_set_local_float(f1, local_index, floatarg);
-    break;
+      floatarg = pop_stack_float(caller);
+      frame_set_local_float(f1, j, floatarg);
+      break;
     case 'D':
-    doublearg = pop_stack_double(caller);
-    frame_set_local_double(f1, local_index, doublearg);
-    local_index++;
-    break;
+      doublearg = pop_stack_double(caller);
+      frame_set_local_double(f1, --j, doublearg);
+      break;
+    case 'A':
+	ptrarg = pop_stack_pointer(caller);
+	frame_set_local_pointer(f1, j, ptrarg);
+	break;
     default:
-      printf("jvm_set_args: Unknown arg type '%c'\n", type[i]);
+      #ifdef DEBUG
+      printf("jvm_set_args: Unknown type %c\n", parsed[i]);
+      #endif
       break;
     }
-    local_index++;
-    i++;
   }
 }
 
