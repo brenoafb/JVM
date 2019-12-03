@@ -164,6 +164,10 @@ void deinit_jvm(JVM *jvm) {
   while (jvm->heap_index >= 0) {
     free(jvm->heap[(jvm->heap_index)--]);
   }
+
+  while (jvm->static_index >= 0) {
+    free(jvm->statics[(jvm->static_index)--]);
+  }
 }
 
 void jvm_load_classfile(JVM *jvm, classfile *cf) {
