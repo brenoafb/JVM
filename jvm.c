@@ -115,6 +115,8 @@ operation optable[N_OPS] = {
 			    [OP_faload] = faload,
 			    [OP_lastore] = lastore,
 			    [OP_laload] = laload,
+			    [OP_dastore] = dastore,
+			    [OP_daload] = daload,
 			    [OP_bastore] = bastore,
 			    [OP_baload] = baload,
 			    [OP_d2f] = d2f,
@@ -1629,7 +1631,7 @@ void multianewarray(Frame *f, uint32_t a0, uint32_t a1) {
     if (strcmp(name, "[[[I") == 0 || strcmp(name, "[[I") == 0) {
       /* int array */
       size = sizeof(int32_t);
-    } else if (strcmp(name, "[[[L") == 0 || strcmp(name, "[[J") == 0) {
+    } else if (strcmp(name, "[[[J") == 0 || strcmp(name, "[[J") == 0) {
       /* long array */
       size = sizeof(int64_t);
     } else if (strcmp(name, "[[[F") == 0 || strcmp(name, "[[F") == 0) {
@@ -1637,7 +1639,7 @@ void multianewarray(Frame *f, uint32_t a0, uint32_t a1) {
       size = sizeof(float);
     } else if (strcmp(name, "[[[D") == 0 || strcmp(name, "[[D") == 0) {
       /* double array */
-      size = sizeof(float);
+      size = sizeof(double);
     }
   }
 
