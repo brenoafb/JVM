@@ -742,7 +742,7 @@ void print_code_attribute(Code_attribute *ptr, cp_info *cp) {
 	   ptr->max_stack,
 	   ptr->max_locals);
     uint32_t i, f, param1, param2;
-    int16_t result;
+    int32_t result;
     for (i = 0; i < ptr->code_length; i++) {
       f = i;
       printf("\t\t %d\t%s", i, strings_opcodes[ptr->code[i]]);
@@ -760,7 +760,7 @@ void print_code_attribute(Code_attribute *ptr, cp_info *cp) {
           param2 = ptr->code[++i];
           if ((ptr->code[i] >= OP_ifeq && ptr->code[++i] <= OP_jsr) || 
             ptr->code[++i] == OP_ifnull || ptr->code[++i] == OP_ifnonnull) {
-            result = (int16_t) (param1 << 8 + param2);
+            result = (int32_t) (param1 << 8 + param2);
             printf (" %d, result");
           }
           else if (ptr->code[++i] == OP_iinc){
@@ -964,4 +964,94 @@ void print_java_version (uint16_t major,  uint16_t minor) {
   sprintf(version, "%s.%d", major_version, minor);
   printf("\t%s\n",version);
   free(version);
+}
+
+void print_cp_element (cp_info *cp, uint16_t i){
+  switch(cp[i].tag) {
+    case CONSTANT_Utf8                 :
+      printf("Utf8:\t");
+      char *str = get_cp_string(cp, i);
+      printf("%s\n", str);
+      break;
+    case CONSTANT_Integer              :
+      printf("Integer\t");
+      uint32_t x = cp[i].info.integer_info.bytes;
+      printf("%d\n", x);
+      break;
+    case CONSTANT_Float                :
+      printf("Float\t");
+      uint32_t hi = cp[i].info.float_info.bytes;
+      float f;
+
+      memcpy(&f, &hi, sizeof(float));
+
+      printf("%f\n", f);
+      break;
+    case CONSTANT_Long                 :
+      printf("Long\t");
+      hi = cp[i].info.long_info.high_bytes;
+      uint64_t lo = cp[i].info.long_info.low_bytes;
+
+      uint64_t lg = ((uint64_t) hi << 32) | lo;
+
+      printf("%ld\n", lg);
+      i++;
+      break;
+    case CONSTANT_Double               :
+      printf("Double\t");
+      hi = cp[i].info.double_info.high_bytes;
+      lo = cp[i].info.double_info.low_bytes;
+
+      uint64_t conc = ((long) hi << 32) + lo;
+      double db;
+
+      memcpy(&db, &conc, sizeof(double));
+
+      printf("%lf\n", db);
+      i++;
+      break;
+    case CONSTANT_Class                :
+      printf("Class\t");
+      uint16_t name_index = cp[i].info.class_info.name_index;
+      printf("%s (#%d)\n", get_cp_string(cp, name_index), name_index);
+      break;
+    case CONSTANT_String               :
+      printf("String\t");
+      uint16_t string_index = cp[i].info.string_info.string_index;
+      printf("%s (#%d)\n", get_cp_string(cp, string_index), string_index);
+      break;
+    case CONSTANT_Fieldref             :
+      printf("Fieldref\t");
+      uint16_t class_index = cp[i].info.fieldref_info.class_index;
+      uint16_t name_and_type_index = cp[i].info.fieldref_info.name_and_type_index;
+      printf("%s.%s:%s (#%d.#%d)\n", get_class_name_string(cp, class_index),
+        get_name_and_type_string(cp, name_and_type_index, 1),
+        get_name_and_type_string(cp, name_and_type_index, 0),
+        class_index, name_and_type_index);
+      break;
+    case CONSTANT_Methodref            :
+      printf("Methodref\t");
+      class_index = cp[i].info.methodref_info.class_index;
+      name_and_type_index = cp[i].info.methodref_info.name_and_type_index;
+      printf("%s.%s:%s (#%d.#%d)\n", get_class_name_string(cp, class_index),
+        get_name_and_type_string(cp, name_and_type_index, 1),
+        get_name_and_type_string(cp, name_and_type_index, 0), class_index, name_and_type_index);
+      break;
+    case CONSTANT_InterfaceMethodref   :
+      printf("InterfaceMethodref\t");
+      class_index = cp[i].info.methodref_info.class_index;
+      name_and_type_index = cp[i].info.methodref_info.name_and_type_index;
+      printf("%s.%s:%s (#%d.#%d)\n", get_class_name_string(cp, class_index),
+        get_name_and_type_string(cp, name_and_type_index, 1),
+        get_name_and_type_string(cp, name_and_type_index, 0),
+        class_index, name_and_type_index);
+      break;
+    case CONSTANT_NameAndType          :
+      printf("NameAndType\t");
+      name_index = cp[i].info.nameandtype_info.name_index;
+      uint16_t descriptor_index = cp[i].info.nameandtype_info.descriptor_index;
+      printf("%s:%s (#%d:#%d)\n", get_cp_string(cp, name_index),
+        get_cp_string(cp, descriptor_index), name_index, descriptor_index);
+      break;
+    }
 }
