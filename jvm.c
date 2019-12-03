@@ -198,17 +198,21 @@ void jvm_set_current_method(JVM *jvm, char *method_name) {
 
 void jvm_exec_clinit(JVM *jvm) {
   classfile *class = jvm_get_current_class(jvm);
+  int flag = 0;
   int i;
   for (i = 0; i < class->methods_count; i++) {
     method_info *method = &class->methods[i];
     char *curr_method_name = get_cp_string(class->constant_pool, method->name_index);
     if (strcmp(curr_method_name, "<clinit>") == 0) {
+      flag = 1;
       jvm->current_method_index = i;
     }
   }
 
-  jvm_push_frame(jvm);
-  jvm_run(jvm);
+  if (flag) {
+    jvm_push_frame(jvm);
+    jvm_run(jvm);
+  }
 }
 
 
@@ -635,6 +639,18 @@ void invokevirtual(Frame *f, uint32_t a0, uint32_t a1) {
       #else
       printf("%c\n", ch);
       #endif
+    } else if (strcmp(type, "(Z)V") == 0) {
+      /* print bool */
+      int32_t boolean = pop_stack_int(f);
+      #ifdef DEBUG
+      printf("println(bool): %d\n", boolean);
+      #else
+      if (boolean) {
+	printf("true\n");
+      } else {
+	printf("false\n");
+      }
+      #endif
     }
 
     /* pop getstatic dummy value (view getstatic definition) */
@@ -693,6 +709,18 @@ void invokevirtual(Frame *f, uint32_t a0, uint32_t a1) {
       printf("print(char): %c\n", ch);
       #else
       printf("%c", ch);
+      #endif
+    } else if (strcmp(type, "(Z)V") == 0) {
+      /* print bool */
+      int32_t boolean = pop_stack_int(f);
+      #ifdef DEBUG
+      printf("print(bool): %d\n", boolean);
+      #else
+      if (boolean) {
+	printf("true");
+      } else {
+	printf("false");
+      }
       #endif
     }
     /* pop getstatic dummy value (view getstatic definition) */
@@ -896,6 +924,14 @@ void getstatic(Frame *f, uint32_t a0, uint32_t a1) {
       push_stack_float(f, st->value.floatfield);
     } else if (strcmp(type, "D") == 0) {
       push_stack_double(f, st->value.doublefield);
+    } else if (strcmp(type, "Z") == 0) {
+      push_stack(f, st->value.boolfield);
+    } else if (strcmp(type, "S") == 0) {
+      push_stack(f, st->value.shortfield);
+    } else if (strcmp(type, "C") == 0) {
+      push_stack(f, st->value.charfield);
+    } else if (strcmp(type, "B") == 0) {
+      push_stack(f, st->value.bytefield);
     } else {
       push_stack_pointer(f, st->value.ptrfield);
     }
@@ -927,7 +963,6 @@ void putstatic(Frame *f, uint32_t a0, uint32_t a1) {
     st->type = type;
   }
 
-  /* TODO: Add remaining types (bool, byte, short, etc) */
   if (strcmp(type, "I") == 0) {
     int32_t value = pop_stack_int(f);
     st->value.intfield = value;
@@ -940,6 +975,18 @@ void putstatic(Frame *f, uint32_t a0, uint32_t a1) {
   } else if (strcmp(type, "D") == 0) {
     double value = pop_stack_double(f);
     st->value.doublefield = value;
+  } else if (strcmp(type, "S") == 0) {
+    uint64_t pop = pop_stack(f);
+    int16_t value = *((int16_t *) (&pop));
+    st->value.shortfield = value;
+  } else if (strcmp(type, "Z") == 0) {
+    uint64_t pop = pop_stack(f);
+    uint8_t value = *((uint8_t *) (&pop));
+    st->value.boolfield = value;
+  } else if (strcmp(type, "C") == 0) {
+    uint64_t pop = pop_stack(f);
+    uint16_t value = *((uint16_t *) (&pop));
+    st->value.charfield = value;
   } else {
     void *value = pop_stack_pointer(f);
     st->value.ptrfield = value;
