@@ -1804,17 +1804,4 @@ void jvm_alloc_object(JVM *jvm, char *classname) {
   jvm_add_to_heap(jvm, obj);
   jvm_add_to_heap(jvm, obj->fields);
   push_stack_pointer(jvm_peek_frame(jvm), obj);
-
-  /*
-  int i;
-  for (i = 0; i < cf->fields_count; i++) {
-    char *desc = get_cp_string(cf->constant_pool, fields[i].descriptor_index);
-    printf("%s\n", desc);
-    if (strcmp(desc, "I") == 0) {
-      obj->fields[i].intfield = 0;
-    } else if (strcmp(desc, "J") == 0) {
-      obj->fields[i].longfield = 0;
-    }
-  }
-  */
 }
