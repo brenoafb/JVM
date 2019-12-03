@@ -24,6 +24,7 @@ operation optable[N_OPS] = {
 			    [OP_invokestatic] = invokestatic,
 			    [OP_invokespecial] = invokespecial,
 			    [OP_getstatic] = getstatic,
+			    [OP_putstatic] = putstatic,
 			    [OP_ldc_w] = ldc_w,
 			    [OP_ldc2_w] = ldc2_w,
 	  [OP_dstore] = dstore,
@@ -150,6 +151,7 @@ void init_jvm(JVM *jvm) {
   jvm->jmp = false;
   jvm->ret = false;
   jvm->heap_index = -1;
+  jvm->static_index = -1;
 }
 
 void deinit_jvm(JVM *jvm) {
@@ -832,25 +834,107 @@ void invokespecial(Frame *f, uint32_t a0, uint32_t a1) {
 }
 
 void getstatic(Frame *f, uint32_t a0, uint32_t a1) {
-  /* TODO */
   uint32_t index = (a0 << 8) | a1;
+  JVM *jvm = f->jvm;
   CONSTANT_Fieldref_info fieldref_info = f->cp[index].info.fieldref_info;
   uint16_t class_index = fieldref_info.class_index;
   uint16_t name_and_type_index = fieldref_info.name_and_type_index;
 
-  char *class_name = get_class_name_string(f->cp, class_index);
+  char *classname = get_class_name_string(f->cp, class_index);
   char *name = get_name_and_type_string(f->cp, name_and_type_index, 1);
-  if ((strcmp(class_name, "java/lang/System") == 0)
+  char *type = get_name_and_type_string(f->cp, name_and_type_index, 0);
+
+  #ifdef DEBUG
+  printf("getstatic: classname=%s, name=%s, type=%s\n", classname, name, type);
+  #endif
+
+  if ((strcmp(classname, "java/lang/System") == 0)
       && (strcmp(name, "out") == 0)) {
     /* io operations will be handled by c code */
     /* push a dummy value onto the stack */
     push_stack(f, 0xcc0de);
   } else {
-    /* TODO */
+    Static *st = jvm_get_static(jvm, classname, name);
+
+    assert(st);
+
+    /* TODO: Add remaining types */
+    if (strcmp(type, "I") == 0) {
+      push_stack_int(f, st->value.intfield);
+    } else if (strcmp(type, "J") == 0) {
+      push_stack_long(f, st->value.longfield);
+    } else if (strcmp(type, "F") == 0) {
+      push_stack_float(f, st->value.floatfield);
+    } else if (strcmp(type, "D") == 0) {
+      push_stack_double(f, st->value.doublefield);
+    } else {
+      push_stack_pointer(f, st->value.ptrfield);
+    }
   }
   return;
 }
 
+void putstatic(Frame *f, uint32_t a0, uint32_t a1) {
+  uint32_t index = (a0 << 8) | a1;
+  JVM *jvm = f->jvm;
+  CONSTANT_Fieldref_info fieldref_info = f->cp[index].info.fieldref_info;
+  uint16_t class_index = fieldref_info.class_index;
+  uint16_t name_and_type_index = fieldref_info.name_and_type_index;
+
+  char *classname = get_class_name_string(f->cp, class_index);
+  char *name = get_name_and_type_string(f->cp, name_and_type_index, 1);
+  char *type = get_name_and_type_string(f->cp, name_and_type_index, 0);
+
+  #ifdef DEBUG
+  printf("putstatic: classname=%s, name=%s, type=%s\n", classname, name, type);
+  #endif
+
+  Static *st = jvm_get_static(jvm, classname, name);
+
+  if (!st) {
+    st = jvm_push_static(jvm);
+    st->class = classname;
+    st->name = name;
+    st->type = type;
+  }
+
+  /* TODO: Add remaining types (bool, byte, short, etc) */
+  if (strcmp(type, "I") == 0) {
+    int32_t value = pop_stack_int(f);
+    st->value.intfield = value;
+  } else if (strcmp(type, "J") == 0) {
+    int64_t value = pop_stack_long(f);
+    st->value.longfield = value;
+  } else if (strcmp(type, "F") == 0) {
+    float value = pop_stack_float(f);
+    st->value.floatfield = value;
+  } else if (strcmp(type, "D") == 0) {
+    double value = pop_stack_double(f);
+    st->value.doublefield = value;
+  } else {
+    void *value = pop_stack_pointer(f);
+    st->value.ptrfield = value;
+  }
+
+}
+
+Static *jvm_get_static(JVM *jvm, char *classname, char *name) {
+  int i;
+  for (i = 0; i <= jvm->static_index; i++) {
+    if (strcmp(classname, jvm->statics[i]->class) == 0
+	&& strcmp(name, jvm->statics[i]->name) == 0) {
+      return jvm->statics[i];
+    }
+  }
+  return NULL;
+}
+
+Static *jvm_push_static(JVM *jvm) {
+  Static *s = calloc(sizeof(Static), 1);
+  assert(s);
+  jvm->statics[++(jvm->static_index)] = s;
+  return s;
+}
 
 void ldc_w(Frame *f, uint32_t a0, uint32_t a1) {
   uint16_t index, cp_index;
