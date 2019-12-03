@@ -1621,25 +1621,49 @@ void multianewarray(Frame *f, uint32_t a0, uint32_t a1) {
   }
 
   /* assume 2d array */
+  uint32_t size = 0;
   if (entry->tag == CONSTANT_Class) {
     CONSTANT_Class_info ci = entry->info.class_info;
     uint16_t name_index = ci.name_index;
     char *name = get_cp_string(f->cp, name_index);
-    uint32_t size = 0;
-    if (strcmp(name, "[[I") == 0) {
+    if (strcmp(name, "[[[I") == 0 || strcmp(name, "[[I") == 0) {
       /* int array */
       size = sizeof(int32_t);
-    } else if (strcmp(name, "[[F") == 0) {
+    } else if (strcmp(name, "[[[F") == 0 || strcmp(name, "[[F") == 0) {
       /* float array */
       size = sizeof(float);
     }
 
-    int32_t **ptr = calloc(sizeof(void *), counts[0]);
-    for (i = 0; i < counts[0]; i++) {
-      ptr[i] = calloc(size, counts[1]);
-      jvm_add_to_heap(jvm, ptr[i]);
-    }
-    push_stack_pointer(f, ptr);
-    jvm_add_to_heap(jvm, ptr);
   }
+
+  if (dims == 2) jvm_alloc_array_2d(jvm, counts, size);
+  else if (dims == 3) jvm_alloc_array_3d(jvm, counts, size);
+}
+
+void jvm_alloc_array_2d(JVM *jvm, int32_t counts[], uint32_t size) {
+  Frame *f = jvm_peek_frame(jvm);
+  int32_t **ptr = calloc(sizeof(void *), counts[0]);
+  int32_t i;
+  for (i = 0; i < counts[0]; i++) {
+    ptr[i] = calloc(size, counts[1]);
+    jvm_add_to_heap(jvm, ptr[i]);
+  }
+  push_stack_pointer(f, ptr);
+  jvm_add_to_heap(jvm, ptr);
+}
+
+void jvm_alloc_array_3d(JVM *jvm, int32_t counts[], uint32_t size) {
+  Frame *f = jvm_peek_frame(jvm);
+  int32_t ***ptr = calloc(sizeof(void *), counts[0]);
+  int32_t i, j;
+  for (i = 0; i < counts[0]; i++) {
+    ptr[i] = calloc(sizeof(void *), counts[1]);
+    for (j = 0; j < counts[1]; j++) {
+      ptr[i][j] = calloc(size, counts[2]);
+      jvm_add_to_heap(jvm, ptr[i][j]);
+    }
+    jvm_add_to_heap(jvm, ptr[i]);
+  }
+  push_stack_pointer(f, ptr);
+  jvm_add_to_heap(jvm, ptr);
 }
