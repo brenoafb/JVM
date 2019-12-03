@@ -62,5 +62,4 @@ void read_Double_info(CONSTANT_Double_info *ptr, FILE *fp) {
   CONSTANT_read_verify(Double);
   ptr->high_bytes = read_u4(fp);
   ptr->low_bytes = read_u4(fp);
-  /* TODO That double was read correctly (i.e. as a double) */
 }
