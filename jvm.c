@@ -115,6 +115,15 @@ operation optable[N_OPS] = {
 			    [OP_laload] = laload,
 			    [OP_bastore] = bastore,
 			    [OP_baload] = baload,
+			    [OP_d2f] = d2f,
+			    [OP_d2i] = d2i,
+			    [OP_d2l] = d2l,
+			    [OP_f2d] = f2d,
+			    [OP_f2i] = f2i,
+			    [OP_f2l] = f2l,
+			    [OP_l2d] = l2d,
+			    [OP_l2f] = l2f,
+			    [OP_l2i] = l2i,
 };
 
 int opargs[N_OPS] = {
@@ -1517,4 +1526,59 @@ void baload(Frame *f, uint32_t a0, uint32_t a1) {
 
   memcpy(&value, arrayref + index*sizeof(int8_t), sizeof(int8_t));
   push_stack_byte(f, value);
+}
+
+void d2f(Frame *f, uint32_t a0, uint32_t a1) {
+  double dval = pop_stack_double(f);
+  float fval = dval;
+  push_stack_float(f, fval);
+}
+
+void d2i(Frame *f, uint32_t a0, uint32_t a1) {
+  double dval = pop_stack_double(f);
+  int32_t ival = dval;
+  push_stack_int(f, ival);
+}
+
+
+void d2l(Frame *f, uint32_t a0, uint32_t a1) {
+  double dval = pop_stack_double(f);
+  int64_t lval = dval;
+  push_stack_long(f, lval);
+}
+
+void f2d(Frame *f, uint32_t a0, uint32_t a1) {
+  float fval = pop_stack_float(f);
+  double dval = fval;
+  push_stack_double(f, dval);
+}
+
+void f2i(Frame *f, uint32_t a0, uint32_t a1) {
+  float fval = pop_stack_float(f);
+  int32_t ival = fval;
+  push_stack_int(f, ival);
+}
+
+void f2l(Frame *f, uint32_t a0, uint32_t a1) {
+  float fval = pop_stack_float(f);
+  int64_t lval = fval;
+  push_stack_long(f, lval);
+}
+
+void l2d(Frame *f, uint32_t a0, uint32_t a1) {
+  int64_t lval = pop_stack_long(f);
+  double dval = lval;
+  push_stack_double(f, dval);
+}
+
+void l2f(Frame *f, uint32_t a0, uint32_t a1) {
+  int64_t lval = pop_stack_long(f);
+  float fval = lval;
+  push_stack_float(f, fval);
+}
+
+void l2i(Frame *f, uint32_t a0, uint32_t a1) {
+  int64_t lval = pop_stack_long(f);
+  int32_t ival = lval;
+  push_stack_int(f, ival);
 }
