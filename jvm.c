@@ -1764,7 +1764,19 @@ void getfield(Frame *f, uint32_t a0, uint32_t a1) {
     /* field is int */
     int32_t value = objectref->fields[field_index].intfield;
     push_stack_int(f, value);
-  } /* TODO other field types */
+  } else if (strcmp(field_desc, "J") == 0) {
+    int64_t value = objectref->fields[field_index].longfield;
+    push_stack_long(f, value);
+  } else if (strcmp(field_desc, "D") == 0) {
+    double value = objectref->fields[field_index].doublefield;
+    push_stack_double(f, value);
+  } else if (strcmp(field_desc, "F") == 0) {
+    float value = objectref->fields[field_index].floatfield;
+    push_stack_float(f, value);
+  } else {
+    printf("Unknown field type %s\n", field_desc);
+  }
+
 }
 
 void putfield(Frame *f, uint32_t a0, uint32_t a1) {
@@ -1786,11 +1798,24 @@ void putfield(Frame *f, uint32_t a0, uint32_t a1) {
   char *field_desc = jvm_get_field_descriptor(jvm, classname, fieldname);
 
   if (strcmp(field_desc, "I") == 0) {
-    /* field is int */
     int32_t value = pop_stack_int(f);
     Object *obj = pop_stack_pointer(f);
     obj->fields[field_index].intfield = value;
-  } /* TODO other field types */
+  } else if (strcmp(field_desc, "J") == 0) {
+    int64_t value = pop_stack_long(f);
+    Object *obj = pop_stack_pointer(f);
+    obj->fields[field_index].longfield = value;
+  } else if (strcmp(field_desc, "D") == 0) {
+    double value = pop_stack_double(f);
+    Object *obj = pop_stack_pointer(f);
+    obj->fields[field_index].doublefield = value;
+  } else if (strcmp(field_desc, "F") == 0) {
+    float value = pop_stack_float(f);
+    Object *obj = pop_stack_pointer(f);
+    obj->fields[field_index].floatfield = value;
+  } else {
+    printf("Unknown field type %s\n", field_desc);
+  }
 }
 
 int32_t jvm_get_field_index(JVM *jvm, char *classname, char *fieldname) {
