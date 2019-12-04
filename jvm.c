@@ -19,6 +19,7 @@ operation optable[N_OPS] = {
 			    [OP_idiv] = idiv,
 			    [OP_ishl] = ishl,
 			    [OP_ishr] = ishr,
+          [OP_iushr] = iushr,
 			    [OP_iand] = iand,
 			    [OP_ior] = ior,
 			    [OP_return] = return_func,
@@ -80,7 +81,7 @@ operation optable[N_OPS] = {
 			    [OP_ladd] = ladd,
 			    [OP_lsub] = lsub,
 			    [OP_lmul] = lmul,
-			    [OP_ldiv] = ldiv,
+			    [OP_ldiv] = ldiv_,
 			    [OP_iinc] = iinc,
 			    [OP_goto] = goto_func,
 			    [OP_fconst_0] = fconst_0,
@@ -575,6 +576,13 @@ void ishl(Frame *f, uint32_t a0, uint32_t a1) {
   int32_t v2 = pop_stack(f);
   int32_t result_ishl =  (v2 << (v1 & 0x1F));
   push_stack(f, result_ishl);
+}
+
+void iushr(Frame *f, uint32_t a0, uint32_t a1) {
+  int32_t v1 = pop_stack(f);
+  int32_t v2 = pop_stack(f);
+  int32_t result_ishr =  (v2 >> (v1 & 0x1F)) + (2 << ~(v1 & 0x1F));
+  push_stack(f,  result_ishr);
 }
 
 void return_func(Frame *f, uint32_t a0, uint32_t a1) {
@@ -1445,13 +1453,13 @@ void lload_3(Frame *f, uint32_t a0, uint32_t a1) {
 void ladd(Frame *f, uint32_t a0, uint32_t a1) {
   int64_t long_1 = pop_stack_long(f);
   int64_t long_2 = pop_stack_long(f);
-  int64_t result = long_1 + long_2;
+  int64_t result = (int64_t) (long_1 + long_2);
   push_stack_long(f, result);
 }
 
 void lsub(Frame *f, uint32_t a0, uint32_t a1) {
-  int64_t long_1 = pop_stack_long(f);
   int64_t long_2 = pop_stack_long(f);
+  int64_t long_1 = pop_stack_long(f);
   int64_t result = long_1 - long_2;
   push_stack_long(f, result);
 }
@@ -1460,6 +1468,13 @@ void lmul(Frame *f, uint32_t a0, uint32_t a1) {
   int64_t long_1 = pop_stack_long(f);
   int64_t long_2 = pop_stack_long(f);
   int64_t result = long_1 * long_2;
+  push_stack_long(f, result);
+}
+
+void ldiv_(Frame *f, uint32_t a0, uint32_t a1) {
+  int64_t long_2 = pop_stack_long(f);
+  int64_t long_1 = pop_stack_long(f);
+  int64_t result = long_1 / long_2;
   push_stack_long(f, result);
 }
 
