@@ -4,7 +4,7 @@
 #include "classfile.h"
 #include "jvm.h"
 
-/** \mainpage JVM implementation - 2019/2 - G6
+/** \mainpage JVM - 2019/2 - G6
  *
  * \section intro_sec Introduction
  *
@@ -12,15 +12,27 @@
  *
  * \section install_sec How to execute:
  *
- * \subsection step1 Step 1: Make
+ * \subsection step1 Step 1: Makefile
  *
- * \section students_sec Students
+ * Compile the program using the file Makefile or MakefileWin (depending on your platform)
+ * with the make tool in your command prompt.
  *
- * \subsection name1 Giordano S. Monteiro
- * \subsection name2 Breno
- * \subsection name3 Filipi
- * \subsection name4 Igor Bispo
- * 
+ * \subsection step2 Step 2: Execution
+ *
+ * Run the resulting execute file with ./main.out \['file.class' without the posfix '.class'\] (le/i)
+ * \n where le and i choose if will be displayed the reader and exhibitor (le), the interpreter result (i) or both (no param).
+ *
+ * \section students_sec Information
+ *
+ * \subsection topic1 Students:
+ *  Giordano S. Monteiro - 17/0011160\n
+ *  Filipi Teles da Silva - 12/0117754\n
+ *  Breno A. F. Bortolli - 17/0007014\n
+ *  Igor Bispo de Morais - 17/0050432\n
+ * \subsection topic2 University
+ * Universidade de Brasília
+ * \subsection topic3 Course
+ * Software Básico - 2019/2 - Marcelo Ladeira
  */
 
 int main(int argc, char *argv[]) {
