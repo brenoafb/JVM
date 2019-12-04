@@ -149,55 +149,77 @@ typedef struct {
 
 /**
  * Get data from file and store in a Class_info structure.
+ * @param fp non-null pointer to .class file.
+ * @param ptr non-null pointer to a CONSTANT_Class_info structure that will receive the value.
  */
 void read_Class_info(CONSTANT_Class_info *ptr, FILE *fp);
 
 /**
  * Get data from file and store in a Fieldref_info structure.
+ * @param fp non-null pointer to .class file.
+ * @param ptr non-null pointer to a CONSTANT_Fieldref_info structure that will receive the value.
  */
 void read_Fieldref_info(CONSTANT_Fieldref_info *ptr, FILE *fp);
 
 /**
  * Get data from file and store in a NameAndType_info structure.
+ * @param fp non-null pointer to .class file
+ * @param ptr non-null pointer to a CONSTANT_NameAndType_info structure that will receive the value
  */
 void read_NameAndType_info(CONSTANT_NameAndType_info *ptr, FILE *fp);
 
 /**
  * Get data from file and store in a Utf8_info structure.
+ * @param fp non-null pointer to .class file
+ * @param ptr non-null pointer to a CONSTANT_Utf8_info structure that will receive the value.
  */
 void read_Utf8_info(CONSTANT_Utf8_info *ptr, FILE *fp);
 
 /**
  * Get data from file and store in a Methodref_info structure.
+ * @param fp non-null pointer to .class file
+ * @param ptr non-null pointer to a CONSTANT_Methodref_info structure that will receive the value.
  */
 void read_Methodref_info(CONSTANT_Methodref_info *ptr, FILE *fp);
 
 /**
  * Get data from file and store in a InterfaceMethodref_info structure.
+ * @param fp non-null pointer to .class file
+ * @param ptr non-null pointer to a CONSTANT_InterfaceMethodref_info structure that will receive the value.
  */
 void read_InterfaceMethodref_info(CONSTANT_InterfaceMethodref_info *ptr, FILE *fp);
 
 /**
  * Get data from file and store in a String_info structure.
+ * @param fp non-null pointer to .class file
+ * @param ptr non-null pointer to a CONSTANT_String_info structure that will receive the value.
  */
 void read_String_info(CONSTANT_String_info *ptr, FILE *fp);
 
 /**
  * Get data from file and store in a Integer_info structure.
+ * @param fp non-null pointer to .class file
+ * @param ptr non-null pointer to a CONSTANT_Integer_info structure that will receive the value.
  */
 void read_Integer_info(CONSTANT_Integer_info *ptr, FILE *fp);
 
 /**
  * Get data from file and store in a Float_info structure.
+ * @param fp non-null pointer to .class file
+ * @param ptr non-null pointer to a CONSTANT_Float_info structure that will receive the value.
  */
 void read_Float_info(CONSTANT_Float_info *ptr, FILE *fp);
 
 /**
  * Get data from file and store in a Long_info structure.
+ * @param fp non-null pointer to .class file
+ * @param ptr non-null pointer to a CONSTANT_Long_info structure that will receive the value.
  */
 void read_Long_info(CONSTANT_Long_info *ptr, FILE *fp);
 
 /**
  * Get data from file and store in a Double_info structure.
+ * @param fp non-null pointer to .class file
+ * @param ptr non-null pointer to a CONSTANT_Double_info structure that will receive the value.
  */
 void read_Double_info(CONSTANT_Double_info *ptr, FILE *fp);
