@@ -1,3 +1,11 @@
+/**
+ * @file constant_info.h
+ * @brief Constants definitions
+ * File containing the definitions for each type of constant
+ * and the structures with the information of the .class file main components.
+ *
+ */
+
 #pragma once
 #include <stdint.h>
 #include <stdio.h>
@@ -22,6 +30,11 @@
   assert(ptr);                          \
   assert(fp);                           \
 
+/**
+ * @brief Info of type class.
+ *
+ * Structure that stores specific information about a constant of type Class (id 7)
+ */
 /* id 7 */
 typedef struct {
   uint16_t name_index;
