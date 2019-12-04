@@ -36,7 +36,7 @@ int main(int argc, char *argv[]) {
   else
     class_name ++;
 
-  FILE *fp = fopen(filename, "r");
+  FILE *fp = fopen(filename, "rb");
   if (!fp) {
     printf("Error opening file %s.\n", filename);
     return 1;
