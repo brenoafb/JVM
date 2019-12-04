@@ -336,6 +336,9 @@ void fload_3(Frame *f, uint32_t a0, uint32_t a1);
 void fsub(Frame *f, uint32_t a0, uint32_t a1);
 void fadd(Frame *f, uint32_t a0, uint32_t a1);
 void fdiv(Frame *f, uint32_t a0, uint32_t a1);
+void fmul(Frame *f, uint32_t a0, uint32_t a1);
+void fneg(Frame *f, uint32_t a0, uint32_t a1);
+void frem(Frame *f, uint32_t a0, uint32_t a1);
 
 void ifeq(Frame *f, uint32_t a0, uint32_t a1);
 void ifne(Frame *f, uint32_t a0, uint32_t a1);
@@ -343,6 +346,8 @@ void iflt(Frame *f, uint32_t a0, uint32_t a1);
 void ifge(Frame *f, uint32_t a0, uint32_t a1);
 void ifgt(Frame *f, uint32_t a0, uint32_t a1);
 void ifle(Frame *f, uint32_t a0, uint32_t a1);
+void ifnull(Frame *f, uint32_t a0, uint32_t a1);
+void ifnonnull(Frame *f, uint32_t a0, uint32_t a1);
 
 void i2f(Frame *f, uint32_t a0, uint32_t a1);
 void i2d(Frame *f, uint32_t a0, uint32_t a1);
@@ -355,6 +360,8 @@ void i2s(Frame *f, uint32_t a0, uint32_t a1);
 void sipush(Frame *f, uint32_t a0, uint32_t a1);
 
 int tableswitch(JVM *jvm);
+
+void aconst_null(Frame *f, uint32_t a0, uint32_t a);
 void aload(Frame *f, uint32_t a0, uint32_t a1);
 void aload_0(Frame *f, uint32_t a0, uint32_t a1);
 void aload_1(Frame *f, uint32_t a0, uint32_t a1);

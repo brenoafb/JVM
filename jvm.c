@@ -59,6 +59,8 @@ operation optable[N_OPS] = {
 			    [OP_if_icmpge] = if_icmpge,
 			    [OP_if_icmpgt] = if_icmpgt,
 			    [OP_if_icmple] = if_icmple,
+          [OP_ifnull] = ifnull,
+          [OP_ifnonnull] = ifnonnull,
 			    [OP_lconst_0] = lconst_0,
 			    [OP_lconst_1] = lconst_1,
 			    [OP_lstore] = lstore,
@@ -90,6 +92,9 @@ operation optable[N_OPS] = {
 			    [OP_fsub] = fsub,
 			    [OP_fadd] = fadd,
 			    [OP_fdiv] = fdiv,
+          [OP_fmul] = fmul,
+          [OP_frem] = frem,
+          [OP_fneg] = fneg,
 			    [OP_ifeq] = ifeq,
 			    [OP_ifne] = ifne,
 			    [OP_iflt] = iflt,
@@ -103,6 +108,7 @@ operation optable[N_OPS] = {
 			    [OP_i2l] = i2l,
 			    [OP_i2s] = i2s,
 			    [OP_sipush] = sipush,
+          [OP_aconst_null] = aconst_null,
 			    [OP_aload] = aload,
 			    [OP_aload_0] = aload_0,
 			    [OP_aload_1] = aload_1,
@@ -1500,6 +1506,27 @@ void fdiv(Frame *f, uint32_t a0, uint32_t a1) {
   push_stack_float(f, div);
 }
 
+void fmul(Frame *f, uint32_t a0, uint32_t a1) {
+  float v1 = pop_stack_float(f);
+  float v2 = pop_stack_float(f);
+  float mul = v2 * v1;
+  push_stack_float(f, mul);
+}
+
+void fneg(Frame *f, uint32_t a0, uint32_t a1) {
+  float v1 = pop_stack_float(f);
+  float result = -v1;
+  push_stack_float(f, result);
+}
+
+void frem(Frame *f, uint32_t a0, uint32_t a1) {
+  float v1 = pop_stack_float(f);
+  float v2 = pop_stack_float(f);
+  int q = v2/v1;
+  float result = v2 - (v1 * q);
+  push_stack_float(f, result);
+}
+
 void ifeq(Frame *f, uint32_t a0, uint32_t a1) {
   int16_t branchoffset = (a0 << 8) | a1;
   uint64_t pop = pop_stack(f);
@@ -1557,9 +1584,29 @@ void ifgt(Frame *f, uint32_t a0, uint32_t a1) {
 
 void ifle(Frame *f, uint32_t a0, uint32_t a1) {
   int16_t branchoffset = (a0 << 8) | a1;
-  uint64_t pop = pop_stack(f);
-  int32_t value = (int32_t) ((uint32_t) pop);
+  void* value = pop_stack_pointer(f);
   if (value <= 0) {
+    JVM *jvm = f->jvm;
+    jvm->pc += branchoffset;
+    jvm->jmp = true;
+  }
+}
+
+void ifnonnull(Frame *f, uint32_t a0, uint32_t a1) {
+  int16_t branchoffset = (a0 << 8) | a1;
+  void* value = pop_stack_pointer(f);
+  if (value != NULL) {
+    JVM *jvm = f->jvm;
+    jvm->pc += branchoffset;
+    jvm->jmp = true;
+  }
+}
+
+void ifnull(Frame *f, uint32_t a0, uint32_t a1) {
+  int16_t branchoffset = (a0 << 8) | a1;
+  uint64_t pop = pop_stack(f);
+  void* value = (void*) ((uint32_t) pop);
+  if (value == NULL) {
     JVM *jvm = f->jvm;
     jvm->pc += branchoffset;
     jvm->jmp = true;
@@ -1674,6 +1721,10 @@ int tableswitch(JVM *jvm) {
     printf("\tpc=%d (0x%x)\n", jvm->pc, jvm->pc);
     #endif
     return 1;
+}
+
+void aconst_null (Frame *f, uint32_t a0, uint32_t a1) {
+  push_stack_pointer(f, NULL);
 }
 
 void aload(Frame *f, uint32_t a0, uint32_t a1) {
