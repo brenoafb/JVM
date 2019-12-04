@@ -19,7 +19,7 @@ int main(int argc, char *argv[]) {
 
     if (strcmp(option, "le") && strcmp(option, "i")) {
       printf("\"%s\" is a invalid option\n", option);
-      printf("valid options are \"le\" and \"i\"\n", option);
+      printf("valid options are \"le\" and \"i\"\n");
 
       return 1;
     }

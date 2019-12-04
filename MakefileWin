@@ -8,9 +8,9 @@ MAINSRC = main.c
 %.o: %.c $(DEPS)
 	$(CC) -c -o $@ $< $(CFLAGS)
 
-all: main.out
+all: main.exe
 
-main.out: $(OBJ)
+main.exe: $(OBJ)
 	$(CC) -o $@ $(MAINSRC) $^ $(CFLAGS)
 
 .PHONY: clean

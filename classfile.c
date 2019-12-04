@@ -1,5 +1,5 @@
 #include "classfile.h"
-
+#define DEBUG
 void read_class_file(classfile *cf, FILE *fp) {
   assert(cf);
   assert(fp);
@@ -1048,7 +1048,7 @@ void print_cp_element (cp_info *cp, uint16_t i){
       hi = cp[i].info.double_info.high_bytes;
       lo = cp[i].info.double_info.low_bytes;
 
-      uint64_t conc = ((long) hi << 32) + lo;
+      uint64_t conc = ((uint64_t) hi << 32) + lo;
       double db;
 
       memcpy(&db, &conc, sizeof(double));

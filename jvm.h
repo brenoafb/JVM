@@ -87,6 +87,8 @@ void jvm_set_current_class(JVM *jvm, char *class_name);
  */
 void jvm_set_current_method(JVM *jvm, char *method_name);
 
+void jvm_exec_clinit(JVM *jvm);
+
 /**
  * Set the current class and current method members with index in MethodArea.
  * Assumes that the current class does contain the method required
