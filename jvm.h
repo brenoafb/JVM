@@ -1,3 +1,9 @@
+/**
+ * @file jvm.h
+ * @brief Interpreter
+ * File containing the main implementation of the interpreter.
+ *
+ */
 #pragma once
 
 #include <stdio.h>
@@ -14,31 +20,41 @@
 #define MAXHEAP     256
 #define MAXSTATICS  256
 
+/**
+ * @brief Static attribute.
+ *
+ * Structure to store a static attribute of a class.
+ */
 typedef struct Static {
-  char *class;
-  char *name;
-  char *type;
-  ObjectField value;
+  char *class; /**< Class name */
+  char *name; /**< Attribute name */
+  char *type; /**< Attribute type name */
+  ObjectField value; /**< Attribute value */
 } Static;
 
+/**
+ * @brief Interpreter structure.
+ *
+ * Structure that stores the information utilized by the JVM interpreter and defines it.
+ */
 typedef struct JVM {
-  uint32_t pc;
-  Frame *frames[MAX_FRAMES];
-  int32_t frame_index;    /* top of frame stack index */
+  uint32_t pc; /**< Program counter */
+  Frame *frames[MAX_FRAMES]; /**< Pointer to frame stack */
+  int32_t frame_index;    /**< Top index of frame stack */
   /* uint8_t *heap; */
-  MethodArea *method_area;
+  MethodArea *method_area; /**< Pointer to method area */
   /* NativeMethodArea nma; */
-  int32_t current_class_index;
+  int32_t current_class_index; 
   int32_t current_method_index;
-  bool jmp;
-  bool ret;
-  uint64_t retval;
+  bool jmp; /**< If will ocurr a jump */
+  bool ret; /**< If will return */
+  uint64_t retval; /**< Value that will be returned */
 
-  void *heap[MAXHEAP];
-  int32_t heap_index;
+  void *heap[MAXHEAP]; /**< Pointer to heap area */
+  int32_t heap_index; /**< Top index of heap */
 
-  Static *statics[MAXSTATICS];
-  int32_t static_index;
+  Static *statics[MAXSTATICS]; /**< Pointer to static objects stack*/
+  int32_t static_index; /**< Top index of static stack*/
 } JVM;
 
 /**
@@ -86,6 +102,8 @@ void jvm_set_current_class(JVM *jvm, char *class_name);
  * @param method_name name of the method to be set as current
  */
 void jvm_set_current_method(JVM *jvm, char *method_name);
+
+void jvm_exec_clinit(JVM *jvm);
 
 /**
  * Set the current class and current method members with index in MethodArea.
@@ -214,8 +232,15 @@ void iload_3(Frame *f, uint32_t a0, uint32_t a1);
 
 void isub(Frame *f, uint32_t a0, uint32_t a1);
 void iadd(Frame *f, uint32_t a0, uint32_t a1);
-void imul(Frame *f, uint32_t a0, uint32_t a1);
 void idiv(Frame *f, uint32_t a0, uint32_t a1);
+void imul(Frame *f, uint32_t a0, uint32_t a1);
+void iand(Frame *f, uint32_t a0, uint32_t a1);
+void ior(Frame *f, uint32_t a0, uint32_t a1);
+void ishr(Frame *f, uint32_t a0, uint32_t a1);
+void ishl(Frame *f, uint32_t a0, uint32_t a1);
+void iushr(Frame *f, uint32_t a0, uint32_t a1);
+void irem(Frame *f, uint32_t a0, uint32_t a1);
+void ineg(Frame *f, uint32_t a0, uint32_t a1);
 
 void return_func(Frame *f, uint32_t a0, uint32_t a1);
 void ireturn(Frame *f, uint32_t a0, uint32_t a1);
@@ -310,6 +335,9 @@ void lload_2(Frame *f, uint32_t a0, uint32_t a1);
 void lload_3(Frame *f, uint32_t a0, uint32_t a1);
 
 void ladd(Frame *f, uint32_t a0, uint32_t a1);
+void lsub(Frame *f, uint32_t a0, uint32_t a1);
+void lmul(Frame *f, uint32_t a0, uint32_t a1);
+void ldiv_(Frame *f, uint32_t a0, uint32_t a1);
 
 void iinc(Frame *f, uint32_t a0, uint32_t a1);
 
@@ -334,6 +362,9 @@ void fload_3(Frame *f, uint32_t a0, uint32_t a1);
 void fsub(Frame *f, uint32_t a0, uint32_t a1);
 void fadd(Frame *f, uint32_t a0, uint32_t a1);
 void fdiv(Frame *f, uint32_t a0, uint32_t a1);
+void fmul(Frame *f, uint32_t a0, uint32_t a1);
+void fneg(Frame *f, uint32_t a0, uint32_t a1);
+void frem(Frame *f, uint32_t a0, uint32_t a1);
 
 void ifeq(Frame *f, uint32_t a0, uint32_t a1);
 void ifne(Frame *f, uint32_t a0, uint32_t a1);
@@ -341,6 +372,8 @@ void iflt(Frame *f, uint32_t a0, uint32_t a1);
 void ifge(Frame *f, uint32_t a0, uint32_t a1);
 void ifgt(Frame *f, uint32_t a0, uint32_t a1);
 void ifle(Frame *f, uint32_t a0, uint32_t a1);
+void ifnull(Frame *f, uint32_t a0, uint32_t a1);
+void ifnonnull(Frame *f, uint32_t a0, uint32_t a1);
 
 void i2f(Frame *f, uint32_t a0, uint32_t a1);
 void i2d(Frame *f, uint32_t a0, uint32_t a1);
@@ -353,6 +386,8 @@ void i2s(Frame *f, uint32_t a0, uint32_t a1);
 void sipush(Frame *f, uint32_t a0, uint32_t a1);
 
 int tableswitch(JVM *jvm);
+
+void aconst_null(Frame *f, uint32_t a0, uint32_t a);
 void aload(Frame *f, uint32_t a0, uint32_t a1);
 void aload_0(Frame *f, uint32_t a0, uint32_t a1);
 void aload_1(Frame *f, uint32_t a0, uint32_t a1);

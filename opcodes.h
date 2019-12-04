@@ -1,3 +1,12 @@
+/**
+ * @file opcodes.h
+ * @brief Opcodes informations
+ * File containing the definitions of the numeric values for each opcode, vectors 
+ * containing their number of arguments and their name strings, and the definition of 
+ * array type codes.
+ *
+ */
+
 #pragma once
 #include <stdio.h>
 #include <stdint.h>

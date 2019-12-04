@@ -92,12 +92,12 @@ void populate_ac_flags_inner_classes() {
 }
 
 void deinit_ac_flags() {
-    ac_node* ptr_list[3] = {AC_FLAGS_CLASS, AC_FLAGS_FIELD, AC_FLAGS_METHOD};
+    ac_node* ptr_list[4] = {AC_FLAGS_CLASS, AC_FLAGS_FIELD, AC_FLAGS_METHOD, AC_FLAGS_INNER_CLASSES};
     ac_node* ptr_crawler, *ptr_crawler_next;
 
     int i;
 
-    for(i = 0; i < 3; i += 1){
+    for(i = 0; i < 4; i += 1){
         ptr_crawler = ptr_list[i];
 
         while (ptr_crawler) {

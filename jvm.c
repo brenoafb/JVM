@@ -17,6 +17,13 @@ operation optable[N_OPS] = {
 			    [OP_isub] = isub,
 			    [OP_imul] = imul,
 			    [OP_idiv] = idiv,
+			    [OP_ishl] = ishl,
+			    [OP_ishr] = ishr,
+          [OP_iushr] = iushr,
+			    [OP_iand] = iand,
+			    [OP_ior] = ior,
+          [OP_irem] = irem,
+          [OP_ineg] = ineg,
 			    [OP_return] = return_func,
 			    [OP_ireturn] = ireturn,
 			    [OP_dreturn] = dreturn,
@@ -59,6 +66,8 @@ operation optable[N_OPS] = {
 			    [OP_if_icmpge] = if_icmpge,
 			    [OP_if_icmpgt] = if_icmpgt,
 			    [OP_if_icmple] = if_icmple,
+          [OP_ifnull] = ifnull,
+          [OP_ifnonnull] = ifnonnull,
 			    [OP_lconst_0] = lconst_0,
 			    [OP_lconst_1] = lconst_1,
 			    [OP_lstore] = lstore,
@@ -72,6 +81,9 @@ operation optable[N_OPS] = {
 			    [OP_lload_2] = lload_2,
 			    [OP_lload_3] = lload_3,
 			    [OP_ladd] = ladd,
+			    [OP_lsub] = lsub,
+			    [OP_lmul] = lmul,
+			    [OP_ldiv] = ldiv_,
 			    [OP_iinc] = iinc,
 			    [OP_goto] = goto_func,
 			    [OP_fconst_0] = fconst_0,
@@ -90,6 +102,9 @@ operation optable[N_OPS] = {
 			    [OP_fsub] = fsub,
 			    [OP_fadd] = fadd,
 			    [OP_fdiv] = fdiv,
+          [OP_fmul] = fmul,
+          [OP_frem] = frem,
+          [OP_fneg] = fneg,
 			    [OP_ifeq] = ifeq,
 			    [OP_ifne] = ifne,
 			    [OP_iflt] = iflt,
@@ -103,6 +118,7 @@ operation optable[N_OPS] = {
 			    [OP_i2l] = i2l,
 			    [OP_i2s] = i2s,
 			    [OP_sipush] = sipush,
+          [OP_aconst_null] = aconst_null,
 			    [OP_aload] = aload,
 			    [OP_aload_0] = aload_0,
 			    [OP_aload_1] = aload_1,
@@ -536,6 +552,53 @@ void idiv(Frame *f, uint32_t a0, uint32_t a1) {
   }
 
   push_stack(f, v2/v1);
+}
+
+void iand(Frame *f, uint32_t a0, uint32_t a1) {
+  int32_t v1 = pop_stack(f);
+  int32_t v2 = pop_stack(f);
+  push_stack(f, (v2) & (v1) );
+}
+
+void ior(Frame *f, uint32_t a0, uint32_t a1) {
+  int32_t v1 = pop_stack(f);
+  int32_t v2 = pop_stack(f);
+  push_stack(f, (v2) | (v1));
+}
+
+void ineg(Frame *f, uint32_t a0, uint32_t a1) {
+  int32_t d1 = pop_stack(f);
+  int32_t result = -d1;
+  push_stack(f, result);
+}
+
+void irem(Frame *f, uint32_t a0, uint32_t a1) {
+  int32_t d1 = pop_stack(f);
+  int32_t d2 = pop_stack(f);
+  int q = d2/d1;
+  int32_t result = d2 - (d1 * q);
+  push_stack(f, result);
+}
+
+void ishr(Frame *f, uint32_t a0, uint32_t a1) {
+  int32_t v1 = pop_stack(f);
+  int32_t v2 = pop_stack(f);
+  int32_t result_ishr =  (v2 >> (v1 & 0x1F));
+  push_stack(f,  result_ishr);
+}
+
+void ishl(Frame *f, uint32_t a0, uint32_t a1) {
+  int32_t v1 = pop_stack(f);
+  int32_t v2 = pop_stack(f);
+  int32_t result_ishl =  (v2 << (v1 & 0x1F));
+  push_stack(f, result_ishl);
+}
+
+void iushr(Frame *f, uint32_t a0, uint32_t a1) {
+  int32_t v1 = pop_stack(f);
+  int32_t v2 = pop_stack(f);
+  int32_t result_ishr =  (v2 >> (v1 & 0x1F)) + (2 << ~(v1 & 0x1F));
+  push_stack(f,  result_ishr);
 }
 
 void return_func(Frame *f, uint32_t a0, uint32_t a1) {
@@ -1406,7 +1469,28 @@ void lload_3(Frame *f, uint32_t a0, uint32_t a1) {
 void ladd(Frame *f, uint32_t a0, uint32_t a1) {
   int64_t long_1 = pop_stack_long(f);
   int64_t long_2 = pop_stack_long(f);
-  int64_t result = long_1 + long_2;
+  int64_t result = (int64_t) (long_1 + long_2);
+  push_stack_long(f, result);
+}
+
+void lsub(Frame *f, uint32_t a0, uint32_t a1) {
+  int64_t long_2 = pop_stack_long(f);
+  int64_t long_1 = pop_stack_long(f);
+  int64_t result = long_1 - long_2;
+  push_stack_long(f, result);
+}
+
+void lmul(Frame *f, uint32_t a0, uint32_t a1) {
+  int64_t long_1 = pop_stack_long(f);
+  int64_t long_2 = pop_stack_long(f);
+  int64_t result = long_1 * long_2;
+  push_stack_long(f, result);
+}
+
+void ldiv_(Frame *f, uint32_t a0, uint32_t a1) {
+  int64_t long_2 = pop_stack_long(f);
+  int64_t long_1 = pop_stack_long(f);
+  int64_t result = long_1 / long_2;
   push_stack_long(f, result);
 }
 
@@ -1500,6 +1584,27 @@ void fdiv(Frame *f, uint32_t a0, uint32_t a1) {
   push_stack_float(f, div);
 }
 
+void fmul(Frame *f, uint32_t a0, uint32_t a1) {
+  float v1 = pop_stack_float(f);
+  float v2 = pop_stack_float(f);
+  float mul = v2 * v1;
+  push_stack_float(f, mul);
+}
+
+void fneg(Frame *f, uint32_t a0, uint32_t a1) {
+  float v1 = pop_stack_float(f);
+  float result = -v1;
+  push_stack_float(f, result);
+}
+
+void frem(Frame *f, uint32_t a0, uint32_t a1) {
+  float v1 = pop_stack_float(f);
+  float v2 = pop_stack_float(f);
+  int q = v2/v1;
+  float result = v2 - (v1 * q);
+  push_stack_float(f, result);
+}
+
 void ifeq(Frame *f, uint32_t a0, uint32_t a1) {
   int16_t branchoffset = (a0 << 8) | a1;
   uint64_t pop = pop_stack(f);
@@ -1557,9 +1662,29 @@ void ifgt(Frame *f, uint32_t a0, uint32_t a1) {
 
 void ifle(Frame *f, uint32_t a0, uint32_t a1) {
   int16_t branchoffset = (a0 << 8) | a1;
-  uint64_t pop = pop_stack(f);
-  int32_t value = (int32_t) ((uint32_t) pop);
+  void* value = pop_stack_pointer(f);
   if (value <= 0) {
+    JVM *jvm = f->jvm;
+    jvm->pc += branchoffset;
+    jvm->jmp = true;
+  }
+}
+
+void ifnonnull(Frame *f, uint32_t a0, uint32_t a1) {
+  int16_t branchoffset = (a0 << 8) | a1;
+  void* value = pop_stack_pointer(f);
+  if (value != NULL) {
+    JVM *jvm = f->jvm;
+    jvm->pc += branchoffset;
+    jvm->jmp = true;
+  }
+}
+
+void ifnull(Frame *f, uint32_t a0, uint32_t a1) {
+  int16_t branchoffset = (a0 << 8) | a1;
+  uint64_t pop = pop_stack(f);
+  void* value = (void*) ((uint32_t) pop);
+  if (value == NULL) {
     JVM *jvm = f->jvm;
     jvm->pc += branchoffset;
     jvm->jmp = true;
@@ -1674,6 +1799,10 @@ int tableswitch(JVM *jvm) {
     printf("\tpc=%d (0x%x)\n", jvm->pc, jvm->pc);
     #endif
     return 1;
+}
+
+void aconst_null (Frame *f, uint32_t a0, uint32_t a1) {
+  push_stack_pointer(f, NULL);
 }
 
 void aload(Frame *f, uint32_t a0, uint32_t a1) {

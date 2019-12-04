@@ -22,7 +22,7 @@ void method_area_load_class(MethodArea *ma, char *class_name) {
   strcpy(filename, class_name);
   strcat(filename, ".class");
 
-  FILE *fp = fopen(filename, "r");
+  FILE *fp = fopen(filename, "rb");
   assert(fp);
   classfile *cf = calloc(sizeof(classfile), 1);
   read_class_file(cf, fp);

@@ -4,6 +4,37 @@
 #include "classfile.h"
 #include "jvm.h"
 
+/** \mainpage JVM - 2019/2 - G6
+ *
+ * \section intro_sec Introduction
+ *
+ * This is the introduction.
+ *
+ * \section install_sec How to execute:
+ *
+ * \subsection step1 Step 1: Makefile
+ *
+ * Compile the program using the file Makefile or MakefileWin (depending on your platform)
+ * with the make tool in your command prompt.
+ *
+ * \subsection step2 Step 2: Execution
+ *
+ * Run the resulting execute file with ./main.out \['file.class' without the posfix '.class'\] (le/i)
+ * \n where le and i choose if will be displayed the reader and exhibitor (le), the interpreter result (i) or both (no param).
+ *
+ * \section students_sec Information
+ *
+ * \subsection topic1 Students:
+ *  Giordano S. Monteiro - 17/0011160\n
+ *  Filipi Teles da Silva - 12/0117754\n
+ *  Breno A. F. Bortolli - 17/0007014\n
+ *  Igor Bispo de Morais - 17/0050432\n
+ * \subsection topic2 University
+ * Universidade de Brasília
+ * \subsection topic3 Course
+ * Software Básico - 2019/2 - Marcelo Ladeira
+ */
+
 int main(int argc, char *argv[]) {
   if (argc != 2 && argc != 3) {
     printf("Usage: %s [class file] [i/le]\n", argv[0]);
@@ -19,7 +50,7 @@ int main(int argc, char *argv[]) {
 
     if (strcmp(option, "le") && strcmp(option, "i")) {
       printf("\"%s\" is a invalid option\n", option);
-      printf("valid options are \"le\" and \"i\"\n", option);
+      printf("valid options are \"le\" and \"i\"\n");
 
       return 1;
     }
@@ -36,7 +67,7 @@ int main(int argc, char *argv[]) {
   else
     class_name ++;
 
-  FILE *fp = fopen(filename, "r");
+  FILE *fp = fopen(filename, "rb");
   if (!fp) {
     printf("Error opening file %s.\n", filename);
     return 1;

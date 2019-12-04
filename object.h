@@ -1,7 +1,18 @@
+/**
+ * @file object.h
+ * @brief Object definitions
+ * File containing the definitions necessary to create a object.
+ *
+ */
 #pragma once
 
 #include <stdint.h>
 
+/**
+ * @brief Field or Attribute of an Object.
+ *
+ * Union to store generically attributes values.
+ */
 typedef union {
   uint8_t boolfield;
   int8_t bytefield;
@@ -14,7 +25,12 @@ typedef union {
   void *ptrfield;
 } ObjectField;
 
+/**
+ * @brief Object.
+ *
+ * Structure to store a object from a class.
+ */
 typedef struct Object {
   int size;
-  ObjectField *fields;
+  ObjectField *fields; /**<Attributes */
 } Object;
