@@ -1,5 +1,5 @@
 #include "classfile.h"
-#define DEBUG
+
 void read_class_file(classfile *cf, FILE *fp) {
   assert(cf);
   assert(fp);
