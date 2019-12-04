@@ -17,6 +17,10 @@ operation optable[N_OPS] = {
 			    [OP_isub] = isub,
 			    [OP_imul] = imul,
 			    [OP_idiv] = idiv,
+			    [OP_ishl] = ishl,
+			    [OP_ishr] = ishr,
+			    [OP_iand] = iand,
+			    [OP_ior] = ior,
 			    [OP_return] = return_func,
 			    [OP_ireturn] = ireturn,
 			    [OP_dreturn] = dreturn,
@@ -74,6 +78,9 @@ operation optable[N_OPS] = {
 			    [OP_lload_2] = lload_2,
 			    [OP_lload_3] = lload_3,
 			    [OP_ladd] = ladd,
+			    [OP_lsub] = lsub,
+			    [OP_lmul] = lmul,
+			    [OP_ldiv] = ldiv,
 			    [OP_iinc] = iinc,
 			    [OP_goto] = goto_func,
 			    [OP_fconst_0] = fconst_0,
@@ -542,6 +549,32 @@ void idiv(Frame *f, uint32_t a0, uint32_t a1) {
   }
 
   push_stack(f, v2/v1);
+}
+
+void iand(Frame *f, uint32_t a0, uint32_t a1) {
+  int32_t v1 = pop_stack(f);
+  int32_t v2 = pop_stack(f);
+  push_stack(f, (v2) & (v1) );
+}
+
+void ior(Frame *f, uint32_t a0, uint32_t a1) {
+  int32_t v1 = pop_stack(f);
+  int32_t v2 = pop_stack(f);
+  push_stack(f, (v2) | (v1));
+}
+
+void ishr(Frame *f, uint32_t a0, uint32_t a1) {
+  int32_t v1 = pop_stack(f);
+  int32_t v2 = pop_stack(f);
+  int32_t result_ishr =  (v2 >> (v1 & 0x1F));
+  push_stack(f,  result_ishr);
+}
+
+void ishl(Frame *f, uint32_t a0, uint32_t a1) {
+  int32_t v1 = pop_stack(f);
+  int32_t v2 = pop_stack(f);
+  int32_t result_ishl =  (v2 << (v1 & 0x1F));
+  push_stack(f, result_ishl);
 }
 
 void return_func(Frame *f, uint32_t a0, uint32_t a1) {
@@ -1413,6 +1446,20 @@ void ladd(Frame *f, uint32_t a0, uint32_t a1) {
   int64_t long_1 = pop_stack_long(f);
   int64_t long_2 = pop_stack_long(f);
   int64_t result = long_1 + long_2;
+  push_stack_long(f, result);
+}
+
+void lsub(Frame *f, uint32_t a0, uint32_t a1) {
+  int64_t long_1 = pop_stack_long(f);
+  int64_t long_2 = pop_stack_long(f);
+  int64_t result = long_1 - long_2;
+  push_stack_long(f, result);
+}
+
+void lmul(Frame *f, uint32_t a0, uint32_t a1) {
+  int64_t long_1 = pop_stack_long(f);
+  int64_t long_2 = pop_stack_long(f);
+  int64_t result = long_1 * long_2;
   push_stack_long(f, result);
 }
 

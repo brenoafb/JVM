@@ -216,8 +216,12 @@ void iload_3(Frame *f, uint32_t a0, uint32_t a1);
 
 void isub(Frame *f, uint32_t a0, uint32_t a1);
 void iadd(Frame *f, uint32_t a0, uint32_t a1);
-void imul(Frame *f, uint32_t a0, uint32_t a1);
 void idiv(Frame *f, uint32_t a0, uint32_t a1);
+void imul(Frame *f, uint32_t a0, uint32_t a1);
+void iand(Frame *f, uint32_t a0, uint32_t a1);
+void ior(Frame *f, uint32_t a0, uint32_t a1);
+void ishr(Frame *f, uint32_t a0, uint32_t a1);
+void ishl(Frame *f, uint32_t a0, uint32_t a1);
 
 void return_func(Frame *f, uint32_t a0, uint32_t a1);
 void ireturn(Frame *f, uint32_t a0, uint32_t a1);
@@ -312,6 +316,8 @@ void lload_2(Frame *f, uint32_t a0, uint32_t a1);
 void lload_3(Frame *f, uint32_t a0, uint32_t a1);
 
 void ladd(Frame *f, uint32_t a0, uint32_t a1);
+void lsub(Frame *f, uint32_t a0, uint32_t a1);
+void lmul(Frame *f, uint32_t a0, uint32_t a1);
 
 void iinc(Frame *f, uint32_t a0, uint32_t a1);
 
