@@ -1,3 +1,10 @@
+/**
+ * @file utils.h
+ * @brief Utils functions
+ * File containing functions that help reading the archive .class.
+ *
+ */
+
 #pragma once
 #include <stdint.h>
 #include <stdio.h>

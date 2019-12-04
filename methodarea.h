@@ -1,3 +1,11 @@
+/**
+ * @file methodarea.h
+ * @brief Method Area functions
+ * File containing functions that initialize and free the method area, load classes into it,
+ * and realize consult operations.
+ *
+ */
+
 #pragma once
 
 #include <stdio.h>

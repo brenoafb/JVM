@@ -1,3 +1,13 @@
+/**
+ * @file classfile.h
+ * @brief Leitor / Exibidor
+ * File containing the definition of a classfile, structure created from the data 
+ * read from a .class file, and functions with the purpose of reading from the file (read), 
+ * display the classfile created (print), retrieve of values from a created constant pool (get),
+ * and free the memory allocated at the end of the programs execution.
+ *
+ */
+
 #pragma once
 #include <stdio.h>
 #include <stdint.h>
