@@ -21,7 +21,7 @@
             "type": "cppdbg",
             "request": "launch",
             "program": "${workspaceFolder}/main.out",
-            "args": [],
+            "args": ["JavaExceptionExample"],
             "stopAtEntry": false,
             "cwd": "${workspaceFolder}",
             "environment": [],

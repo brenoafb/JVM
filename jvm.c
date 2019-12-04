@@ -15,6 +15,8 @@ operation optable[N_OPS] = {
 			    [OP_iload_3] = iload_3,
 			    [OP_iadd] = iadd,
 			    [OP_isub] = isub,
+			    [OP_imul] = imul,
+			    [OP_idiv] = idiv,
 			    [OP_return] = return_func,
 			    [OP_ireturn] = ireturn,
 			    [OP_dreturn] = dreturn,
@@ -139,6 +141,7 @@ operation optable[N_OPS] = {
 			    [OP_new] = new,
 			    [OP_getfield] = getfield,
 			    [OP_putfield] = putfield,
+          [OP_athrow] = athrow
 };
 
 void init_jvm(JVM *jvm) {
@@ -516,6 +519,23 @@ void isub(Frame *f, uint32_t a0, uint32_t a1) {
   int32_t v1 = pop_stack(f);
   int32_t v2 = pop_stack(f);
   push_stack(f, v2 - v1);
+}
+
+void imul(Frame *f, uint32_t a0, uint32_t a1) {
+  int32_t v1 = pop_stack(f);
+  int32_t v2 = pop_stack(f);
+  push_stack(f, v1 * v2);
+}
+void idiv(Frame *f, uint32_t a0, uint32_t a1) {
+  int32_t v1 = pop_stack(f);
+  int32_t v2 = pop_stack(f);
+
+  if (v1 == 0) {
+    printf("ArithmeticException: Can't be divided by Zero\n");
+    exit(1);
+  }
+
+  push_stack(f, v2/v1);
 }
 
 void return_func(Frame *f, uint32_t a0, uint32_t a1) {
@@ -1984,6 +2004,20 @@ void new(Frame *f, uint32_t a0, uint32_t a1) {
   char *name = get_cp_string(f->cp, ci->name_index);
   jvm_load_class(f->jvm, name);
   jvm_alloc_object(f->jvm, name);
+}
+
+void athrow(Frame *f, uint32_t a0, uint32_t a1) {
+  uint64_t objref = pop_stack(f);
+
+  if (!objref) {
+    printf("NullPointerException\n");
+    exit(1);
+  }
+
+  else {
+    printf("UnimplementedException\n");
+    exit(1);
+  }
 }
 
 void getfield(Frame *f, uint32_t a0, uint32_t a1) {
