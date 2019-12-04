@@ -22,6 +22,8 @@ operation optable[N_OPS] = {
           [OP_iushr] = iushr,
 			    [OP_iand] = iand,
 			    [OP_ior] = ior,
+          [OP_irem] = irem,
+          [OP_ineg] = ineg,
 			    [OP_return] = return_func,
 			    [OP_ireturn] = ireturn,
 			    [OP_dreturn] = dreturn,
@@ -562,6 +564,20 @@ void ior(Frame *f, uint32_t a0, uint32_t a1) {
   int32_t v1 = pop_stack(f);
   int32_t v2 = pop_stack(f);
   push_stack(f, (v2) | (v1));
+}
+
+void ineg(Frame *f, uint32_t a0, uint32_t a1) {
+  int32_t d1 = pop_stack(f);
+  int32_t result = -d1;
+  push_stack(f, result);
+}
+
+void irem(Frame *f, uint32_t a0, uint32_t a1) {
+  int32_t d1 = pop_stack(f);
+  int32_t d2 = pop_stack(f);
+  int q = d2/d1;
+  int32_t result = d2 - (d1 * q);
+  push_stack(f, result);
 }
 
 void ishr(Frame *f, uint32_t a0, uint32_t a1) {

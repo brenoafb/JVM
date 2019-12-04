@@ -223,6 +223,8 @@ void ior(Frame *f, uint32_t a0, uint32_t a1);
 void ishr(Frame *f, uint32_t a0, uint32_t a1);
 void ishl(Frame *f, uint32_t a0, uint32_t a1);
 void iushr(Frame *f, uint32_t a0, uint32_t a1);
+void irem(Frame *f, uint32_t a0, uint32_t a1);
+void ineg(Frame *f, uint32_t a0, uint32_t a1);
 
 void return_func(Frame *f, uint32_t a0, uint32_t a1);
 void ireturn(Frame *f, uint32_t a0, uint32_t a1);
