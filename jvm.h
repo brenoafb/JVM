@@ -1,3 +1,9 @@
+/**
+ * @file jvm.h
+ * @brief Interpreter
+ * File containing the main implementation of the interpreter.
+ *
+ */
 #pragma once
 
 #include <stdio.h>
@@ -14,31 +20,41 @@
 #define MAXHEAP     256
 #define MAXSTATICS  256
 
+/**
+ * @brief Static attribute.
+ *
+ * Structure to store a static attribute of a class.
+ */
 typedef struct Static {
-  char *class;
-  char *name;
-  char *type;
-  ObjectField value;
+  char *class; /**< Class name */
+  char *name; /**< Attribute name */
+  char *type; /**< Attribute type name */
+  ObjectField value; /**< Attribute value */
 } Static;
 
+/**
+ * @brief Interpreter structure.
+ *
+ * Structure that stores the information utilized by the JVM interpreter and defines it.
+ */
 typedef struct JVM {
-  uint32_t pc;
-  Frame *frames[MAX_FRAMES];
-  int32_t frame_index;    /* top of frame stack index */
+  uint32_t pc; /**< Program counter */
+  Frame *frames[MAX_FRAMES]; /**< Pointer to frame stack */
+  int32_t frame_index;    /**< Top index of frame stack */
   /* uint8_t *heap; */
-  MethodArea *method_area;
+  MethodArea *method_area; /**< Pointer to method area */
   /* NativeMethodArea nma; */
-  int32_t current_class_index;
+  int32_t current_class_index; 
   int32_t current_method_index;
-  bool jmp;
-  bool ret;
-  uint64_t retval;
+  bool jmp; /**< If will ocurr a jump */
+  bool ret; /**< If will return */
+  uint64_t retval; /**< Value that will be returned */
 
-  void *heap[MAXHEAP];
-  int32_t heap_index;
+  void *heap[MAXHEAP]; /**< Pointer to heap area */
+  int32_t heap_index; /**< Top index of heap */
 
-  Static *statics[MAXSTATICS];
-  int32_t static_index;
+  Static *statics[MAXSTATICS]; /**< Pointer to static objects stack*/
+  int32_t static_index; /**< Top index of static stack*/
 } JVM;
 
 /**

@@ -4,6 +4,25 @@
 #include "classfile.h"
 #include "jvm.h"
 
+/** \mainpage JVM implementation - 2019/2 - G6
+ *
+ * \section intro_sec Introduction
+ *
+ * This is the introduction.
+ *
+ * \section install_sec How to execute:
+ *
+ * \subsection step1 Step 1: Make
+ *
+ * \section students_sec Students
+ *
+ * \subsection name1 Giordano S. Monteiro
+ * \subsection name2 Breno
+ * \subsection name3 Filipi
+ * \subsection name4 Igor Bispo
+ * 
+ */
+
 int main(int argc, char *argv[]) {
   if (argc != 2 && argc != 3) {
     printf("Usage: %s [class file] [i/le]\n", argv[0]);
