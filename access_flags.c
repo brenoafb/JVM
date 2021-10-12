@@ -1,5 +1,10 @@
 #include "access_flags.h"
 
+ac_node* AC_FLAGS_CLASS;
+ac_node* AC_FLAGS_FIELD;
+ac_node* AC_FLAGS_METHOD;
+ac_node* AC_FLAGS_INNER_CLASSES;
+
 char** get_flags_name(ac_node* ac_list, uint32_t code) {
     char** flags_name = malloc(sizeof(char*) * MAX_FLAGS);
     int i = 0;
@@ -12,7 +17,7 @@ char** get_flags_name(ac_node* ac_list, uint32_t code) {
 
         ac_list = ac_list->next;
     }
-    
+
     return flags_name;
 }
 
@@ -51,7 +56,7 @@ void print_flags(ac_node* ac_list, uint32_t code){
         ac_list = ac_list->next;
     }
 
-    printf("\n");    
+    printf("\n");
 }
 
 void populate_ac_flags_class() {
@@ -105,6 +110,6 @@ void deinit_ac_flags() {
             free(ptr_crawler);
             ptr_crawler = ptr_crawler_next;
         }
-    }    
+    }
 
 }

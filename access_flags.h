@@ -35,22 +35,22 @@ struct ac_node {
 /**
  * Possible flags of a class
  */
-ac_node* AC_FLAGS_CLASS;
+extern ac_node* AC_FLAGS_CLASS;
 
 /**
  * Possible flags of a field
  */
-ac_node* AC_FLAGS_FIELD;
+extern ac_node* AC_FLAGS_FIELD;
 
 /**
  * Possible flags of a method
  */
-ac_node* AC_FLAGS_METHOD;
+extern ac_node* AC_FLAGS_METHOD;
 
 /**
  * Possible flags of inner_classes
  */
-ac_node* AC_FLAGS_INNER_CLASSES;
+extern ac_node* AC_FLAGS_INNER_CLASSES;
 
 /**
  * Returns a pointer to a string containing the name of the flag code.
@@ -61,8 +61,8 @@ char** get_flags_name(ac_node* ac_list, uint32_t code);
 
 /**
  * Add a new node with a new flag to a list.
- * @param ac_list ponteiro para lista de flags.
- * @param code numebr code of the flag.
+ * @param ac_list pointer to the flag list.
+ * @param code number code of the flag.
  * @param name string with the name of the flag.
  */
 void add_flag(ac_node** ac_list, uint32_t code, char* name);
@@ -72,7 +72,7 @@ void populate_ac_flags_inner_classes();
 
 /**
  * Print flag name
- * @param ac_list lista de flags.
+ * @param ac_list flag list.
  * @param code number code of the flag.
  */
 void print_flags(ac_node* ac_list, uint32_t code);
